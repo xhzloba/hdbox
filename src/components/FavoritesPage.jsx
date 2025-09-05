@@ -37,6 +37,8 @@ const FavoritesPage = () => {
   const [selectedCountry, setSelectedCountry] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('')
   const [showClearDialog, setShowClearDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [movieToDelete, setMovieToDelete] = useState(null)
   const [isTabsLocked, setIsTabsLocked] = useState(true)
   const [tabsOrder, setTabsOrder] = useState([])
   const [isTabsCollapsed, setIsTabsCollapsed] = useState(false)
@@ -51,7 +53,16 @@ const FavoritesPage = () => {
 
   const handleRemoveFromFavorites = (movieId, e) => {
     e.stopPropagation()
-    removeFromFavorites(movieId)
+    setMovieToDelete(movieId)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmRemoveFromFavorites = () => {
+    if (movieToDelete) {
+      removeFromFavorites(movieToDelete)
+      setMovieToDelete(null)
+    }
+    setShowDeleteDialog(false)
   }
 
   const handleClearAll = () => {
@@ -515,7 +526,7 @@ const FavoritesPage = () => {
         </div>
       )}
       
-      {/* Alert Dialog для подтверждения удаления */}
+      {/* Alert Dialog для подтверждения удаления всех */}
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -528,6 +539,24 @@ const FavoritesPage = () => {
             <AlertDialogCancel>Отмена</AlertDialogCancel>
             <AlertDialogAction onClick={handleClearAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/80">
               Удалить все
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Alert Dialog для подтверждения удаления отдельного элемента */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить из избранного</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить этот элемент из избранного?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveFromFavorites} className="bg-destructive text-destructive-foreground hover:bg-destructive/80">
+              Удалить
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
