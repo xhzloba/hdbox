@@ -146,7 +146,7 @@ const FavoritesPage = () => {
 
   if (favorites.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4 md:p-6">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 lg:px-12 py-8">
         <Heart className="w-16 h-16 text-muted-foreground mb-4" />
         <h2 className="text-2xl font-bold text-foreground mb-2">Избранное пусто</h2>
         <p className="text-muted-foreground max-w-md">
@@ -157,17 +157,7 @@ const FavoritesPage = () => {
   }
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Heart className="w-6 h-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">
-            Избранное ({getFavoritesCount()})
-          </h1>
-        </div>
-        
-
-      </div>
+    <div className="px-6 lg:px-12 py-8">
 
       {/* Табы фильтрации */}
       <div className="mb-6">
