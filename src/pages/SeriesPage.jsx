@@ -28,6 +28,7 @@ const SeriesPage = () => {
   const [selectedAdultSeries, setSelectedAdultSeries] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [compilationCounts, setCompilationCounts] = useState({});
 
   const tabs = [
     {
@@ -59,13 +60,53 @@ const SeriesPage = () => {
       id: "hbo-max",
       title: "HBO Max",
       url: "https://api.vokino.tv/v2/compilations/content/65a982c3c9e4458dd2558651",
-      isCollection: true,
+      isCompilation: true,
+    },
+    {
+      id: "kion",
+      title: "KION",
+      url: "https://api.vokino.tv/v2/compilations/content/65a9567148ed1afd744a552f",
+      isCompilation: true,
+    },
+    {
+      id: "fox",
+      title: "FOX",
+      url: "https://api.vokino.tv/v2/compilations/content/65aaaf32ce9f3661fe41dcfa",
+      isCompilation: true,
     },
   ];
+  // Функция для удаления дубликатов сериалов по ID
+
+  // Предварительная загрузка счетчиков подборок при инициализации
+  useEffect(() => {
+    const loadCompilationCounts = async () => {
+      const compilationTabs = tabs.filter(tab => tab.isCompilation);
+      
+      const countPromises = compilationTabs.map(async (tab) => {
+        try {
+          const response = await fetch(tab.url);
+          const data = await response.json();
+          return { id: tab.id, count: data.channels ? data.channels.length : 0 };
+        } catch (error) {
+          console.error(`Error loading count for ${tab.title}:`, error);
+          return { id: tab.id, count: 0 };
+        }
+      });
+      
+      const results = await Promise.all(countPromises);
+      const counts = {};
+      results.forEach(result => {
+        counts[result.id] = result.count;
+      });
+      
+      setCompilationCounts(counts);
+    };
+    
+    loadCompilationCounts();
+  }, []); // Выполняется только при монтировании компонента
+
 
   const allTabs = tabs;
-
-  // Функция для удаления дубликатов сериалов по ID
   const removeDuplicates = useCallback((existingSeries, newSeries) => {
     const existingIds = new Set(
       existingSeries.map((series) => series.details.id)
@@ -91,14 +132,16 @@ const SeriesPage = () => {
         const tab = tabs.find((t) => t.id === tabId);
         let allSeries = [];
 
-        if (tab.isCollection) {
+        if (tab.isCompilation) {
           // Для подборок загружаем данные напрямую без пагинации
           const response = await fetch(tab.url);
+    
           const data = await response.json();
-          console.log("Collection API Response:", data);
-
+        
           if (data.channels && data.channels.length > 0) {
+    
             setSeries(data.channels);
+            setCompilationCounts(prev => ({ ...prev, [tab.id]: data.channels.length }));
             setHasMore(false); // Подборки не имеют пагинации
           } else {
             setSeries([]);
@@ -193,7 +236,7 @@ const SeriesPage = () => {
   const handleScroll = useCallback(() => {
     // Проверяем, является ли текущий таб подборкой
     const currentTab = tabs.find((t) => t.id === activeTab);
-    if (currentTab?.isCollection) {
+    if (currentTab?.isCompilation) {
       return; // Подборки не поддерживают пагинацию
     }
 
@@ -365,13 +408,18 @@ const SeriesPage = () => {
                   activeTab === tab.id
                     ? isKidsMode
                       ? "bg-pink-500 text-white shadow-sm"
-                      : tab.id === "hbo-max"
-                      ? "bg-background text-foreground shadow-sm shadow-blue-400/50 ring-2 ring-blue-400/30"
+                      : tab.id === "hbo-max" || tab.id === "kion" || tab.id === "fox"
+                      ? "bg-background text-foreground shadow-blue-400/50 ring-2 ring-blue-400/30"
                       : "bg-background text-foreground shadow-sm"
                     : "hover:bg-background/50 hover:text-foreground"
                 }`}
               >
                 {tab.title}
+                {tab.isCompilation && compilationCounts[tab.id] && (
+                  <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center bg-primary/20 text-primary">
+                    {compilationCounts[tab.id]}
+                  </span>
+                )}
               </button>
             );
           })}
