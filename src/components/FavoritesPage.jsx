@@ -1,9 +1,24 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useFavorites } from '../contexts/FavoritesContext'
 import MovieCard from '../components/MovieCard'
-import { Heart, Trash2 } from 'lucide-react'
+import DraggableTab from '../components/DraggableTab'
+import { Heart, Trash2, Lock, Unlock, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +37,17 @@ const FavoritesPage = () => {
   const [selectedCountry, setSelectedCountry] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('')
   const [showClearDialog, setShowClearDialog] = useState(false)
+  const [isTabsLocked, setIsTabsLocked] = useState(true)
+  const [tabsOrder, setTabsOrder] = useState([])
+  const [isTabsCollapsed, setIsTabsCollapsed] = useState(false)
+
+  // Sensors для drag & drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const handleRemoveFromFavorites = (movieId, e) => {
     e.stopPropagation()
@@ -134,7 +160,8 @@ const FavoritesPage = () => {
 
   const filteredFavorites = getFilteredFavorites()
 
-  const tabs = [
+  // Базовые табы
+  const baseTabs = [
     { id: 'all', label: 'Все', count: favorites.length },
     { id: 'movies', label: 'Фильмы', count: favorites.filter(item => item.type === 'movie').length },
     { id: 'series', label: 'Сериалы', count: favorites.filter(item => item.type === 'tv' || item.type === 'serial').length },
@@ -143,6 +170,95 @@ const FavoritesPage = () => {
     { id: 'countries', label: 'По странам', count: getUniqueCountries().length },
     { id: 'genres', label: 'По жанрам', count: getUniqueGenres().length },
   ]
+
+  // Инициализация порядка табов (исключаем 'all')
+  useEffect(() => {
+    const savedOrder = localStorage.getItem('favoritesTabsOrder')
+    if (savedOrder) {
+      try {
+        const parsedOrder = JSON.parse(savedOrder)
+        // Фильтруем 'all' из сохраненного порядка
+        const filteredOrder = parsedOrder.filter(id => id !== 'all')
+        setTabsOrder(filteredOrder)
+      } catch (error) {
+        console.error('Ошибка при загрузке порядка табов:', error)
+        setTabsOrder(baseTabs.filter(tab => tab.id !== 'all').map(tab => tab.id))
+      }
+    } else {
+      setTabsOrder(baseTabs.filter(tab => tab.id !== 'all').map(tab => tab.id))
+    }
+  }, [])
+
+  // Получение табов в правильном порядке
+  const getOrderedTabs = () => {
+    const allTab = baseTabs.find(tab => tab.id === 'all')
+    const otherTabs = baseTabs.filter(tab => tab.id !== 'all')
+    
+    if (tabsOrder.length === 0) {
+      return allTab ? [allTab, ...otherTabs] : otherTabs
+    }
+    
+    const orderedTabs = []
+    
+    // Добавляем таб "Все" первым
+    if (allTab) {
+      orderedTabs.push(allTab)
+    }
+    
+    // Добавляем остальные табы в сохраненном порядке
+    tabsOrder.forEach(tabId => {
+      const tab = otherTabs.find(t => t.id === tabId)
+      if (tab) orderedTabs.push(tab)
+    })
+    
+    // Добавляем новые табы, которых нет в сохраненном порядке
+    otherTabs.forEach(tab => {
+      if (!tabsOrder.includes(tab.id)) {
+        orderedTabs.push(tab)
+      }
+    })
+    
+    return orderedTabs
+  }
+
+  const tabs = getOrderedTabs()
+
+  // Обработчик завершения drag & drop
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+
+    if (active.id !== over?.id && !isTabsLocked) {
+      // Проверяем, что оба элемента не являются табом "Все"
+      if (active.id !== 'all' && over?.id !== 'all') {
+        const oldIndex = tabsOrder.indexOf(active.id)
+        const newIndex = tabsOrder.indexOf(over.id)
+        
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const newOrder = arrayMove(tabsOrder, oldIndex, newIndex)
+          setTabsOrder(newOrder)
+          
+          // Сохраняем в localStorage
+          localStorage.setItem('favoritesTabsOrder', JSON.stringify(newOrder))
+        }
+      }
+    }
+  }
+
+  // Переключение блокировки табов
+  const toggleTabsLock = () => {
+    const newLockedState = !isTabsLocked
+    setIsTabsLocked(newLockedState)
+    
+    // Если разблокируем табы, автоматически разворачиваем их
+    if (!newLockedState && isTabsCollapsed) {
+      setIsTabsCollapsed(false)
+    }
+  }
+  
+  // Переключение сворачивания табов
+  const toggleTabsCollapse = () => {
+    setIsTabsCollapsed(!isTabsCollapsed)
+  }
 
   if (favorites.length === 0) {
     return (
@@ -161,58 +277,133 @@ const FavoritesPage = () => {
 
       {/* Табы фильтрации */}
       <div className="mb-6">
-        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
-          {tabs.map((tab) => (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
+            {/* Таб "Все" - не перетаскиваемый */}
+            {(() => {
+              const allTab = tabs.find(tab => tab.id === 'all')
+              if (!allTab) return null
+              return (
+                <button
+                  onClick={() => {
+                    setActiveTab('all')
+                    setSelectedCountry('')
+                    setSelectedGenre('')
+                  }}
+                  className={`
+                    px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
+                    flex items-center gap-2
+                    ${
+                      activeTab === 'all'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                    }
+                  `}
+                >
+                  <span>{allTab.label}</span>
+                  {allTab.count > 0 && (
+                    <span className={`
+                      text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center
+                      ${
+                        activeTab === 'all'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted-foreground/20 text-muted-foreground'
+                      }
+                    `}>
+                      {allTab.count}
+                    </span>
+                  )}
+                </button>
+              )
+            })()}
+            
+            {/* Перетаскиваемые табы */}
+            <SortableContext items={tabsOrder.filter(id => id !== 'all')} strategy={horizontalListSortingStrategy}>
+              {tabs.filter(tab => tab.id !== 'all')
+                .slice(0, isTabsCollapsed ? 2 : undefined) // В свернутом состоянии показываем только первые 2 таба (+ "Все" = 3 всего)
+                .map((tab) => (
+                <DraggableTab
+                  key={tab.id}
+                  tab={tab}
+                  activeTab={activeTab}
+                  isLocked={isTabsLocked}
+                  onTabClick={() => {
+                    setActiveTab(tab.id)
+                    // Сбрасываем выбранную страну и жанр при смене таба
+                    if (tab.id !== 'countries') {
+                      setSelectedCountry('')
+                    }
+                    if (tab.id !== 'genres') {
+                      setSelectedGenre('')
+                    }
+                  }}
+                >
+                  <span>{tab.label}</span>
+                  {tab.count > 0 && (
+                    <span className={`
+                      text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center
+                      ${
+                        activeTab === tab.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted-foreground/20 text-muted-foreground'
+                      }
+                    `}>
+                      {tab.count}
+                    </span>
+                  )}
+                </DraggableTab>
+              ))}
+            </SortableContext>
+            
+            {/* Кнопка сворачивания/разворачивания */}
             <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id)
-                // Сбрасываем выбранную страну и жанр при смене таба
-                if (tab.id !== 'countries') {
-                  setSelectedCountry('')
-                }
-                if (tab.id !== 'genres') {
-                  setSelectedGenre('')
-                }
-              }}
-              className={`
-                px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
-                flex items-center gap-2
-                ${
-                  activeTab === tab.id
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
-                }
-              `}
+              onClick={toggleTabsCollapse}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20"
+              title={isTabsCollapsed ? 'Развернуть табы' : 'Свернуть табы'}
             >
-              <span>{tab.label}</span>
-              {tab.count > 0 && (
-                <span className={`
-                  text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center
-                  ${
-                    activeTab === tab.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted-foreground/20 text-muted-foreground'
-                  }
-                `}>
-                  {tab.count}
-                </span>
+              {isTabsCollapsed ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <ChevronLeft className="w-4 h-4" />
               )}
             </button>
-          ))}
-          
-          {/* Кнопка "Очистить все" */}
-          {favorites.length > 0 && (
-            <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-              <AlertDialogTrigger asChild>
-                <button className="px-4 py-2 rounded-md text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-all duration-200 flex items-center gap-2">
-                  <Trash2 className="w-4 h-4" />
-                  Очистить все
-                </button>
-              </AlertDialogTrigger>
-            </AlertDialog>
-          )}
-        </div>
+            
+            {/* Кнопка Lock/Unlock */}
+            <button
+              onClick={toggleTabsLock}
+              className={`
+                flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200
+                ${
+                  isTabsLocked
+                    ? 'bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20'
+                    : 'bg-primary/10 text-primary hover:bg-primary/20'
+                }
+              `}
+              title={isTabsLocked ? 'Разблокировать перемещение табов' : 'Заблокировать перемещение табов'}
+            >
+              {isTabsLocked ? (
+                <Lock className="w-4 h-4" />
+              ) : (
+                <Unlock className="w-4 h-4" />
+              )}
+            </button>
+            
+            {/* Кнопка "Очистить все" */}
+            {favorites.length > 0 && (
+              <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+                <AlertDialogTrigger asChild>
+                  <button className="px-3 py-2 rounded-md text-sm font-medium bg-destructive/30 text-destructive hover:bg-destructive/50 transition-all duration-200 flex items-center gap-2">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </AlertDialogTrigger>
+              </AlertDialog>
+            )}
+          </div>
+        </DndContext>
       </div>
 
       {/* Чипсы стран */}
