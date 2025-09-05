@@ -50,7 +50,20 @@ const SeriesPage = () => {
       title: "Лучшее",
       url: "https://api.vokino.tv/v2/list?sort=rating&type=serial",
     },
+    {
+      id: "divider",
+      title: "",
+      isDivider: true,
+    },
+    {
+      id: "hbo-max",
+      title: "HBO Max",
+      url: "https://api.vokino.tv/v2/compilations/content/65a982c3c9e4458dd2558651",
+      isCollection: true,
+    },
   ];
+
+  const allTabs = tabs;
 
   // Функция для удаления дубликатов сериалов по ID
   const removeDuplicates = useCallback((existingSeries, newSeries) => {
@@ -78,66 +91,81 @@ const SeriesPage = () => {
         const tab = tabs.find((t) => t.id === tabId);
         let allSeries = [];
 
-        if (reset && pageNum === 1) {
-          // При первой загрузке любого таба загружаем сразу 2 страницы
-          const [page1Response, page2Response] = await Promise.all([
-            fetch(`${tab.url}&page=1`),
-            fetch(`${tab.url}&page=2`),
-          ]);
+        if (tab.isCollection) {
+          // Для подборок загружаем данные напрямую без пагинации
+          const response = await fetch(tab.url);
+          const data = await response.json();
+          console.log("Collection API Response:", data);
 
-          const [page1Data, page2Data] = await Promise.all([
-            page1Response.json(),
-            page2Response.json(),
-          ]);
-
-          if (page1Data.channels && page1Data.channels.length > 0) {
-            allSeries = [...allSeries, ...page1Data.channels];
-          }
-
-          if (page2Data.channels && page2Data.channels.length > 0) {
-            allSeries = [...allSeries, ...page2Data.channels];
-          }
-
-          setPage(2); // Устанавливаем страницу на 2, так как уже загрузили первые две
-
-          // Проверяем, есть ли еще данные
-          if (!page2Data.channels || page2Data.channels.length < 15) {
-            setHasMore(false);
-          }
-
-          if (allSeries.length > 0) {
-            const uniqueSeries = removeDuplicates([], allSeries);
-            setSeries(uniqueSeries);
+          if (data.channels && data.channels.length > 0) {
+            setSeries(data.channels);
+            setHasMore(false); // Подборки не имеют пагинации
           } else {
             setSeries([]);
             setHasMore(false);
           }
         } else {
-          // Обычная загрузка одной страницы
-          const url = `${tab.url}&page=${pageNum}`;
-          console.log("Fetching series:", { tabId, pageNum, url });
-          const response = await fetch(url);
-          const data = await response.json();
-          console.log("API Response:", {
-            channels: data.channels?.length,
-            hasMore: data.channels?.length >= 15,
-          });
+          if (reset && pageNum === 1) {
+            // При первой загрузке любого таба загружаем сразу 2 страницы
+            const [page1Response, page2Response] = await Promise.all([
+              fetch(`${tab.url}&page=1`),
+              fetch(`${tab.url}&page=2`),
+            ]);
 
-          if (data.channels && data.channels.length > 0) {
-            if (reset) {
-              setSeries(data.channels);
-            } else {
-              setSeries((prev) => {
-                const uniqueNewSeries = removeDuplicates(prev, data.channels);
-                console.log(
-                  `Добавлено ${uniqueNewSeries.length} уникальных сериалов из ${data.channels.length}`
-                );
-                return [...prev, ...uniqueNewSeries];
-              });
+            const [page1Data, page2Data] = await Promise.all([
+              page1Response.json(),
+              page2Response.json(),
+            ]);
+
+            if (page1Data.channels && page1Data.channels.length > 0) {
+              allSeries = [...allSeries, ...page1Data.channels];
             }
-            setHasMore(data.channels.length >= 15);
+
+            if (page2Data.channels && page2Data.channels.length > 0) {
+              allSeries = [...allSeries, ...page2Data.channels];
+            }
+
+            setPage(2); // Устанавливаем страницу на 2, так как уже загрузили первые две
+
+            // Проверяем, есть ли еще данные
+            if (!page2Data.channels || page2Data.channels.length < 15) {
+              setHasMore(false);
+            }
+
+            if (allSeries.length > 0) {
+              const uniqueSeries = removeDuplicates([], allSeries);
+              setSeries(uniqueSeries);
+            } else {
+              setSeries([]);
+              setHasMore(false);
+            }
           } else {
-            setHasMore(false);
+            // Обычная загрузка одной страницы
+            const url = `${tab.url}&page=${pageNum}`;
+            console.log("Fetching series:", { tabId, pageNum, url });
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log("API Response:", {
+              channels: data.channels?.length,
+              hasMore: data.channels?.length >= 15,
+            });
+
+            if (data.channels && data.channels.length > 0) {
+              if (reset) {
+                setSeries(data.channels);
+              } else {
+                setSeries((prev) => {
+                  const uniqueNewSeries = removeDuplicates(prev, data.channels);
+                  console.log(
+                    `Добавлено ${uniqueNewSeries.length} уникальных сериалов из ${data.channels.length}`
+                  );
+                  return [...prev, ...uniqueNewSeries];
+                });
+              }
+              setHasMore(data.channels.length >= 15);
+            } else {
+              setHasMore(false);
+            }
           }
         }
       } catch (error) {
@@ -163,6 +191,12 @@ const SeriesPage = () => {
   }, [activeTab]); // Убираем fetchSeries из зависимостей
 
   const handleScroll = useCallback(() => {
+    // Проверяем, является ли текущий таб подборкой
+    const currentTab = tabs.find((t) => t.id === activeTab);
+    if (currentTab?.isCollection) {
+      return; // Подборки не поддерживают пагинацию
+    }
+
     // Более надежное определение достижения конца страницы
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
@@ -195,7 +229,7 @@ const SeriesPage = () => {
     console.log("Loading next page:", nextPage);
     setPage(nextPage);
     fetchSeries(activeTab, nextPage, false);
-  }, [activeTab, hasMore, loading, page, series.length]);
+  }, [activeTab, hasMore, loading, page, series.length, allTabs]);
 
   useEffect(() => {
     let ticking = false;
@@ -213,7 +247,7 @@ const SeriesPage = () => {
   }, [handleScroll]);
 
   const handleTabClick = (tabId) => {
-    if (tabId !== activeTab) {
+    if (tabId !== activeTab && tabId !== "divider") {
       setActiveTab(tabId);
     }
   };
@@ -313,21 +347,32 @@ const SeriesPage = () => {
             isKidsMode ? "gap-2" : "gap-1"
           }`}
         >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
-                activeTab === tab.id
-                  ? isKidsMode
-                    ? "bg-pink-500 text-white shadow-sm"
-                    : "bg-background text-foreground shadow-sm"
-                  : "hover:bg-background/50 hover:text-foreground"
-              }`}
-            >
-              {tab.title}
-            </button>
-          ))}
+          {tabs.map((tab, index) => {
+            if (tab.isDivider) {
+              return (
+                <div
+                  key={tab.id}
+                  className="w-px h-6 bg-gray-400 mx-2"
+                />
+              );
+            }
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                  activeTab === tab.id
+                    ? isKidsMode
+                      ? "bg-pink-500 text-white shadow-sm"
+                      : "bg-background text-foreground shadow-sm"
+                    : "hover:bg-background/50 hover:text-foreground"
+                }`}
+              >
+                {tab.title}
+              </button>
+            );
+          })}
         </div>
       </div>
 
