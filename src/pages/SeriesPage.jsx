@@ -409,7 +409,7 @@ const SeriesPage = () => {
                     ? isKidsMode
                       ? "bg-pink-500 text-white shadow-sm"
                       : tab.id === "hbo-max" || tab.id === "kion" || tab.id === "fox"
-                      ? "bg-background text-foreground shadow-blue-400/50 ring-2 ring-blue-400/30"
+                      ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                       : "bg-background text-foreground shadow-sm"
                     : "hover:bg-background/50 hover:text-foreground"
                 }`}
