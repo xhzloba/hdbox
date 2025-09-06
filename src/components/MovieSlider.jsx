@@ -6,10 +6,9 @@ import { ChevronLeft, ChevronRight, Eye, Star, Film, Tv } from "lucide-react"
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton"
 import MovieCardSkeleton from "./MovieCardSkeleton"
 import AdultContentDialog from "./AdultContentDialog"
-import { useKids } from "../contexts/KidsContext"
+
 
 const MovieSlider = ({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [], showContentTypeBadge = false }) => {
-  const { isKidsMode } = useKids()
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null)
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false)
   
@@ -24,7 +23,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   }
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
-    <div className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${isKidsMode ? 'gap-2' : 'gap-1'}`} style={{ userSelect: 'none' }}>
+    <div className="bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none' }}>
       {tabsConfig ? (
         // Используем кастомную конфигурацию табов
         tabsConfig.map((tab) => (
@@ -33,9 +32,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange(tab.value)}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === tab.value
-                ? isKidsMode
-                  ? "bg-pink-500 text-white shadow-sm"
-                  : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
             style={{ userSelect: 'none' }}
@@ -55,9 +52,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange("watching")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "watching"
-                ? isKidsMode
-                  ? "bg-pink-500 text-white shadow-sm"
-                  : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
             style={{ userSelect: 'none' }}
@@ -69,9 +64,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange("popular")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "popular"
-                ? isKidsMode
-                  ? "bg-pink-500 text-white shadow-sm"
-                  : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
             style={{ userSelect: 'none' }}
@@ -83,9 +76,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange("movies")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "movies"
-                ? isKidsMode
-                  ? "bg-pink-500 text-white shadow-sm"
-                  : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
             style={{ userSelect: 'none' }}
@@ -97,9 +88,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange("series")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "series"
-                ? isKidsMode
-                  ? "bg-pink-500 text-white shadow-sm"
-                  : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
             style={{ userSelect: 'none' }}

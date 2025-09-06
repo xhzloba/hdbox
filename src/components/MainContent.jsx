@@ -9,10 +9,9 @@ import {
   transformMoviesArray,
   safeTransformApiResponse,
 } from "../utils/dataTransformers";
-import { useKids } from "../contexts/KidsContext";
+
 
 const MainContent = ({ sidebarOpen }) => {
-  const { isKidsMode } = useKids();
   const [popularMovies, setPopularMovies] = useState([]);
   const [newMovies, setNewMovies] = useState([]);
   const [popularMoviesOnly, setPopularMoviesOnly] = useState([]);
@@ -861,25 +860,7 @@ const MainContent = ({ sidebarOpen }) => {
     loadInitialContent();
   }, []);
 
-  // Загружаем данные для Kids режима лениво при переключении
-  useEffect(() => {
-    if (isKidsMode) {
-      // Загружаем мультфильмы только при входе в Kids режим
-      if (cartoonsUpdatings.length === 0) {
-        loadCartoonsUpdatings().then(() => setIsLoadingCartoons(false));
-      } else {
-        setIsLoadingCartoons(false);
-      }
-      // Загружаем мультсериалы только при входе в Kids режим
-      if (cartoonSeriesUpdatings.length === 0) {
-        loadCartoonSeriesUpdatings().then(() =>
-          setIsLoadingCartoonSeries(false)
-        );
-      } else {
-        setIsLoadingCartoonSeries(false);
-      }
-    }
-  }, [isKidsMode]);
+
 
   // Периодическая проверка новых данных
   useEffect(() => {
@@ -952,83 +933,42 @@ const MainContent = ({ sidebarOpen }) => {
     <main className="flex-1 bg-background">
       {/* Content Sections */}
       <div className="px-6 lg:px-12 py-8 space-y-12 bg-background">
-        <div key={isKidsMode ? "kids" : "normal"}>
-          {isKidsMode ? (
-            /* Kids режим - слайдеры мультфильмов и мультсериалов */
-            <div className="space-y-12">
-              <MovieSlider
-                movies={getCurrentCartoons()}
-                title=""
-                tabs={true}
-                activeTab={cartoonsActiveTab}
-                onTabChange={handleCartoonsTabChange}
-                isLoading={isLoadingCartoons || isCurrentCartoonsTabLoading()}
-                sectionTitle="Мультфильмы"
-                sidebarOpen={sidebarOpen}
-                tabsConfig={[
-                  { value: "updatings", label: "Обновления" },
-                  { value: "new", label: "Новинки" },
-                  { value: "popular", label: "Популярное" },
-                  { value: "rating", label: "Лучшее" },
-                ]}
-              />
+        <div>
+          {/* Обычный режим - слайдеры фильмов и сериалов */}
+          <div className="space-y-12">
+            {/* Слайдер с табами */}
+            <MovieSlider
+              movies={getCurrentMovies()}
+              title=""
+              tabs={true}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isLoading={isLoadingPopular || isCurrentTabLoading()}
+              sidebarOpen={sidebarOpen}
+              showContentTypeBadge={true}
+            />
 
-              <MovieSlider
-                movies={getCurrentCartoonSeries()}
-                title=""
-                tabs={true}
-                activeTab={cartoonSeriesActiveTab}
-                onTabChange={handleCartoonSeriesTabChange}
-                isLoading={
-                  isLoadingCartoonSeries || isCurrentCartoonSeriesTabLoading()
-                }
-                sectionTitle="Мультсериалы"
-                sidebarOpen={sidebarOpen}
-                tabsConfig={[
-                  { value: "updatings", label: "Обновления" },
-                  { value: "new", label: "Новинки" },
-                  { value: "popular", label: "Популярное" },
-                  { value: "rating", label: "Лучшее" },
-                ]}
-              />
-            </div>
-          ) : (
-            /* Обычный режим - слайдеры фильмов и сериалов */
-            <div className="space-y-12">
-              {/* Слайдер с табами */}
-              <MovieSlider
-                movies={getCurrentMovies()}
-                title=""
-                tabs={true}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                isLoading={isLoadingPopular || isCurrentTabLoading()}
-                sidebarOpen={sidebarOpen}
-                showContentTypeBadge={true}
-              />
-
-              {/* Слайдер "Новинки" с табами */}
-              <MovieSlider
-                movies={getCurrentNewMovies()}
-                title=""
-                tabs={true}
-                activeTab={newMoviesTab}
-                onTabChange={handleNewTabChange}
-                isLoading={isCurrentNewTabLoading()}
-                sidebarOpen={sidebarOpen}
-                newIndicators={{
-                  new: hasNewInNewTab,
-                  updatings: hasNewInUpdatingsTab,
-                }}
-                tabsConfig={[
-                  { value: "new", label: "Новинки" },
-                  { value: "updatings", label: "Обновления" },
-                ]}
-                newMovies={getNewMoviesIdsForNewTab()}
-                showContentTypeBadge={true}
-              />
-            </div>
-          )}
+            {/* Слайдер "Новинки" с табами */}
+            <MovieSlider
+              movies={getCurrentNewMovies()}
+              title=""
+              tabs={true}
+              activeTab={newMoviesTab}
+              onTabChange={handleNewTabChange}
+              isLoading={isCurrentNewTabLoading()}
+              sidebarOpen={sidebarOpen}
+              newIndicators={{
+                new: hasNewInNewTab,
+                updatings: hasNewInUpdatingsTab,
+              }}
+              tabsConfig={[
+                { value: "new", label: "Новинки" },
+                { value: "updatings", label: "Обновления" },
+              ]}
+              newMovies={getNewMoviesIdsForNewTab()}
+              showContentTypeBadge={true}
+            />
+          </div>
         </div>
       </div>
     </main>

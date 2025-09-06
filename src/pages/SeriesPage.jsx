@@ -6,20 +6,10 @@ import { ChevronDown } from "lucide-react";
 import MovieCard from "../components/MovieCard";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
-import { useKids } from "../contexts/KidsContext";
+
 import SettingsContext from "../contexts/SettingsContext";
 
 const SeriesPage = () => {
-  // Безопасное использование useKids с проверкой на существование контекста
-  let isKidsMode = false;
-  try {
-    const kidsContext = useKids();
-    isKidsMode = kidsContext?.isKidsMode || false;
-  } catch (error) {
-    // Контекст недоступен при SSR/SSG, используем значение по умолчанию
-    console.warn('KidsContext not available, using default value');
-    isKidsMode = false;
-  }
   const [activeTab, setActiveTab] = useState("updatings");
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -387,7 +377,7 @@ const SeriesPage = () => {
       <div className="mb-6">
         <div
           className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${
-            isKidsMode ? "gap-2" : "gap-1"
+            "gap-1"
           }`}
         >
           {tabs.map((tab, index) => {
@@ -406,9 +396,7 @@ const SeriesPage = () => {
                 onClick={() => handleTabClick(tab.id)}
                 className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                   activeTab === tab.id
-                    ? isKidsMode
-                      ? "bg-pink-500 text-white shadow-sm"
-                      : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                    ? "bg-background text-foreground shadow-sm"
                     : "hover:bg-background/50 hover:text-foreground"
                 }`}
               >

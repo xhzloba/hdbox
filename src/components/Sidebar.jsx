@@ -1,10 +1,10 @@
 "use client";
-import { Home, Sparkles, Film, Tv, Heart, X, Info } from "lucide-react";
+import { Home, Film, Tv, Heart, X, Info } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
-import { useKids } from "../contexts/KidsContext";
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -16,7 +16,7 @@ import { changelogData } from "../data/changelog";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { getFavoritesCount } = useFavorites();
-  const { isKidsMode } = useKids();
+
   const pathname = usePathname();
   const [showChangelog, setShowChangelog] = useState(false);
 
@@ -38,37 +38,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
   ];
 
-  // Kids режим
-  const kidsMenuItems = [
-    { icon: Home, label: "Главная", id: "home", path: "/" },
-    {
-      icon: Sparkles,
-      label: "Популярное",
-      id: "popular",
-      path: "/kids/popular",
-    },
-    {
-      icon: Film,
-      label: "Мультфильмы",
-      id: "cartoons",
-      path: "/kids/cartoons",
-    },
-    {
-      icon: Tv,
-      label: "Мультсериалы",
-      id: "cartoon-series",
-      path: "/kids/cartoon-series",
-    },
-    {
-      icon: Heart,
-      label: "Избранное",
-      id: "favorites",
-      path: "/favorites",
-      count: getFavoritesCount(),
-    },
-  ];
-
-  const menuItems = isKidsMode ? kidsMenuItems : normalMenuItems;
+  const menuItems = normalMenuItems;
 
   return (
     <>
@@ -135,11 +105,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       ${!isOpen ? "lg:px-2 lg:justify-center" : ""}
                       ${
                         isActive
-                          ? isKidsMode
-                            ? "bg-pink-500 text-white"
-                            : "bg-sidebar-primary text-sidebar-primary-foreground"
-                          : isKidsMode
-                          ? "text-sidebar-foreground hover:bg-pink-100 hover:text-pink-600"
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary"
                       }
                     `}
@@ -154,12 +120,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         {item.count !== undefined && item.count > 0 && (
                           <span
                             className={`text-xs px-2 py-1 rounded-full min-w-[20px] text-center ${
-                              isActive && isKidsMode
-                                ? "bg-white text-pink-500"
-                                : isActive
+                              isActive
                                 ? "bg-sidebar-primary-foreground/20 text-sidebar-primary-foreground"
-                                : isKidsMode
-                                ? "bg-pink-500 text-white"
                                 : "bg-sidebar-primary text-sidebar-primary-foreground"
                             }`}
                             style={{ userSelect: 'none' }}
@@ -189,7 +151,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </div>
               <div className="flex-1 min-w-0 text-left" style={{ userSelect: 'none' }}>
                 <p className="text-sm font-medium text-blue-500 truncate" style={{ userSelect: 'none' }}>
-                  Версия 1.11
+                  Версия 2.0
                 </p>
                 <p className="text-xs text-muted-foreground" style={{ userSelect: 'none' }}>Нажмите для changelog</p>
               </div>

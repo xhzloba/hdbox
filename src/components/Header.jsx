@@ -37,7 +37,7 @@ import { useTheme } from "next-themes";
 import { Button } from "../../components/ui/button";
 import { useToast } from "../../hooks/use-toast";
 import { useParentalControl } from "../contexts/ParentalControlContext";
-import { useKids } from "../contexts/KidsContext";
+
 import AdultContentDialog from "./AdultContentDialog";
 import SettingsModal from "./SettingsModal";
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton";
@@ -63,7 +63,6 @@ const SearchResultsSlider = ({
   onFilterTabChange,
   onMovieClick,
 }) => {
-  const { isKidsMode } = useKids();
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
 
@@ -160,9 +159,7 @@ const SearchResultsSlider = ({
               onClick={() => onFilterTabChange(tab.id)}
               className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                 activeFilterTab === tab.id
-                  ? isKidsMode
-                    ? "bg-pink-500 text-white shadow-sm"
-                    : "bg-background text-foreground shadow-sm"
+                  ? "bg-background text-foreground shadow-sm"
                   : "hover:bg-background/50 hover:text-foreground"
               }`}
             >
@@ -252,7 +249,7 @@ const Header = ({
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dialogMode, setDialogMode] = useState(null); // 'setup' | 'disable' | null
-  const [showKidsDialog, setShowKidsDialog] = useState(false);
+
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [activeInfoTab, setActiveInfoTab] = useState("general");
@@ -309,18 +306,7 @@ const Header = ({
     // Контекст недоступен, используем значения по умолчанию
     console.warn('ParentalControlContext not available, using defaults');
   }
-  // Безопасное использование useKids с проверкой контекста
-  let isKidsMode = false;
-  let toggleKidsMode = () => {};
-  
-  try {
-    const kidsContext = useKids();
-    isKidsMode = kidsContext.isKidsMode;
-    toggleKidsMode = kidsContext.toggleKidsMode;
-  } catch (error) {
-    // Контекст недоступен, используем значения по умолчанию
-    console.warn('KidsContext not available, using defaults');
-  }
+
 
   // Конфигурация табов фильтрации для модалки поиска
   const filterTabs = [
@@ -993,11 +979,7 @@ const Header = ({
   return (
     <>
       <header
-        className={`sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300 ${
-          isKidsMode
-            ? "border-pink-300 bg-gradient-to-r from-pink-50/80 to-purple-50/80 dark:from-pink-900/20 dark:to-purple-900/20 dark:border-pink-500"
-            : ""
-        }`}
+        className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
       >
         <div className="flex items-center justify-between px-6 py-3">
           {/* Левая часть - кнопка меню и поиск */}
@@ -1081,32 +1063,7 @@ const Header = ({
               )}
             </button>
 
-            <button
-              onClick={() => setShowKidsDialog(true)}
-              className={`p-2 rounded-lg transition-all duration-300 relative ${
-                isKidsMode
-                  ? "bg-pink-100 hover:bg-pink-200 dark:bg-pink-900/30 dark:hover:bg-pink-900/50 shadow-lg shadow-pink-500/20"
-                  : "hover:bg-secondary"
-              }`}
-              title="Kids режим"
-            >
-              <Baby
-                className={`w-5 h-5 transition-colors duration-300 ${
-                  isKidsMode
-                    ? "text-pink-600 dark:text-pink-400"
-                    : "text-foreground"
-                }`}
-              />
-              <span
-                className={`absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-300 ${
-                  isKidsMode
-                    ? "bg-pink-500 text-white animate-pulse shadow-lg shadow-pink-500/50"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                Kids
-              </span>
-            </button>
+
 
             <button
               onClick={handleParentalControlClick}
@@ -1129,61 +1086,7 @@ const Header = ({
               onPinDisable={handlePinDisable}
             />
 
-            <AlertDialog open={showKidsDialog} onOpenChange={setShowKidsDialog}>
-              <AlertDialogContent
-                className={`transition-all duration-300 ${
-                  !isKidsMode
-                    ? "border-2 border-pink-300 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 dark:border-pink-500"
-                    : "sm:max-w-md"
-                }`}
-              >
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2">
-                    {!isKidsMode ? (
-                      <>
-                        <Baby className="h-5 w-5 text-pink-500" />
-                        Переход в Kids режим
-                      </>
-                    ) : (
-                      "Переход в обычный режим"
-                    )}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {!isKidsMode
-                      ? "Kids режим — это безопасная среда для детей с ограниченным контентом. В этом режиме доступны только мультфильмы и мультсериалы, подходящие для детского просмотра."
-                      : "Вы собираетесь вернуться к полному каталогу фильмов и сериалов. В обычном режиме доступен весь контент, включая фильмы для взрослых. Для дополнительной защиты рекомендуется настроить родительский контроль."}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    className={`transition-colors duration-300 ${
-                      !isKidsMode
-                        ? "hover:bg-pink-100 dark:hover:bg-pink-900/30"
-                        : ""
-                    }`}
-                  >
-                    Отмена
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      setShowKidsDialog(false);
-                      setTimeout(() => {
-                        toggleKidsMode();
-                      }, 100);
-                    }}
-                    className={`transition-all duration-300 ${
-                      !isKidsMode
-                        ? "bg-pink-500 hover:bg-pink-600 text-white shadow-lg shadow-pink-500/25"
-                        : "bg-primary hover:bg-primary/90"
-                    }`}
-                  >
-                    {!isKidsMode
-                      ? "Включить Kids режим"
-                      : "Перейти в обычный режим"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+
 
             <button
               onClick={() => {
@@ -1232,11 +1135,7 @@ const Header = ({
                 {/* Табы */}
                 <div className="mb-6">
                   <div className="bg-muted text-muted-foreground rounded-lg p-1 overflow-x-auto w-fit">
-                    <div
-                      className={`flex items-center ${
-                        isKidsMode ? "gap-2" : "gap-1"
-                      }`}
-                    >
+                    <div className="flex items-center gap-1">
                       {infoTabs.map((tab) => {
                         const IconComponent = tab.icon;
                         return (
@@ -1245,9 +1144,7 @@ const Header = ({
                             onClick={() => handleInfoTabClick(tab.id)}
                             className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-fit ${
                               activeInfoTab === tab.id
-                                ? isKidsMode
-                                  ? "bg-pink-500 text-white shadow-sm"
-                                  : "bg-background text-foreground shadow-sm"
+                                ? "bg-background text-foreground shadow-sm"
                                 : "hover:bg-background/50 hover:text-foreground"
                             }`}
                           >

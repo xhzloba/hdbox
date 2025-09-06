@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { FavoritesProvider } from "../contexts/FavoritesContext";
 import { ParentalControlProvider } from "../contexts/ParentalControlContext";
-import { KidsProvider } from "../contexts/KidsContext";
+
 import { SettingsProvider } from "../contexts/SettingsContext";
 import FlyingPoster from "./FlyingPoster";
 import { Toaster } from "@/components/ui/toaster";
@@ -84,7 +84,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SettingsProvider>
-      <KidsProvider>
         <ParentalControlProvider>
           <FavoritesProvider>
             <div className="min-h-screen bg-background">
@@ -120,7 +119,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </FavoritesProvider>
         </ParentalControlProvider>
-      </KidsProvider>
     </SettingsProvider>
   );
 }
