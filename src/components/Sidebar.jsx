@@ -3,6 +3,7 @@ import { Home, Film, Tv, Heart, X, Info } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
+import { useSettings } from "../contexts/SettingsContext";
 import FuzzyText from "./ui/shadcn-io/fuzzy-text";
 
 import { useState } from "react";
@@ -16,10 +17,27 @@ import {
 import { changelogData } from "../data/changelog";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
-  const { getFavoritesCount } = useFavorites();
-
   const pathname = usePathname();
+  const { getFavoritesCount } = useFavorites();
+  const { sidebarShadowsEnabled } = useSettings();
   const [showChangelog, setShowChangelog] = useState(false);
+
+  // Синхронно читаем настройки из localStorage для предотвращения мерцания
+  const getSavedShadowsSetting = () => {
+    try {
+      const savedSettings = localStorage.getItem('movieCardSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        return settings.sidebarShadowsEnabled ?? true;
+      }
+    } catch (error) {
+      console.error('Ошибка чтения настроек:', error);
+    }
+    return true; // По умолчанию включены
+  };
+
+  // Используем синхронное чтение настроек или fallback из контекста
+  const shadowsEnabled = sidebarShadowsEnabled ?? getSavedShadowsSetting();
 
   // Обычный режим
   const normalMenuItems = [
@@ -56,20 +74,29 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         ${!isOpen ? "lg:block hidden" : "block"}
       `}
-        style={{ userSelect: 'none', boxShadow: 'inset -6px -6px 17px 9px black' }}
+        style={{ 
+          userSelect: 'none', 
+          ...(shadowsEnabled && { 
+            borderBottomRightRadius: '50px',
+            borderTopRightRadius: '50px',
+            background: 'linear-gradient(145deg, #151515, #191919)',
+            boxShadow: '18px 18px 13px #101010, -18px -18px 13px #1e1e1e'
+          })
+        }}
       >
         {/* Header */}
         <div
           className={`flex items-center justify-center p-6 border-b border-sidebar-border ${
             !isOpen ? "lg:p-3" : ""
           }`}
-          style={{ boxShadow: 'inset -1px -3px 9px 2px black' }}
         >
           {isOpen ? (
             <div className="text-xl font-bold text-sidebar-foreground" style={{ userSelect: 'none', height: '40px', minHeight: '40px', display: 'flex', alignItems: 'center', marginTop: '8px' }}>
               <div style={{
-                filter: 'drop-shadow(0 0 8px rgb(46, 45, 51)) drop-shadow(0 0 16px rgba(100, 149, 237, 0.3))',
-                textShadow: '0 0 6px rgb(99, 98, 99), 0 0 12px rgba(107, 108, 109, 0.4)',
+                ...(shadowsEnabled && {
+                  filter: 'drop-shadow(0 0 8px rgb(46, 45, 51)) drop-shadow(0 0 16px rgba(100, 149, 237, 0.3))',
+                  textShadow: '0 0 6px rgb(99, 98, 99), 0 0 12px rgba(107, 108, 109, 0.4)'
+                }),
                 height: '40px',
                 lineHeight: '40px'
               }}>
