@@ -3,6 +3,7 @@ import { Home, Film, Tv, Heart, X, Info } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
+import FuzzyText from "./ui/shadcn-io/fuzzy-text";
 
 import { useState } from "react";
 import {
@@ -19,10 +20,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const pathname = usePathname();
   const [showChangelog, setShowChangelog] = useState(false);
-
-
-
-
 
   // Обычный режим
   const normalMenuItems = [
@@ -59,26 +56,35 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         ${!isOpen ? "lg:block hidden" : "block"}
       `}
-        style={{ userSelect: 'none' }}
+        style={{ userSelect: 'none', boxShadow: 'inset -6px -6px 17px 9px black' }}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-6 border-b border-sidebar-border ${
+          className={`flex items-center justify-center p-6 border-b border-sidebar-border ${
             !isOpen ? "lg:p-3" : ""
           }`}
+          style={{ boxShadow: 'inset -1px -3px 9px 2px black' }}
         >
           {isOpen ? (
-            <>
-              <h1 className="text-xl font-bold text-sidebar-foreground" style={{ userSelect: 'none' }}>
-                Stream<span className="text-sidebar-primary" style={{ userSelect: 'none' }}>Flix</span>
-              </h1>
-              <button
-                onClick={toggleSidebar}
-                className="p-2 rounded-lg hover:bg-sidebar-accent transition-colors lg:hidden"
-              >
-                <X className="w-5 h-5 text-sidebar-foreground" />
-              </button>
-            </>
+            <div className="text-xl font-bold text-sidebar-foreground" style={{ userSelect: 'none', height: '40px', minHeight: '40px', display: 'flex', alignItems: 'center', marginTop: '8px' }}>
+              <div style={{
+                filter: 'drop-shadow(0 0 8px rgb(46, 45, 51)) drop-shadow(0 0 16px rgba(100, 149, 237, 0.3))',
+                textShadow: '0 0 6px rgb(99, 98, 99), 0 0 12px rgba(107, 108, 109, 0.4)',
+                height: '40px',
+                lineHeight: '40px'
+              }}>
+                <FuzzyText
+                    fontSize={38}
+                    fontWeight={700}
+                    color="#ffffff"
+                    enableHover={true}
+                    baseIntensity={0.2}
+                    hoverIntensity={0.8}
+                  >
+                    HDBOX
+                  </FuzzyText>
+              </div>
+            </div>
           ) : (
             <div className="w-full">
               <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center mx-auto">
@@ -151,7 +157,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </div>
               <div className="flex-1 min-w-0 text-left" style={{ userSelect: 'none' }}>
                 <p className="text-sm font-medium text-blue-500 truncate" style={{ userSelect: 'none' }}>
-                  Версия 2.0
+                  Версия 2.1
                 </p>
                 <p className="text-xs text-muted-foreground" style={{ userSelect: 'none' }}>Нажмите для changelog</p>
               </div>
