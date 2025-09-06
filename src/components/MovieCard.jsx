@@ -199,13 +199,15 @@ const MovieCard = ({
         {/* Age Rating on Poster */}
         {movie.age && (
           <div
-            className={`absolute bottom-2 z-20 ${isNew ? "right-2" : "left-2"}`}
+            className={`absolute bottom-2 z-20 ${isNew ? "right-12" : "left-2"}`}
           >
             <span className="text-xs font-medium text-gray-400 drop-shadow-lg">
               {movie.age}+
             </span>
           </div>
         )}
+
+
 
         {/* Blocked Content Overlay */}
         {isAdult && isParentalControlEnabled && !isUnlocked && (
@@ -222,15 +224,54 @@ const MovieCard = ({
         {/* Normal Hover Overlay */}
         {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsPlayerModalOpen(true);
-              }}
-              className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
-            >
-              <Play className="w-4 h-4 text-primary-foreground fill-current" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPlayerModalOpen(true);
+                }}
+                className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
+              >
+                <Play className="w-4 h-4 text-primary-foreground fill-current" />
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  // Функция поделиться - можно добавить модалку или нативный share API
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({
+                        title: movie.title,
+                        text: `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`,
+                        url: window.location.href
+                      });
+                    } catch (error) {
+                      // Игнорируем ошибку отмены пользователем
+                      if (error.name === 'AbortError' || error.message.includes('canceled') || error.message.includes('cancelled')) {
+                        return; // Просто игнорируем, не показываем ошибку
+                      }
+                      // Для других ошибок используем fallback
+                      navigator.clipboard.writeText(`${movie.title} - ${window.location.href}`);
+                    }
+                  } else {
+                    // Fallback - копирование в буфер обмена
+                    navigator.clipboard.writeText(`${movie.title} - ${window.location.href}`);
+                    // Можно добавить toast уведомление
+                  }
+                }}
+                className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
+              >
+                <svg 
+                  className="w-4 h-4 text-primary-foreground" 
+                  fill="currentColor" 
+                  viewBox="0 0 48 48" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z" fill="currentColor"></path>
+                  <path d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z" fill="currentColor"></path>
+                </svg>
+              </button>
+            </div>
           </div>
         )}
 
