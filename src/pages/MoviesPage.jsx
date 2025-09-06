@@ -323,7 +323,7 @@ const MoviesPage = () => {
                 activeTab === tab.id
                   ? isKidsMode
                     ? "bg-pink-500 text-white shadow-sm"
-                    : "bg-background text-foreground shadow-sm"
+                    : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                   : "hover:bg-background/50 hover:text-foreground"
               }`}
             >
