@@ -210,7 +210,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
 
       {/* Слайдер заходит за боковое меню */}
       <div 
-        className={`overflow-hidden relative z-10 -ml-6 pl-6 ${
+        className={`overflow-hidden relative z-10 -ml-6 pl-6 pb-6 ${
           sidebarOpen 
             ? "lg:-ml-[calc(1.5rem+240px)] lg:pl-[calc(1.5rem+240px)]" 
             : "lg:-ml-[calc(1.5rem+64px)] lg:pl-[calc(1.5rem+64px)]"

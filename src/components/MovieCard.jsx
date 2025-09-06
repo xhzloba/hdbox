@@ -157,13 +157,14 @@ const MovieCard = ({
           ? "border-2 border-yellow-400 shadow-lg shadow-yellow-400/20 animate-pulse hover:border-yellow-300 hover:shadow-yellow-300/30 animate-[fadeInScale_0.6s_ease-out]"
           : "border border-transparent hover:border-gray-600"
       }`}
-      style={
-        isNew
+      style={{
+        boxShadow: "6px 5px 7px black",
+        ...(isNew
           ? {
               animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",
             }
-          : {}
-      }
+          : {})
+      }}
     >
       <div
         className={`relative overflow-hidden ${
