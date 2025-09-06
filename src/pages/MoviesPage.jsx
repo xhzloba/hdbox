@@ -311,7 +311,7 @@ const MoviesPage = () => {
               onClick={() => handleTabClick(tab.id)}
               className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                 activeTab === tab.id
-                  ? "bg-background text-foreground shadow-sm"
+                  ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                   : "hover:bg-background/50 hover:text-foreground"
               }`}
             >
