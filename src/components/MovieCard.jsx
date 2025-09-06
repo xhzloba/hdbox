@@ -244,8 +244,8 @@ const MovieCard = ({
                 );
                 return (
                   <div className="bg-black/70 rounded-full p-1.5 flex items-center justify-center">
-                    <IconComponent className={`w-4 h-4 ${color}`} />
-                  </div>
+                <IconComponent className={`w-4 h-4 ${color}`} />
+              </div>
                 );
               })()
             ) : (
@@ -259,17 +259,43 @@ const MovieCard = ({
         )}
       </div>
 
-      {/* Кнопка Plus/Check в углу карточки - показывается только если включены детали */}
+      {/* Ленточка избранного в левом верхнем углу постера */}
       {showDetails && (
         <button
           onClick={handleAddToFavorites}
-          className="absolute bottom-2 right-2 hidden md:flex items-center justify-center transition-colors duration-200"
+          className="absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105"
         >
-          {isInFavorites ? (
-            <Check className="w-5 h-5 text-green-500 hover:text-green-400 transition-colors duration-200" />
-          ) : (
-            <Plus className="w-5 h-5 text-gray-400 hover:text-white transition-colors duration-200" />
-          )}
+          <svg 
+            className="w-7 h-10" 
+            width="28" 
+            height="40" 
+            viewBox="0 0 28 40" 
+            xmlns="http://www.w3.org/2000/svg" 
+            role="presentation"
+          >
+            {/* Основной полигон ленточки */}
+            <polygon 
+              className={`transition-colors duration-200 ${
+                isInFavorites 
+                  ? "fill-sidebar-primary group-hover/ribbon:fill-sidebar-primary/80" 
+                  : "fill-gray-700 opacity-60 group-hover/ribbon:opacity-80"
+              }`}
+              points="28 0 0 0 0 38 14.2843 30.4308 28 37.2353"
+            />
+            {/* Полигон для тени */}
+            <polygon 
+              className="fill-black/20" 
+              points="28 37.2353 28 39.2353 14.2843 32.4308 0 40 0 38 14.2843 30.4308"
+            />
+          </svg>
+          {/* Иконка внутри ленточки */}
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            {isInFavorites ? (
+              <Check className="w-3.5 h-3.5 text-white" />
+            ) : (
+              <Plus className="w-3.5 h-3.5 text-white" />
+            )}
+          </div>
         </button>
       )}
 
