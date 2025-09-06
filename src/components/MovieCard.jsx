@@ -238,27 +238,72 @@ const MovieCard = ({
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
-                  // Функция поделиться - можно добавить модалку или нативный share API
+                  
+                  // Детальная отладочная информация
+                  console.log('=== Share Button Debug Info ===');
+                  console.log('Browser:', navigator.userAgent);
+                  console.log('navigator.share supported:', !!navigator.share);
+                  console.log('Protocol:', window.location.protocol);
+                  console.log('Host:', window.location.host);
+                  console.log('Movie data:', { title: movie.title, year: movie.year, type: movie.type });
+                  
+                  // Формируем данные для sharing
+                  const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
+                  const shareText = movie.year 
+                    ? `Посмотри ${movie.title} (${movie.year}) - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`
+                    : `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`;
+                  
+                  const shareData = {
+                    title: titleWithYear,
+                    text: shareText,
+                    url: window.location.href
+                  };
+                  
+                  console.log('Share data:', shareData);
+                  
+                  // Приоритет Web Share API - используем если доступен, независимо от протокола
                   if (navigator.share) {
                     try {
-                      await navigator.share({
-                        title: movie.title,
-                        text: `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`,
-                        url: window.location.href
-                      });
+                      console.log('Attempting to share via Web Share API...');
+                      await navigator.share(shareData);
+                      console.log('✅ Share successful via Web Share API');
+                      // НЕ показываем alert - нативный UI уже показал результат
                     } catch (error) {
+                      console.log('Share error:', error.name, error.message);
                       // Игнорируем ошибку отмены пользователем
                       if (error.name === 'AbortError' || error.message.includes('canceled') || error.message.includes('cancelled')) {
-                        return; // Просто игнорируем, не показываем ошибку
+                        console.log('Share cancelled by user - this is normal');
+                        return;
                       }
                       // Для других ошибок используем fallback
-                      navigator.clipboard.writeText(`${movie.title} - ${window.location.href}`);
+                      console.log('Using fallback due to Web Share API error');
+                      const fallbackText = movie.year 
+                        ? `${movie.title} (${movie.year}) - ${window.location.href}`
+                        : `${movie.title} - ${window.location.href}`;
+                      try {
+                        await navigator.clipboard.writeText(fallbackText);
+                        alert('📋 Ссылка скопирована в буфер обмена!');
+                      } catch (clipboardError) {
+                        console.error('Clipboard error:', clipboardError);
+                        alert('❌ Ошибка при копировании в буфер обмена');
+                      }
                     }
                   } else {
                     // Fallback - копирование в буфер обмена
-                    navigator.clipboard.writeText(`${movie.title} - ${window.location.href}`);
-                    // Можно добавить toast уведомление
+                    console.log('Web Share API not supported, using clipboard fallback');
+                    const fallbackText = movie.year 
+                      ? `${movie.title} (${movie.year}) - ${window.location.href}`
+                      : `${movie.title} - ${window.location.href}`;
+                    try {
+                      await navigator.clipboard.writeText(fallbackText);
+                      alert('📋 Ссылка скопирована в буфер обмена!');
+                    } catch (clipboardError) {
+                      console.error('Clipboard error:', clipboardError);
+                      // Последний fallback - показываем текст для ручного копирования
+                      prompt('Скопируйте ссылку вручную:', fallbackText);
+                    }
                   }
+                  console.log('=== End Share Debug ===');
                 }}
                 className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
               >
