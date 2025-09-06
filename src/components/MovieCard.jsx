@@ -46,6 +46,21 @@ const getRatingIcon = (rating) => {
   return null;
 };
 
+// Функция для определения типа контента
+const getContentType = (type) => {
+  if (!type) return null;
+  
+  const typeStr = type.toString().toLowerCase();
+  
+  if (typeStr.includes('movie') || typeStr.includes('multfilm')) {
+    return 'Фильм';
+  } else if (typeStr.includes('serial') || typeStr.includes('tv')) {
+    return 'Сериал';
+  }
+  
+  return null;
+};
+
 const MovieCard = ({
   movie,
   onAdultContentClick,
@@ -53,6 +68,7 @@ const MovieCard = ({
   className = "",
   isNew = false,
   showAllGenres = false,
+  showContentTypeBadge = false,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
@@ -247,16 +263,12 @@ const MovieCard = ({
       {showDetails && (
         <button
           onClick={handleAddToFavorites}
-          className={`absolute bottom-2 right-2 w-6 h-6 rounded-full hidden md:flex items-center justify-center transition-colors ${
-            isInFavorites
-              ? "bg-green-500 hover:bg-green-600"
-              : "bg-primary hover:bg-primary/80"
-          }`}
+          className="absolute bottom-2 right-2 hidden md:flex items-center justify-center transition-colors duration-200"
         >
           {isInFavorites ? (
-            <Check className="w-3 h-3 text-white" />
+            <Check className="w-5 h-5 text-green-500 hover:text-green-400 transition-colors duration-200" />
           ) : (
-            <Plus className="w-3 h-3 text-primary-foreground" />
+            <Plus className="w-5 h-5 text-gray-400 hover:text-white transition-colors duration-200" />
           )}
         </button>
       )}
@@ -267,15 +279,24 @@ const MovieCard = ({
           <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-1">
             {movie.title}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{movie.year}</span>
-            <span className="text-xs px-2 py-1 bg-secondary rounded text-gray-500">
-              {Array.isArray(movie.genre)
-                ? showAllGenres
-                  ? movie.genre.join(", ")
-                  : movie.genre[0] || movie.genre
-                : movie.genre}
-            </span>
+          <div className="text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>{movie.year}</span>
+              <span className="text-xs px-2 py-1 bg-secondary rounded text-gray-500">
+                {Array.isArray(movie.genre)
+                  ? showAllGenres
+                    ? movie.genre.join(", ")
+                    : movie.genre[0] || movie.genre
+                  : movie.genre}
+              </span>
+            </div>
+            {getContentType(movie.type) && showContentTypeBadge && (
+              <div className="mt-1">
+                <span className="text-[10px] px-1.5 py-1 bg-white text-black rounded font-medium">
+                  {getContentType(movie.type)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -8,10 +8,20 @@ import MovieCardSkeleton from "./MovieCardSkeleton"
 import AdultContentDialog from "./AdultContentDialog"
 import { useKids } from "../contexts/KidsContext"
 
-const MovieSlider = ({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [] }) => {
+const MovieSlider = ({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [], showContentTypeBadge = false }) => {
   const { isKidsMode } = useKids()
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null)
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false)
+  
+  // Определяем нужно ли показывать бейджики типа контента
+  const shouldShowContentTypeBadge = () => {
+    // Если используется tabsConfig (второй слайдер с "Новинки" и "Обновления"), показываем всегда
+    if (tabsConfig) {
+      return showContentTypeBadge
+    }
+    // Для первого слайдера показываем только для табов "watching" и "popular"
+    return showContentTypeBadge && (activeTab === 'watching' || activeTab === 'popular')
+  }
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
     <div className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${isKidsMode ? 'gap-2' : 'gap-1'}`}>
@@ -213,6 +223,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   movie={item} 
                   onAdultContentClick={handleAdultContentClick} 
                   isNew={newMovies.includes(item.id)}
+                  showContentTypeBadge={shouldShowContentTypeBadge()}
                 />
               )}
             </div>

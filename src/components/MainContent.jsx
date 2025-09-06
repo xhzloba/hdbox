@@ -1004,6 +1004,7 @@ const MainContent = ({ sidebarOpen }) => {
                 onTabChange={handleTabChange}
                 isLoading={isLoadingPopular || isCurrentTabLoading()}
                 sidebarOpen={sidebarOpen}
+                showContentTypeBadge={true}
               />
 
               {/* Слайдер "Новинки" с табами */}
@@ -1024,6 +1025,7 @@ const MainContent = ({ sidebarOpen }) => {
                   { value: "updatings", label: "Обновления" },
                 ]}
                 newMovies={getNewMoviesIdsForNewTab()}
+                showContentTypeBadge={true}
               />
             </div>
           )}

@@ -7,6 +7,7 @@ const MovieCardWithSkeleton = ({
   onAdultContentClick,
   onMovieClick,
   isNew = false,
+  showContentTypeBadge = false,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -44,6 +45,7 @@ const MovieCardWithSkeleton = ({
       onAdultContentClick={onAdultContentClick}
       onMovieClick={onMovieClick}
       isNew={isNew}
+      showContentTypeBadge={showContentTypeBadge}
     />
   );
 };
