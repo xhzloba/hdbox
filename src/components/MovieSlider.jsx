@@ -24,7 +24,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   }
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
-    <div className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${isKidsMode ? 'gap-2' : 'gap-1'}`}>
+    <div className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${isKidsMode ? 'gap-2' : 'gap-1'}`} style={{ userSelect: 'none' }}>
       {tabsConfig ? (
         // Используем кастомную конфигурацию табов
         tabsConfig.map((tab) => (
@@ -38,8 +38,9 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
+            style={{ userSelect: 'none' }}
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2" style={{ userSelect: 'none' }}>
               {tab.label}
               {newIndicators && newIndicators[tab.value] && (
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -59,9 +60,10 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
+            style={{ userSelect: 'none' }}
           >
             <Eye className="w-4 h-4 mr-2" />
-            Сейчас смотрят
+            <span style={{ userSelect: 'none' }}>Сейчас смотрят</span>
           </button>
           <button
             onClick={() => onTabChange("popular")}
@@ -72,9 +74,10 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
+            style={{ userSelect: 'none' }}
           >
             <Star className="w-4 h-4 mr-2" />
-            Популярное сейчас
+            <span style={{ userSelect: 'none' }}>Популярное сейчас</span>
           </button>
           <button
             onClick={() => onTabChange("movies")}
@@ -85,9 +88,10 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
+            style={{ userSelect: 'none' }}
           >
             <Film className="w-4 h-4 mr-2" />
-            Фильмы
+            <span style={{ userSelect: 'none' }}>Фильмы</span>
           </button>
           <button
             onClick={() => onTabChange("series")}
@@ -98,9 +102,10 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   : "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                 : "hover:bg-background/50 hover:text-foreground"
             }`}
+            style={{ userSelect: 'none' }}
           >
             <Tv className="w-4 h-4 mr-2" />
-            Сериалы
+            <span style={{ userSelect: 'none' }}>Сериалы</span>
           </button>
         </>
       )}
@@ -164,14 +169,14 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   }
 
   return (
-    <section className="relative">
+    <section className="relative" style={{ userSelect: 'none' }}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           {customTabs}
           {sectionTitle && (
-            <h2 className="text-xl font-semibold text-muted-foreground">{sectionTitle}</h2>
+            <h2 className="text-xl font-semibold text-muted-foreground" style={{ userSelect: 'none' }}>{sectionTitle}</h2>
           )}
-          {title && <h2 className="text-2xl font-bold text-foreground">{title}</h2>}
+          {title && <h2 className="text-2xl font-bold text-foreground" style={{ userSelect: 'none' }}>{title}</h2>}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -183,6 +188,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={scrollPrev}
             disabled={prevBtnDisabled}
             aria-label="Предыдущий слайд"
+            style={{ userSelect: 'none' }}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -195,6 +201,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={scrollNext}
             disabled={nextBtnDisabled}
             aria-label="Следующий слайд"
+            style={{ userSelect: 'none' }}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -209,6 +216,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             : "lg:-ml-[calc(1.5rem+64px)] lg:pl-[calc(1.5rem+64px)]"
         }`}
         ref={emblaRef}
+        style={{ userSelect: 'none' }}
       >
         <div className="flex gap-4">
           {displayItems.map((item) => (
