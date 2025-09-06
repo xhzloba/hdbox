@@ -22,11 +22,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
     return null
   }
   
-  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, defaultPlayer, setDefaultPlayer } = settingsContext
+  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, cardShadowsEnabled, toggleCardShadows, defaultPlayer, setDefaultPlayer } = settingsContext
   // Временное состояние для настроек до подтверждения
   const [tempShowDetails, setTempShowDetails] = useState(showDetails)
   const [tempShowRatingAsIcons, setTempShowRatingAsIcons] = useState(showRatingAsIcons)
   const [tempShowFavoriteButton, setTempShowFavoriteButton] = useState(showFavoriteButton)
+  const [tempCardShadowsEnabled, setTempCardShadowsEnabled] = useState(cardShadowsEnabled)
   const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer)
 
   // Синхронизируем временное состояние с основным при открытии
@@ -35,9 +36,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
       setTempShowDetails(showDetails)
       setTempShowRatingAsIcons(showRatingAsIcons)
       setTempShowFavoriteButton(showFavoriteButton)
+      setTempCardShadowsEnabled(cardShadowsEnabled)
       setTempDefaultPlayer(defaultPlayer)
     }
-  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, defaultPlayer])
+  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, defaultPlayer])
 
   const handleConfirm = () => {
     // Применяем изменения только при подтверждении
@@ -50,6 +52,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (tempShowFavoriteButton !== showFavoriteButton) {
       toggleShowFavoriteButton()
     }
+    if (tempCardShadowsEnabled !== cardShadowsEnabled) {
+      toggleCardShadows()
+    }
     if (tempDefaultPlayer !== defaultPlayer) {
       setDefaultPlayer(tempDefaultPlayer)
     }
@@ -61,6 +66,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     setTempShowDetails(showDetails)
     setTempShowRatingAsIcons(showRatingAsIcons)
     setTempShowFavoriteButton(showFavoriteButton)
+    setTempCardShadowsEnabled(cardShadowsEnabled)
     setTempDefaultPlayer(defaultPlayer)
     onClose()
   }
@@ -75,6 +81,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const handleToggleFavoriteButtonTemp = () => {
     setTempShowFavoriteButton(!tempShowFavoriteButton)
+  }
+
+  const handleToggleCardShadowsTemp = () => {
+    setTempCardShadowsEnabled(!tempCardShadowsEnabled)
   }
 
   return (
@@ -190,6 +200,39 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
                     tempShowFavoriteButton ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {/* Card Shadows Toggle */}
+            <div 
+              onClick={handleToggleCardShadowsTemp}
+              className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                tempCardShadowsEnabled ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+              }`}
+            >
+              <div className="flex flex-col">
+                <label className={`text-sm font-medium mb-1 ${
+                  tempCardShadowsEnabled ? 'text-sidebar-primary-foreground' : ''
+                }`}>
+                  Тени карточек
+                </label>
+                <p className={`text-xs ${
+                  tempCardShadowsEnabled ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
+                }`}>
+                  Отображать тени у карточек фильмов
+                </p>
+              </div>
+              
+              <button
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                  tempCardShadowsEnabled ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                    tempCardShadowsEnabled ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
                   }`}
                 />
               </button>

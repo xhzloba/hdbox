@@ -98,6 +98,7 @@ const MovieCard = ({
   const showDetails = settingsContext?.showDetails ?? true; // По умолчанию показываем детали
   const showRatingAsIcons = settingsContext?.showRatingAsIcons ?? true; // По умолчанию показываем иконки
   const showFavoriteButton = settingsContext?.showFavoriteButton ?? true; // По умолчанию показываем кнопку избранного
+  const cardShadowsEnabled = settingsContext?.cardShadowsEnabled ?? true; // По умолчанию показываем тени
   const isInFavorites = isInFavoritesOrPending(movie.id);
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
@@ -154,11 +155,11 @@ const MovieCard = ({
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
       } ${
         isNew
-          ? "border-2 border-yellow-400 shadow-lg shadow-yellow-400/20 animate-pulse hover:border-yellow-300 hover:shadow-yellow-300/30 animate-[fadeInScale_0.6s_ease-out]"
+          ? `border-2 border-yellow-400 ${cardShadowsEnabled ? 'shadow-lg shadow-yellow-400/20' : ''} animate-pulse hover:border-yellow-300 ${cardShadowsEnabled ? 'hover:shadow-yellow-300/30' : ''} animate-[fadeInScale_0.6s_ease-out]`
           : "border border-transparent hover:border-gray-600"
       }`}
       style={{
-        boxShadow: "6px 5px 7px black",
+        ...(cardShadowsEnabled ? { boxShadow: "6px 5px 7px black" } : {}),
         ...(isNew
           ? {
               animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",

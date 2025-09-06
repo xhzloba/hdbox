@@ -16,6 +16,7 @@ export const SettingsProvider = ({ children }) => {
   const [showDetails, setShowDetails] = useState(true)
   const [showRatingAsIcons, setShowRatingAsIcons] = useState(true)
   const [showFavoriteButton, setShowFavoriteButton] = useState(true)
+  const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true)
   const [defaultPlayer, setDefaultPlayer] = useState('renewall')
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -28,6 +29,7 @@ export const SettingsProvider = ({ children }) => {
         setShowDetails(settings.showDetails ?? true)
         setShowRatingAsIcons(settings.showRatingAsIcons ?? true)
         setShowFavoriteButton(settings.showFavoriteButton ?? true)
+        setCardShadowsEnabled(settings.cardShadowsEnabled ?? true)
         setDefaultPlayer(settings.defaultPlayer ?? 'renewall')
       }
     } catch (error) {
@@ -45,6 +47,7 @@ export const SettingsProvider = ({ children }) => {
           showDetails,
           showRatingAsIcons,
           showFavoriteButton,
+          cardShadowsEnabled,
           defaultPlayer
         }
         localStorage.setItem('movieCardSettings', JSON.stringify(settings))
@@ -52,7 +55,7 @@ export const SettingsProvider = ({ children }) => {
         console.error('Ошибка сохранения настроек:', error)
       }
     }
-  }, [showDetails, showRatingAsIcons, showFavoriteButton, defaultPlayer, isLoaded])
+  }, [showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, defaultPlayer, isLoaded])
 
   const toggleShowDetails = () => {
     setShowDetails(prev => !prev)
@@ -66,6 +69,10 @@ export const SettingsProvider = ({ children }) => {
     setShowFavoriteButton(prev => !prev)
   }
 
+  const toggleCardShadows = () => {
+    setCardShadowsEnabled(prev => !prev)
+  }
+
   const value = {
     showDetails,
     setShowDetails,
@@ -76,6 +83,9 @@ export const SettingsProvider = ({ children }) => {
     showFavoriteButton,
     setShowFavoriteButton,
     toggleShowFavoriteButton,
+    cardShadowsEnabled,
+    setCardShadowsEnabled,
+    toggleCardShadows,
     defaultPlayer,
     setDefaultPlayer,
     isLoaded
