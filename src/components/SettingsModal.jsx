@@ -22,10 +22,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
     return null
   }
   
-  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, defaultPlayer, setDefaultPlayer } = settingsContext
+  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, defaultPlayer, setDefaultPlayer } = settingsContext
   // Временное состояние для настроек до подтверждения
   const [tempShowDetails, setTempShowDetails] = useState(showDetails)
   const [tempShowRatingAsIcons, setTempShowRatingAsIcons] = useState(showRatingAsIcons)
+  const [tempShowFavoriteButton, setTempShowFavoriteButton] = useState(showFavoriteButton)
   const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer)
 
   // Синхронизируем временное состояние с основным при открытии
@@ -33,9 +34,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (isOpen) {
       setTempShowDetails(showDetails)
       setTempShowRatingAsIcons(showRatingAsIcons)
+      setTempShowFavoriteButton(showFavoriteButton)
       setTempDefaultPlayer(defaultPlayer)
     }
-  }, [isOpen, showDetails, showRatingAsIcons, defaultPlayer])
+  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, defaultPlayer])
 
   const handleConfirm = () => {
     // Применяем изменения только при подтверждении
@@ -44,6 +46,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
     }
     if (tempShowRatingAsIcons !== showRatingAsIcons) {
       toggleShowRatingAsIcons()
+    }
+    if (tempShowFavoriteButton !== showFavoriteButton) {
+      toggleShowFavoriteButton()
     }
     if (tempDefaultPlayer !== defaultPlayer) {
       setDefaultPlayer(tempDefaultPlayer)
@@ -55,6 +60,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     // Сбрасываем временные изменения
     setTempShowDetails(showDetails)
     setTempShowRatingAsIcons(showRatingAsIcons)
+    setTempShowFavoriteButton(showFavoriteButton)
     setTempDefaultPlayer(defaultPlayer)
     onClose()
   }
@@ -65,6 +71,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const handleToggleRatingTemp = () => {
     setTempShowRatingAsIcons(!tempShowRatingAsIcons)
+  }
+
+  const handleToggleFavoriteButtonTemp = () => {
+    setTempShowFavoriteButton(!tempShowFavoriteButton)
   }
 
   return (
@@ -147,6 +157,39 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
                     tempShowRatingAsIcons ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {/* Show Favorite Button Toggle */}
+            <div 
+              onClick={handleToggleFavoriteButtonTemp}
+              className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                tempShowFavoriteButton ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+              }`}
+            >
+              <div className="flex flex-col">
+                <label className={`text-sm font-medium mb-1 ${
+                  tempShowFavoriteButton ? 'text-sidebar-primary-foreground' : ''
+                }`}>
+                  Показывать кнопку избранного
+                </label>
+                <p className={`text-xs ${
+                  tempShowFavoriteButton ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
+                }`}>
+                  Всегда видимая или только при наведении
+                </p>
+              </div>
+              
+              <button
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                  tempShowFavoriteButton ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                    tempShowFavoriteButton ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
                   }`}
                 />
               </button>

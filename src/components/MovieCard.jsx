@@ -97,6 +97,7 @@ const MovieCard = ({
   const settingsContext = useContext(SettingsContext);
   const showDetails = settingsContext?.showDetails ?? true; // По умолчанию показываем детали
   const showRatingAsIcons = settingsContext?.showRatingAsIcons ?? true; // По умолчанию показываем иконки
+  const showFavoriteButton = settingsContext?.showFavoriteButton ?? true; // По умолчанию показываем кнопку избранного
   const isInFavorites = isInFavoritesOrPending(movie.id);
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
@@ -304,7 +305,9 @@ const MovieCard = ({
       {showDetails && (
         <button
           onClick={handleAddToFavorites}
-          className="absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105"
+          className={`absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105 ${
+            showFavoriteButton ? '' : 'opacity-0 group-hover:opacity-100'
+          }`}
         >
           <svg 
             className="w-7 h-10" 
