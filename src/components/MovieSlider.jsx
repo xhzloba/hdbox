@@ -23,7 +23,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   }
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
-    <div className="bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none' }}>
+    <div className="bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none', background: 'linear-gradient(131deg, #191919, #242323)', boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132' }}>
       {tabsConfig ? (
         // Используем кастомную конфигурацию табов
         tabsConfig.map((tab) => (

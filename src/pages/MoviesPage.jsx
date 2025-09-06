@@ -304,6 +304,10 @@ const MoviesPage = () => {
           className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${
             "gap-1"
           }`}
+          style={{
+            background: 'linear-gradient(131deg, #191919, #242323)',
+            boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+          }}
         >
           {tabs.map((tab) => (
             <button
