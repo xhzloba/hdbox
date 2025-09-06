@@ -302,13 +302,14 @@ const MovieCard = ({
       </div>
 
       {/* Ленточка избранного в левом верхнем углу постера */}
-      {showDetails && (
-        <button
-          onClick={handleAddToFavorites}
-          className={`absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105 ${
-            showFavoriteButton ? '' : 'opacity-0 group-hover:opacity-100'
-          }`}
-        >
+      <button
+        onClick={handleAddToFavorites}
+        className={`absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105 ${
+          showFavoriteButton 
+            ? "opacity-100" 
+            : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
           <svg 
             className="w-7 h-10" 
             width="28" 
@@ -341,7 +342,6 @@ const MovieCard = ({
             )}
           </div>
         </button>
-      )}
 
       {/* Текстовый блок с информацией о фильме - показывается только если включены детали */}
       {showDetails && (
