@@ -957,8 +957,13 @@ const Header = ({
       <header
         className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
         style={{
-          borderBottomLeftRadius: '93px',
-          borderTopRightRadius: '163px'
+          borderBottomLeftRadius: '100px',
+          borderTopLeftRadius: '100px',
+          borderBottomRightRadius: '100px',
+          borderTopRightRadius: '100px',
+          marginLeft: '37px',
+          marginRight: '37px',
+          boxShadow: '9px 1px 20px 0px #000000'
         }}
       >
         <div className="flex items-center justify-between px-6 py-3">
