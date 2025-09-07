@@ -132,11 +132,16 @@ const SearchResultsSlider = ({
   }, []);
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (emblaApi) {
+      onSelect(emblaApi);
+      emblaApi.on("reInit", onSelect);
+      emblaApi.on("select", onSelect);
 
-    onSelect(emblaApi);
-    emblaApi.on("reInit", onSelect);
-    emblaApi.on("select", onSelect);
+      return () => {
+        emblaApi.off("reInit", onSelect);
+        emblaApi.off("select", onSelect);
+      };
+    }
   }, [emblaApi, onSelect]);
 
   const displayItems = isLoading
@@ -268,19 +273,11 @@ const Header = ({
   const [currentSearchQuery, setCurrentSearchQuery] = useState(""); // для отображения в заголовке модалки
   const [voiceSearchMessage, setVoiceSearchMessage] = useState(""); // новое состояние для сообщения голосового поиска
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
+  const [showSearchModal, setShowSearchModal] = useState(false); // состояние для модального окна поиска
+  const [modalSearchQuery, setModalSearchQuery] = useState(""); // запрос в модальном окне поиска
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
-  // Для предотвращения гидратации используем состояние mounted
-  useEffect(() => {
-    setMounted(true);
-    // Проверяем поддержку Speech Recognition API
-    if (typeof window !== "undefined") {
-      setSpeechSupported(
-        "webkitSpeechRecognition" in window || "SpeechRecognition" in window
-      );
-    }
-  }, []);
   // Безопасное использование useParentalControl с проверкой контекста
   let isParentalControlEnabled = false;
   let hasPin = false;
@@ -297,6 +294,17 @@ const Header = ({
     // Контекст недоступен, используем значения по умолчанию
     console.warn('ParentalControlContext not available, using defaults');
   }
+
+  // Для предотвращения гидратации используем состояние mounted
+  useEffect(() => {
+    setMounted(true);
+    // Проверяем поддержку Speech Recognition API
+    if (typeof window !== "undefined") {
+      setSpeechSupported(
+        "webkitSpeechRecognition" in window || "SpeechRecognition" in window
+      );
+    }
+  }, []);
 
 
   // Конфигурация табов фильтрации для модалки поиска
@@ -416,6 +424,20 @@ const Header = ({
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
+
+  // Эффект для запрета прокрутки при открытом модале поиска
+  useEffect(() => {
+    if (showSearchModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Очистка при размонтировании компонента
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSearchModal]);
 
   const toggleFullscreen = async () => {
     try {
@@ -1034,6 +1056,34 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
+            {/* Иконка поиска */}
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+              title="Поиск фильмов"
+            >
+              <Search className="w-5 h-5 text-foreground" />
+            </button>
+
+            {/* Иконка голосового поиска */}
+            {speechSupported && (
+              <button
+                onClick={handleVoiceSearch}
+                className={`p-2 rounded-lg transition-colors ${
+                  isListening
+                    ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                    : "hover:bg-secondary"
+                }`}
+                title={isListening ? "Остановить запись" : "Голосовой поиск"}
+                disabled={!speechSupported}
+              >
+                {isListening ? (
+                  <MicOff className="w-5 h-5 text-white" />
+                ) : (
+                  <Mic className="w-5 h-5 text-foreground" />
+                )}
+              </button>
+            )}
 
             <button
               onClick={handleParentalControlClick}
@@ -1251,6 +1301,70 @@ const Header = ({
                   )}
                 </div>
               </div>
+            </div>
+          </>,
+          document.body
+        )}
+
+      {/* Модальное окно поиска */}
+      {showSearchModal &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <>
+            {/* Затемненный фон */}
+            <div
+              className="fixed inset-0 bg-black/70 z-[90]"
+              onClick={() => {
+                setShowSearchModal(false);
+                setModalSearchQuery("");
+              }}
+            />
+
+            {/* Форма поиска по центру */}
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 gap-4">
+              <input
+                type="text"
+                value={modalSearchQuery}
+                placeholder="Поиск фильмов и сериалов..."
+                className="pl-6 pr-6 py-5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:shadow-[0_0_20px_rgba(0,0,0,0.5)] w-[500px] h-16 text-xl transition-all duration-200 shadow-lg"
+                onChange={(e) => setModalSearchQuery(e.target.value)}
+                onKeyPress={(e) => {
+                   if (e.key === 'Enter' && modalSearchQuery.trim()) {
+                     // Выполняем поиск
+                     setCurrentSearchQuery(modalSearchQuery);
+                     searchMovies(modalSearchQuery, false);
+                     setShowSearchModal(false);
+                     setModalSearchQuery("");
+                   }
+                 }}
+                autoFocus
+              />
+              <button
+                onClick={() => {
+                   if (modalSearchQuery.trim()) {
+                     setCurrentSearchQuery(modalSearchQuery);
+                     searchMovies(modalSearchQuery, false);
+                     setShowSearchModal(false);
+                     setModalSearchQuery("");
+                   }
+                 }}
+                disabled={!modalSearchQuery.trim()}
+                className="w-16 h-16 bg-blue-600 hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white rounded-full transition-colors font-medium flex items-center justify-center"
+                style={{filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6))'}}
+              >
+                <Search className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => {
+                  setShowSearchModal(false);
+                  setModalSearchQuery("");
+                }}
+                className="w-16 h-16 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full transition-colors flex items-center justify-center"
+                style={{filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6))'}}
+                title="Отменить поиск"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
           </>,
           document.body
