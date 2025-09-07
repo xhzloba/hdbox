@@ -982,11 +982,11 @@ const Header = ({
       <div className="sticky top-0 z-[80]">
         <LiquidWeb
           options={{
-            scale: 42,
+            scale: 32,
             blur: 0,
-            saturation: 0,
-            aberration: 50,
-            mode: 'prominent'
+            saturation: 10,
+            aberration: 60,
+            mode: 'standart'
           }}
         >
           <header
