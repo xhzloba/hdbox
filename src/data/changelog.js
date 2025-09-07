@@ -1,6 +1,16 @@
 // Данные changelog для приложения StreamFlix
 export const changelogData = [
   {
+    version: "3.0",
+    date: "2024-12-21",
+    title: "Liquid Glass эффекты",
+    changes: [
+      "Добавлен современный Liquid Glass эффект в header",
+      "Улучшен визуальный дизайн header с интерактивными эффектами",
+      "Оптимизированы параметры эффекта для лучшей производительности"
+    ]
+  },
+  {
     version: "2.1",
     date: "2024-12-21",
     title: "Улучшения UI",

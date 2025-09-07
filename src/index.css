@@ -102,7 +102,6 @@
     @apply bg-background text-foreground font-sans;
     /* добавлен плавный переход между темами */
     transition: background-color 0.3s ease, color 0.3s ease;
-    /* убран отступ сверху, так как хедер больше не фиксированный глобально */
     /* запрет выделения текста на всей странице */
     user-select: none;
     -webkit-user-select: none;

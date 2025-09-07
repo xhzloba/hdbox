@@ -31,6 +31,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { LiquidWeb } from "liquid-web/react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
@@ -978,13 +979,23 @@ const Header = ({
 
   return (
     <>
-      <header
-        className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
-        style={{
-          borderBottomLeftRadius: '93px',
-          borderTopRightRadius: '163px'
-        }}
-      >
+      <div className="sticky top-0 z-[80]">
+        <LiquidWeb
+          options={{
+            scale: 32,
+            blur: 0,
+            saturation: 220,
+            aberration: 70,
+            mode: 'prominent'
+          }}
+        >
+          <header
+            className="main-header bg-background/80 border-b border-border transition-all duration-300"
+            style={{
+              borderBottomLeftRadius: '93px',
+              borderTopRightRadius: '163px'
+            }}
+          >
         <div className="flex items-center justify-between px-6 py-3">
           {/* Левая часть - кнопка меню, логотип и поиск */}
           <div className="flex items-center gap-3">
@@ -1254,7 +1265,9 @@ const Header = ({
           {/* Оверлей затемнения в хедере удален. Затемнение теперь глобальное. */}
           {/* Удалены дублирующиеся оверлеи, которые вызывали прыжки элементов */}
         </div>
-      </header>
+          </header>
+        </LiquidWeb>
+      </div>
 
       {/* Визуальный эффект голосового поиска внизу экрана */}
       {showVoiceSearchEffect && (
