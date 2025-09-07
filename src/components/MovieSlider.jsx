@@ -57,7 +57,6 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             }`}
             style={{ userSelect: 'none' }}
           >
-            <Eye className="w-4 h-4 mr-2" />
             <span style={{ userSelect: 'none' }}>Сейчас смотрят</span>
           </button>
           <button
@@ -69,7 +68,6 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             }`}
             style={{ userSelect: 'none' }}
           >
-            <Star className="w-4 h-4 mr-2" />
             <span style={{ userSelect: 'none' }}>Популярное сейчас</span>
           </button>
           <button
@@ -81,7 +79,6 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             }`}
             style={{ userSelect: 'none' }}
           >
-            <Film className="w-4 h-4 mr-2" />
             <span style={{ userSelect: 'none' }}>Фильмы</span>
           </button>
           <button
@@ -93,7 +90,6 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             }`}
             style={{ userSelect: 'none' }}
           >
-            <Tv className="w-4 h-4 mr-2" />
             <span style={{ userSelect: 'none' }}>Сериалы</span>
           </button>
         </>
