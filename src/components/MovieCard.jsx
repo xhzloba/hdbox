@@ -17,6 +17,7 @@ import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
 import PlayerModal from "./PlayerModal";
 
+
 // Функция для определения иконки и цвета на основе рейтинга
 const getRatingIcon = (rating) => {
   const numRating = parseFloat(rating);
@@ -69,6 +70,8 @@ const MovieCard = ({
   isNew = false,
   showAllGenres = false,
   showContentTypeBadge = false,
+  position = null,
+  showPosition = false,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
@@ -199,10 +202,33 @@ const MovieCard = ({
           </div>
         )}
 
+        {/* Position Number */}
+        {showPosition && position && position <= 10 && (
+          <div className="absolute bottom-2 left-2 z-30">
+            <div 
+              className="text-4xl md:text-5xl font-black bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent"
+              style={{
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)',
+                letterSpacing: '0.02em',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+              }}
+            >
+              {position}
+            </div>
+          </div>
+        )}
+
         {/* Age Rating on Poster */}
         {movie.age && (
           <div
-            className={`absolute bottom-2 z-20 ${isNew ? "right-12" : "left-2"}`}
+            className={`absolute bottom-2 z-20 ${
+              showPosition && position && position <= 10
+                ? "right-2"
+                : isNew
+                ? "right-12"
+                : "left-2"
+            }`}
           >
             <span className="text-xs font-medium text-gray-400 drop-shadow-lg">
               {movie.age}+

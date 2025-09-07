@@ -8,6 +8,8 @@ const MovieCardWithSkeleton = ({
   onMovieClick,
   isNew = false,
   showContentTypeBadge = false,
+  position = null,
+  showPosition = false,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -41,12 +43,14 @@ const MovieCardWithSkeleton = ({
   // Когда изображение загрузилось, показываем настоящую карточку
   return (
     <MovieCard
-      movie={movie}
-      onAdultContentClick={onAdultContentClick}
-      onMovieClick={onMovieClick}
-      isNew={isNew}
-      showContentTypeBadge={showContentTypeBadge}
-    />
+          movie={movie}
+          onAdultContentClick={onAdultContentClick}
+          onMovieClick={onMovieClick}
+          isNew={isNew}
+          showContentTypeBadge={showContentTypeBadge}
+          position={position}
+          showPosition={showPosition}
+        />
   );
 };
 

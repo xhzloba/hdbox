@@ -211,7 +211,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
         style={{ userSelect: 'none' }}
       >
         <div className="flex gap-4">
-          {displayItems.map((item) => (
+          {displayItems.map((item, index) => (
             <div
               key={item.id}
               className="w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] flex-shrink-0 min-w-0 relative z-20"
@@ -224,6 +224,8 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   onAdultContentClick={handleAdultContentClick} 
                   isNew={newMovies.includes(item.id)}
                   showContentTypeBadge={shouldShowContentTypeBadge()}
+                  position={index + 1}
+                  showPosition={activeTab === "watching"}
                 />
               )}
             </div>
