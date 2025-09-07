@@ -1,6 +1,15 @@
 // Данные changelog для приложения StreamFlix
 export const changelogData = [
   {
+    version: "3.0.1",
+    date: "2024-12-21",
+    title: "Исправления и улучшения",
+    changes: [
+      "Добавлен легкий эффект размытия (blur: 1.5) к Liquid Glass эффекту",
+      "Улучшена стабильность работы приложения при серверном рендеринге"
+    ]
+  },
+  {
     version: "3.0",
     date: "2024-12-21",
     title: "Liquid Glass эффекты",
