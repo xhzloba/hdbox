@@ -1015,7 +1015,7 @@ const Header = ({
             {/* Кнопка поиска рядом с меню */}
             <button
               onClick={toggleSearchInput}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0"
+              className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0 relative z-[10000]"
               title="Поиск фильмов"
             >
               <Search className="w-5 h-5 text-foreground" />
@@ -1029,7 +1029,7 @@ const Header = ({
 
           {/* Поле поиска - абсолютное позиционирование слева от иконки поиска */}
           {showSearchInput && (
-            <div className="absolute left-20 top-1/2 transform -translate-y-1/2 z-[9998]">
+            <div className="absolute left-16 top-1/2 transform -translate-y-1/2 z-[9998]">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-[9999]">
                   <Search className="w-4 h-4 text-foreground" />
@@ -1039,7 +1039,7 @@ const Header = ({
                   type="text"
                   value={searchQuery}
                   placeholder="Поиск фильмов и сериалов..."
-                  className="pl-10 pr-20 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
+                  className="pl-10 pr-24 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
                   onFocus={handleSearchFocus}
                   onBlur={(e) => {
                     // Задержка перед скрытием, чтобы можно было кликнуть на результаты
@@ -1055,35 +1055,26 @@ const Header = ({
                   onChange={handleSearchChange}
                   onKeyPress={handleSearchKeyPress}
                 />
-                {/* Кнопка голосового поиска */}
-                {speechSupported && (
-                  <button
-                    onClick={handleVoiceSearch}
-                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] ${
-                      isListening
-                        ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                        : "bg-muted hover:bg-blue-200/80 dark:hover:bg-blue-900/30"
-                    }`}
-                    title={isListening ? "Остановить запись" : "Голосовой поиск"}
-                    disabled={!speechSupported}
-                  >
-                    {isListening ? (
-                      <MicOff className="w-5 h-5 text-white transition-colors duration-200" />
-                    ) : (
-                      <Mic className="w-5 h-5 text-muted-foreground hover:text-blue-500 transition-colors duration-200" />
-                    )}
-                  </button>
-                )}
-                {searchQuery && (
-                  <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={handleClearSearch}
-                    className="absolute right-10 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
-                    title="Очистить поиск"
-                  >
-                    <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
-                  </button>
-                )}
+                {/* Кнопка закрытия поиска */}
+              <button
+                onClick={toggleSearchInput}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
+                title="Закрыть поиск"
+              >
+                <X className="w-4 h-4 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
+              </button>
+              
+
+              {searchQuery && (
+                 <button
+                   onMouseDown={(e) => e.preventDefault()}
+                   onClick={handleClearSearch}
+                   className="absolute right-16 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
+                   title="Очистить поиск"
+                 >
+                   <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
+                 </button>
+               )}
                 
                 {/* Выпадающий список результатов поиска */}
                 {showSearchResults && searchResults.length > 0 && (
@@ -1199,10 +1190,15 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
-            {/* Иконка голосового поиска (только если поиск активен) */}
-            {showSearchInput && speechSupported && (
+            {/* Иконка голосового поиска (всегда видна) */}
+            {speechSupported && (
               <button
-                onClick={handleVoiceSearch}
+                onClick={() => {
+                  // Сначала открываем форму поиска
+                  setShowSearchInput(true);
+                  // Затем запускаем голосовой поиск
+                  handleVoiceSearch();
+                }}
                 className={`p-2 rounded-lg transition-colors ${
                   isListening
                     ? "bg-red-500 hover:bg-red-600 animate-pulse"
