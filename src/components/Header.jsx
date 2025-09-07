@@ -961,25 +961,6 @@ const Header = ({
           borderTopRightRadius: '163px'
         }}
       >
-      <div className="sticky top-0 z-[80]">
-        <LiquidWeb className="liquid-web-container"
-          style={{ pointerEvents: "none" }}
-          options={{
-            scale: 32,
-            blur: 0,
-            saturation: 10,
-            aberration: 60,
-            mode: 'standart'
-          }}
-        >
-          <header
-            className="main-header bg-background/80 border-b border-border transition-all duration-300"
-            style={{
-              pointerEvents: "auto",
-              borderBottomLeftRadius: "93px",
-              borderTopRightRadius: '163px'
-            }}
-          >
         <div className="flex items-center justify-between px-6 py-3">
           {/* Левая часть - кнопка меню, логотип и поиск */}
           <div className="flex items-center gap-3">

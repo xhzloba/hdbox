@@ -143,6 +143,13 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
     emblaApi.on("select", onSelect)
   }, [emblaApi, onSelect])
 
+  // Сброс позиции слайдера при изменении activeTab или movies
+  useEffect(() => {
+    if (emblaApi) {
+      emblaApi.scrollTo(0)
+    }
+  }, [emblaApi, activeTab, movies])
+
   // Создаем массив скелетонов для отображения во время загрузки
   const skeletonArray = Array.from({ length: 18 }, (_, index) => ({ id: `skeleton-${index}` }))
   

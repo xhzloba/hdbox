@@ -1,0 +1,368 @@
+@import "tailwindcss";
+
+:root {
+  --background: #1c1c1c;
+  --foreground: #ffffff;
+  --card: #282828;
+  --card-foreground: #ffffff;
+  --popover: #3a3a3a;
+  --popover-foreground: #ffffff;
+  --primary: #ff3742;
+  --primary-foreground: #ffffff;
+  --secondary: #4a4a4a;
+  --secondary-foreground: #ffffff;
+  --muted: #323232;
+  --muted-foreground: #ffffff;
+  --accent: #ff3742;
+  --accent-foreground: #ffffff;
+  --destructive: #ff3742;
+  --destructive-foreground: #ffffff;
+  --border: #3a3a3a;
+  --input: #282828;
+  --ring: rgba(255, 55, 66, 0.6);
+  --sidebar: #282828;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #3a3a3a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ff3742;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #3a3a3a;
+  --sidebar-ring: rgba(255, 55, 66, 0.6);
+  --radius: 0.5rem;
+}
+
+
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Montserrat",
+    "Open Sans", "Segoe UI", Roboto, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "Montserrat Black", "Segoe UI", Roboto, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-border: var(--sidebar-border);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    /* Плавный скролл для всей страницы */
+    scroll-behavior: smooth;
+    /* Стабилизация скролла */
+    overscroll-behavior: contain;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* добавлен плавный переход между темами */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    /* запрет выделения текста на всей странице */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* Предотвращение дёргания при скролле */
+    overscroll-behavior: contain;
+    /* GPU ускорение для плавности */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    /* Стабилизация layout */
+    contain: layout style;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+  
+  /* Исключения для выделения текста */
+  /* Полный запрет выделения для всего блока sidebar */
+  [class*="sidebar"],
+  .sidebar,
+  aside {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  
+  /* Запрет выделения для всех элементов внутри sidebar */
+  [class*="sidebar"] *,
+  .sidebar *,
+  aside * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  
+  /* Запрет выделения для всех текстовых элементов в sidebar */
+  [class*="sidebar"] div,
+  [class*="sidebar"] span,
+  [class*="sidebar"] p,
+  [class*="sidebar"] h1,
+  [class*="sidebar"] h2,
+  [class*="sidebar"] h3,
+  [class*="sidebar"] h4,
+  [class*="sidebar"] h5,
+  [class*="sidebar"] h6,
+  [class*="sidebar"] a,
+  [class*="sidebar"] button,
+  .sidebar div,
+  .sidebar span,
+  .sidebar p,
+  .sidebar h1,
+  .sidebar h2,
+  .sidebar h3,
+  .sidebar h4,
+  .sidebar h5,
+  .sidebar h6,
+  .sidebar a,
+  .sidebar button,
+  aside div,
+  aside span,
+  aside p,
+  aside h1,
+  aside h2,
+  aside h3,
+  aside h4,
+  aside h5,
+  aside h6,
+  aside a,
+  aside button {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  
+  /* Исключения только для полей ввода внутри sidebar */
+  [class*="sidebar"] input,
+  [class*="sidebar"] textarea,
+  .sidebar input,
+  .sidebar textarea,
+  aside input,
+  aside textarea {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+  }
+  
+  /* Слайдеры */
+  [class*="embla"],
+  [class*="MovieSlider"],
+  .embla,
+  .movie-slider {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    /* Стабилизация слайдеров */
+    position: relative;
+    z-index: 85;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    contain: layout style paint;
+    will-change: transform;
+  }
+  
+  /* Карточки фильмов */
+  [class*="MovieCard"],
+  .movie-card {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    /* Стабилизация карточек */
+    position: relative;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    contain: layout style;
+    will-change: transform;
+  }
+  
+  /* Инпуты и текстовые поля */
+  input,
+  textarea,
+  select,
+  [contenteditable="true"],
+  [role="textbox"] {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+  }
+  
+  /* Запрет выделения изображений */
+  img {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
+  }
+  
+  /* Исключения для изображений в интерактивных элементах */
+  button img,
+  a img,
+  [role="button"] img,
+  .clickable img {
+    pointer-events: auto;
+  }
+}
+
+/* Анимация для новых фильмов */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Стили для плеера */
+.player-modal {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.player-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+/* Улучшенные стили для кнопок плеера */
+.player-button {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.player-button:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.player-button:hover:before {
+  left: 100%;
+}
+
+/* Z-index для модалок плеера - выше чем модалка поиска */
+.player-modal [data-slot="dialog-overlay"] {
+  z-index: 110 !important;
+}
+
+.player-modal [data-slot="dialog-content"] {
+  z-index: 110 !important;
+}
+
+/* Z-index для модалки описания - выше чем плеер */
+.description-modal [data-slot="dialog-overlay"] {
+  z-index: 120 !important;
+}
+
+.description-modal [data-slot="dialog-content"] {
+  z-index: 120 !important;
+}
+
+/* Стабилизация основных контейнеров контента */
+main,
+[class*="MainContent"],
+.main-content,
+section {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  will-change: auto;
+}
+
+/* Стабилизация контейнеров страниц */
+[class*="Page"],
+.page-container,
+.content-wrapper {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout;
+  overflow-anchor: auto;
+}
+
+/* Предотвращение дёргания при быстром скролле */
+.flex-1,
+[class*="space-y"],
+.space-y-12 {
+  contain: layout style;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Стабилизация виртуализированных списков */
+[class*="virtual"],
+[class*="Virtual"],
+.virtual-container {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: strict;
+  overflow-anchor: none;
+}
+
+/* Отключение pointer events для LiquidWeb */
+.liquid-web-container,
+.liquid-web-container *,
+.liquid-web-container canvas,
+.liquid-web-container svg {
+  pointer-events: none !important;
+}
+
+/* Восстановление pointer events для header */
+.liquid-web-container header,
+.liquid-web-container header * {
+  pointer-events: auto !important;
+}
