@@ -34,7 +34,7 @@ import {
 import { LiquidWeb } from "liquid-web/react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { useTheme } from "next-themes";
+
 import { Button } from "../../components/ui/button";
 import { useToast } from "../../hooks/use-toast";
 import { useParentalControl } from "../contexts/ParentalControlContext";
@@ -254,8 +254,7 @@ const Header = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [activeInfoTab, setActiveInfoTab] = useState("general");
-  const [showThemeDialog, setShowThemeDialog] = useState(false);
-  const [isThemeApplying, setIsThemeApplying] = useState(false);
+
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -273,8 +272,6 @@ const Header = ({
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
-
   // Для предотвращения гидратации используем состояние mounted
   useEffect(() => {
     setMounted(true);
@@ -285,12 +282,6 @@ const Header = ({
       );
     }
   }, []);
-
-  const darkMode = theme === "dark";
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
   // Безопасное использование useParentalControl с проверкой контекста
   let isParentalControlEnabled = false;
   let hasPin = false;
@@ -693,22 +684,7 @@ const Header = ({
     }
   };
 
-  const handleThemeConfirm = async () => {
-    setIsThemeApplying(true);
 
-    // Применяем тему сразу
-    toggleTheme();
-
-    // Ждем пока тема применится визуально (CSS transitions)
-    setTimeout(() => {
-      setIsThemeApplying(false);
-      setShowThemeDialog(false);
-    }, 600); // Даем время на CSS transitions (300ms + небольшой запас)
-  };
-
-  const handleThemeCancel = () => {
-    setShowThemeDialog(false);
-  };
 
   const renderInfoTabContent = () => {
     switch (activeInfoTab) {
@@ -1043,7 +1019,7 @@ const Header = ({
                   {isListening ? (
                     <MicOff className="w-5 h-5 text-white transition-colors duration-200" />
                   ) : (
-                    <Mic className="w-5 h-5 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" />
+                    <Mic className="w-5 h-5 text-muted-foreground hover:text-blue-500 transition-colors duration-200" />
                   )}
                 </button>
               )}
@@ -1051,10 +1027,10 @@ const Header = ({
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleClearSearch}
-                  className="absolute right-10 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-200/80 dark:hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[90]"
+                  className="absolute right-10 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[90]"
                   title="Очистить поиск"
                 >
-                  <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200" />
+                  <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
                 </button>
               )}
             </div>
@@ -1062,28 +1038,6 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowThemeDialog(true)}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
-              title={
-                mounted
-                  ? darkMode
-                    ? "Светлая тема"
-                    : "Темная тема"
-                  : "Переключить тему"
-              }
-              suppressHydrationWarning
-            >
-              {!mounted ? (
-                <Sun className="w-5 h-5 text-foreground" />
-              ) : darkMode ? (
-                <Sun className="w-5 h-5 text-foreground" />
-              ) : (
-                <Moon className="w-5 h-5 text-foreground" />
-              )}
-            </button>
-
-
 
             <button
               onClick={handleParentalControlClick}
@@ -1198,68 +1152,7 @@ const Header = ({
               onClose={() => setShowSettingsModal(false)}
             />
 
-            {/* Диалог подтверждения смены темы */}
-            <AlertDialog
-              open={showThemeDialog}
-              onOpenChange={setShowThemeDialog}
-            >
-              <AlertDialogContent className="sm:max-w-md">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2">
-                    {darkMode ? (
-                      <>
-                        <Sun className="h-5 w-5 text-yellow-500" />
-                        Переход на светлую тему
-                      </>
-                    ) : (
-                      <>
-                        <Moon className="h-5 w-5 text-blue-500" />
-                        Переход на темную тему
-                      </>
-                    )}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {darkMode
-                      ? "Вы собираетесь переключиться на светлую тему. Это изменит цветовую схему всего интерфейса на более светлую."
-                      : "Вы собираетесь переключиться на темную тему. Это изменит цветовую схему всего интерфейса на более темную, что может быть легче для глаз в условиях низкой освещенности."}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    onClick={handleThemeCancel}
-                    disabled={isThemeApplying}
-                  >
-                    Отмена
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleThemeConfirm}
-                    disabled={isThemeApplying}
-                    className={`${
-                      darkMode
-                        ? "bg-white hover:bg-gray-100 text-black border border-gray-300"
-                        : "bg-gray-800 hover:bg-gray-900"
-                    } ${
-                      isThemeApplying ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {isThemeApplying ? (
-                      <div
-                        className={`flex items-center gap-2 ${
-                          darkMode ? "text-black" : "text-white"
-                        }`}
-                      >
-                        <Loader className="w-4 h-4 animate-spin" />
-                        Применение...
-                      </div>
-                    ) : darkMode ? (
-                      "Перейти на светлую"
-                    ) : (
-                      "Перейти на темную"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+
           </div>
 
           {/* Оверлей затемнения в хедере удален. Затемнение теперь глобальное. */}

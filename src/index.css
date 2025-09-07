@@ -31,36 +31,7 @@
   --radius: 0.5rem;
 }
 
-/* добавлены переменные для светлой темы */
-:root:not(.dark) {
-  --background: #ffffff;
-  --foreground: #1c1c1c;
-  --card: #f8f9fa;
-  --card-foreground: #1c1c1c;
-  --popover: #ffffff;
-  --popover-foreground: #1c1c1c;
-  --primary: #ff3742;
-  --primary-foreground: #ffffff;
-  --secondary: #e8eaed;
-  --secondary-foreground: #1c1c1c;
-  --muted: #f0f2f5;
-  --muted-foreground: #5a6169;
-  --accent: #ff3742;
-  --accent-foreground: #ffffff;
-  --destructive: #d73502;
-  --destructive-foreground: #ffffff;
-  --border: #e9ecef;
-  --input: #ffffff;
-  --ring: rgba(255, 55, 66, 0.4);
-  --sidebar: #f8f9fa;
-  --sidebar-foreground: #1c1c1c;
-  --sidebar-primary: #e9ecef;
-  --sidebar-primary-foreground: #1c1c1c;
-  --sidebar-accent: #ff3742;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e9ecef;
-  --sidebar-ring: rgba(255, 55, 66, 0.4);
-}
+
 
 @theme inline {
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Montserrat",

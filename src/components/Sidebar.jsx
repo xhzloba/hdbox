@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { useSettings } from "../contexts/SettingsContext";
 import FuzzyText from "./ui/shadcn-io/fuzzy-text";
+import { useTheme } from "next-themes";
 
 import { useState } from "react";
 import {
@@ -20,6 +21,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();
   const { getFavoritesCount } = useFavorites();
   const { sidebarShadowsEnabled } = useSettings();
+  const { theme } = useTheme();
   const [showChangelog, setShowChangelog] = useState(false);
 
   // Синхронно читаем настройки из localStorage для предотвращения мерцания
@@ -43,6 +45,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   // Используем синхронное чтение настроек или fallback из контекста
   const shadowsEnabled = sidebarShadowsEnabled ?? getSavedShadowsSetting();
+  
+
 
   // Обычный режим
   const normalMenuItems = [
