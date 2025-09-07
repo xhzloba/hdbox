@@ -980,6 +980,10 @@ const Header = ({
     <>
       <header
         className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
+        style={{
+          borderBottomLeftRadius: '93px',
+          borderTopRightRadius: '163px'
+        }}
       >
         <div className="flex items-center justify-between px-6 py-3">
           {/* Левая часть - кнопка меню, логотип и поиск */}
