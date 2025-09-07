@@ -963,7 +963,9 @@ const Header = ({
           borderTopRightRadius: '100px',
           marginLeft: '37px',
           marginRight: '37px',
-          boxShadow: '9px 1px 20px 0px #000000'
+          boxShadow: 'inset 0px 5px 20px 0px #000000',
+          marginTop: '25px',
+          marginBottom: '20px'
         }}
       >
         <div className="flex items-center justify-between px-6 py-3">
