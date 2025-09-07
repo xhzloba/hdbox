@@ -202,22 +202,7 @@ const MovieCard = ({
           </div>
         )}
 
-        {/* Position Number */}
-        {showPosition && position && position <= 10 && (
-          <div className="absolute bottom-2 left-2 z-30">
-            <div 
-              className="text-4xl md:text-5xl font-black bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent"
-              style={{
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-                textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)',
-                letterSpacing: '0.02em',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-              }}
-            >
-              {position}
-            </div>
-          </div>
-        )}
+
 
         {/* Age Rating on Poster */}
         {movie.age && (
@@ -419,28 +404,51 @@ const MovieCard = ({
       {/* Текстовый блок с информацией о фильме - показывается только если включены детали */}
       {showDetails && (
         <div className="p-2 md:p-3 hidden md:block">
-          <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-1">
-            {movie.title}
-          </h3>
-          <div className="text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span>{movie.year}</span>
-              <span className="text-xs px-2 py-1 bg-secondary rounded text-gray-500">
-                {Array.isArray(movie.genre)
-                  ? showAllGenres
-                    ? movie.genre.join(", ")
-                    : movie.genre[0] || movie.genre
-                  : movie.genre}
-              </span>
-            </div>
-            {getContentType(movie.type) && showContentTypeBadge && (
-              <div className="mt-1">
-                <span className="text-[10px] px-1.5 py-1 bg-white text-black rounded font-medium">
-                  {getContentType(movie.type)}
-                </span>
+          {/* Основной блок с позицией и информацией */}
+          <div className="grid grid-cols-[auto_1fr] gap-2 mb-1">
+            {/* Позиция слева, занимает высоту всего блока */}
+            {showPosition && position && position <= 10 && (
+              <div 
+                className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent self-center"
+                style={{
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)',
+                  letterSpacing: '0.02em',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                }}
+              >
+                {position}
               </div>
             )}
+            
+            {/* Колонка с информацией справа */}
+            <div className="flex flex-col justify-center">
+              <h3 className="text-sm font-medium text-foreground line-clamp-1 mb-1">
+                {movie.title}
+              </h3>
+              <div className="text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span>{movie.year}</span>
+                  <span className="text-xs px-2 py-1 bg-secondary rounded text-gray-500">
+                    {Array.isArray(movie.genre)
+                      ? showAllGenres
+                        ? movie.genre.join(", ")
+                        : movie.genre[0] || movie.genre
+                      : movie.genre}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
+          
+          {/* Бейджик типа контента под всем блоком */}
+          {getContentType(movie.type) && showContentTypeBadge && (
+            <div>
+              <span className="text-[10px] px-1.5 py-1 bg-gray-600/70 text-gray-200 rounded font-medium">
+                {getContentType(movie.type)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
