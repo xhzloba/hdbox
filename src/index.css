@@ -90,6 +90,14 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    /* Плавный скролл для всей страницы */
+    scroll-behavior: smooth;
+    /* Стабилизация скролла */
+    overscroll-behavior: contain;
+  }
+  
   body {
     @apply bg-background text-foreground font-sans;
     /* добавлен плавный переход между темами */
@@ -100,6 +108,13 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    /* Предотвращение дёргания при скролле */
+    overscroll-behavior: contain;
+    /* GPU ускорение для плавности */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    /* Стабилизация layout */
+    contain: layout style;
   }
   h1,
   h2,
@@ -193,6 +208,13 @@
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
+    /* Стабилизация слайдеров */
+    position: relative;
+    z-index: 1;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    contain: layout style paint;
+    will-change: transform;
   }
   
   /* Карточки фильмов */
@@ -202,6 +224,12 @@
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
+    /* Стабилизация карточек */
+    position: relative;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    contain: layout style;
+    will-change: transform;
   }
   
   /* Инпуты и текстовые поля */
@@ -311,4 +339,46 @@
 
 .description-modal [data-slot="dialog-content"] {
   z-index: 120 !important;
+}
+
+/* Стабилизация основных контейнеров контента */
+main,
+[class*="MainContent"],
+.main-content,
+section {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  will-change: auto;
+}
+
+/* Стабилизация контейнеров страниц */
+[class*="Page"],
+.page-container,
+.content-wrapper {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout;
+  overflow-anchor: auto;
+}
+
+/* Предотвращение дёргания при быстром скролле */
+.flex-1,
+[class*="space-y"],
+.space-y-12 {
+  contain: layout style;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Стабилизация виртуализированных списков */
+[class*="virtual"],
+[class*="Virtual"],
+.virtual-container {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: strict;
+  overflow-anchor: none;
 }
