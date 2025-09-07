@@ -193,7 +193,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </div>
               <div className="flex-1 min-w-0 text-left" style={{ userSelect: 'none' }}>
                 <p className="text-sm font-medium text-blue-500 truncate" style={{ userSelect: 'none' }}>
-                  Версия 3.0.1
+                  Версия 2.1
                 </p>
                 <p className="text-xs text-muted-foreground" style={{ userSelect: 'none' }}>Нажмите для changelog</p>
               </div>
