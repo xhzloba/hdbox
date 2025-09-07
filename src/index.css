@@ -181,7 +181,7 @@
     -ms-user-select: text;
     /* Стабилизация слайдеров */
     position: relative;
-    z-index: 1;
+    z-index: 85;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     contain: layout style paint;
@@ -352,4 +352,38 @@ section {
   backface-visibility: hidden;
   contain: strict;
   overflow-anchor: none;
+}
+
+/* Отключение pointer events для LiquidWeb */
+.liquid-web-container,
+.liquid-web-container *,
+.liquid-web-container canvas,
+.liquid-web-container svg {
+  pointer-events: none !important;
+}
+
+/* Восстановление pointer events для header */
+.liquid-web-container header,
+.liquid-web-container header * {
+  pointer-events: auto !important;
+}
+
+/* Восстановление pointer events для слайдеров и поисковых результатов */
+.embla,
+.embla *,
+[class*="slider"],
+[class*="slider"] *,
+[class*="search-results"],
+[class*="search-results"] *,
+.overflow-hidden[ref],
+.overflow-hidden[ref] * {
+  pointer-events: auto !important;
+}
+
+/* Специальные правила для Embla слайдеров */
+.embla__container,
+.embla__container *,
+.embla__slide,
+.embla__slide * {
+  pointer-events: auto !important;
 }
