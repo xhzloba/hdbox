@@ -273,8 +273,7 @@ const Header = ({
   const [currentSearchQuery, setCurrentSearchQuery] = useState(""); // для отображения в заголовке модалки
   const [voiceSearchMessage, setVoiceSearchMessage] = useState(""); // новое состояние для сообщения голосового поиска
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
-  const [showSearchModal, setShowSearchModal] = useState(false); // состояние для модального окна поиска
-  const [modalSearchQuery, setModalSearchQuery] = useState(""); // запрос в модальном окне поиска
+  const [showSearchInput, setShowSearchInput] = useState(false); // состояние для показа поля поиска в хедере
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
@@ -360,8 +359,9 @@ const Header = ({
 
   // Обработчик клика по фильму в результатах поиска
   const handleMovieClick = (movie) => {
-    // Сначала закрываем модалку поиска
+    // Сначала закрываем результаты поиска и поле поиска
     setShowSearchResults(false);
+    setShowSearchInput(false);
     setIsSearchFocused(false);
     onSearchFocus && onSearchFocus(false);
 
@@ -425,19 +425,7 @@ const Header = ({
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  // Эффект для запрета прокрутки при открытом модале поиска
-  useEffect(() => {
-    if (showSearchModal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
 
-    // Очистка при размонтировании компонента
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showSearchModal]);
 
   const toggleFullscreen = async () => {
     try {
@@ -490,7 +478,7 @@ const Header = ({
   // Обработчик нажатия Enter в поле поиска
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter" && searchQuery.trim()) {
-      searchMovies(searchQuery.trim(), true); // Очищаем поле после поиска из хедера
+      searchMovies(searchQuery.trim(), false); // Не очищаем поле после поиска
     }
   };
 
@@ -509,8 +497,30 @@ const Header = ({
     }
   };
 
+  // Функция для toggle поисковой строки
+  const toggleSearchInput = () => {
+    if (showSearchInput) {
+      // Скрываем поиск и очищаем все состояния
+      setShowSearchInput(false);
+      setSearchQuery("");
+      setSearchResults([]);
+      setShowSearchResults(false);
+      setCurrentSearchQuery("");
+      setIsSearchFocused(false);
+      onSearchFocus && onSearchFocus(false);
+    } else {
+      // Показываем поиск и фокусируемся на поле ввода
+      setShowSearchInput(true);
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 100);
+    }
+  };
+
   // Функция поиска фильмов
-  const searchMovies = async (query, shouldClearInput = true) => {
+  const searchMovies = async (query, shouldClearInput = false) => {
     if (!query.trim()) {
       setSearchResults([]);
       setShowSearchResults(false);
@@ -631,9 +641,9 @@ const Header = ({
       // Очищаем ссылку на объект распознавания
       recognitionRef.current = null;
 
-      // Автоматически запускаем поиск после голосового ввода с очисткой поля
+      // Автоматически запускаем поиск после голосового ввода без очистки поля
       // Затемнение будет активировано в searchMovies при показе результатов
-      searchMovies(transcript, true);
+      searchMovies(transcript, false);
     };
 
     recognition.onerror = (event) => {
@@ -987,12 +997,13 @@ const Header = ({
           marginRight: '37px',
           boxShadow: 'inset 0px 5px 20px 0px #000000',
           marginTop: '25px',
-          marginBottom: '20px'
+          marginBottom: '20px',
+          height: '64px' // Фиксированная высота хедера
         }}
       >
-        <div className="flex items-center justify-between px-6 py-3">
-          {/* Левая часть - кнопка меню, логотип и поиск */}
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-6 py-3 h-full relative">
+          {/* Левая часть - кнопка меню, кнопка поиска, логотип */}
+          <div className="flex items-center gap-3 relative">
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0"
@@ -1001,72 +1012,195 @@ const Header = ({
               <Menu className="w-5 h-5 text-foreground" />
             </button>
 
-            {/* Логотип */}
-            <div className="flex-shrink-0">
-              {/* Логотип удален */}
-            </div>
-
-            {/* Поиск перемещен в левую часть */}
-            <div className="relative hidden md:block z-[80]">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-[100]">
-                <Search className="w-4 h-4 text-foreground" />
-              </div>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                placeholder="Поиск фильмов и сериалов..."
-                className="pl-10 pr-20 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-80 transition-all duration-200 relative z-[90]"
-                onFocus={handleSearchFocus}
-                onBlur={handleSearchBlur}
-                onChange={handleSearchChange}
-                onKeyPress={handleSearchKeyPress}
-              />
-              {/* Кнопка голосового поиска */}
-              {speechSupported && (
-                <button
-                  onClick={handleVoiceSearch}
-                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[90] ${
-                    isListening
-                      ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                      : "bg-muted hover:bg-blue-200/80 dark:hover:bg-blue-900/30"
-                  }`}
-                  title={isListening ? "Остановить запись" : "Голосовой поиск"}
-                  disabled={!speechSupported}
-                >
-                  {isListening ? (
-                    <MicOff className="w-5 h-5 text-white transition-colors duration-200" />
-                  ) : (
-                    <Mic className="w-5 h-5 text-muted-foreground hover:text-blue-500 transition-colors duration-200" />
-                  )}
-                </button>
-              )}
-              {searchQuery && (
-                <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={handleClearSearch}
-                  className="absolute right-10 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[90]"
-                  title="Очистить поиск"
-                >
-                  <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Правая часть - иконки */}
-          <div className="flex items-center gap-3">
-            {/* Иконка поиска */}
+            {/* Кнопка поиска рядом с меню */}
             <button
-              onClick={() => setShowSearchModal(true)}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+              onClick={toggleSearchInput}
+              className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0"
               title="Поиск фильмов"
             >
               <Search className="w-5 h-5 text-foreground" />
             </button>
 
-            {/* Иконка голосового поиска */}
-            {speechSupported && (
+            {/* Логотип */}
+            <div className="flex-shrink-0">
+              {/* Логотип удален */}
+            </div>
+          </div>
+
+          {/* Поле поиска - абсолютное позиционирование слева от иконки поиска */}
+          {showSearchInput && (
+            <div className="absolute left-20 top-1/2 transform -translate-y-1/2 z-[9998]">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-[9999]">
+                  <Search className="w-4 h-4 text-foreground" />
+                </div>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  placeholder="Поиск фильмов и сериалов..."
+                  className="pl-10 pr-20 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
+                  onFocus={handleSearchFocus}
+                  onBlur={(e) => {
+                    // Задержка перед скрытием, чтобы можно было кликнуть на результаты
+                    setTimeout(() => {
+                      if (!e.currentTarget.contains(document.activeElement)) {
+                        setShowSearchInput(false);
+                        setShowSearchResults(false);
+                        setIsSearchFocused(false);
+                        onSearchFocus && onSearchFocus(false);
+                      }
+                    }, 200);
+                  }}
+                  onChange={handleSearchChange}
+                  onKeyPress={handleSearchKeyPress}
+                />
+                {/* Кнопка голосового поиска */}
+                {speechSupported && (
+                  <button
+                    onClick={handleVoiceSearch}
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] ${
+                      isListening
+                        ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                        : "bg-muted hover:bg-blue-200/80 dark:hover:bg-blue-900/30"
+                    }`}
+                    title={isListening ? "Остановить запись" : "Голосовой поиск"}
+                    disabled={!speechSupported}
+                  >
+                    {isListening ? (
+                      <MicOff className="w-5 h-5 text-white transition-colors duration-200" />
+                    ) : (
+                      <Mic className="w-5 h-5 text-muted-foreground hover:text-blue-500 transition-colors duration-200" />
+                    )}
+                  </button>
+                )}
+                {searchQuery && (
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClearSearch}
+                    className="absolute right-10 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
+                    title="Очистить поиск"
+                  >
+                    <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
+                  </button>
+                )}
+                
+                {/* Выпадающий список результатов поиска */}
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl max-h-96 overflow-y-auto z-[9999]">
+                    {/* Табы фильтрации */}
+                    <div className="p-4 border-b border-border">
+                      <div className="bg-muted text-muted-foreground rounded-lg p-1 flex items-center gap-1">
+                        {filterTabs.map((tab) => (
+                          <button
+                            key={tab.id}
+                            onClick={() => handleFilterTabClick(tab.id)}
+                            className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                              activeFilterTab === tab.id
+                                ? "bg-background text-foreground shadow-sm"
+                                : "hover:bg-background/50 hover:text-foreground"
+                            }`}
+                          >
+                            {tab.icon === "AZ" && (
+                              <span className="w-3 h-3 text-xs font-bold">AZ</span>
+                            )}
+                            {tab.icon === "Calendar" && (
+                              <span className="w-3 h-3 text-xs">📅</span>
+                            )}
+                            {tab.icon === "Star" && <Star className="w-3 h-3" />}
+                            {tab.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Список фильмов */}
+                    <div className="p-2">
+                      {getSortedSearchResults().slice(0, 8).map((movie) => {
+                        const transformedMovie = {
+                          id: movie.id || movie.details?.id || Math.random().toString(36),
+                          title: movie.details?.name || movie.title || movie.name || "Неизвестное название",
+                          poster: movie.details?.poster || movie.poster || "https://kinohost.web.app/no_poster.png",
+                          year: movie.details?.released || movie.year || "",
+                          genre: movie.details?.genre || movie.genre || [],
+                          rating: movie.details?.rating_kp || movie.details?.rating_imdb || movie.rating || "0.0",
+                          age: movie.details?.age_rating || movie.age || "0",
+                          description: movie.details?.description || movie.description || "",
+                          details: movie.details || {},
+                        };
+                        
+                        return (
+                          <div
+                            key={transformedMovie.id}
+                            onClick={() => handleMovieClick(movie)}
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
+                          >
+                            <img
+                              src={transformedMovie.poster}
+                              alt={transformedMovie.title}
+                              className="w-12 h-16 object-cover rounded flex-shrink-0"
+                              onError={(e) => {
+                                e.target.src = "https://kinohost.web.app/no_poster.png";
+                              }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-foreground truncate">
+                                {transformedMovie.title}
+                              </h4>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                {transformedMovie.year && (
+                                  <span>{transformedMovie.year}</span>
+                                )}
+                                {transformedMovie.rating && transformedMovie.rating !== "0.0" && (
+                                  <>
+                                    <span>•</span>
+                                    <div className="flex items-center gap-1">
+                                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                      <span>{transformedMovie.rating}</span>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                              {Array.isArray(transformedMovie.genre) && transformedMovie.genre.length > 0 && (
+                                <p className="text-xs text-muted-foreground truncate mt-1">
+                                  {transformedMovie.genre.slice(0, 3).join(", ")}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Сообщение о том, что ничего не найдено */}
+                {showSearchResults && searchResults.length === 0 && !isSearching && (
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]">
+                    <div className="text-center text-muted-foreground">
+                      <p>Ничего не найдено</p>
+                      <p className="text-sm mt-1">Попробуйте изменить запрос</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Индикатор загрузки */}
+                {isSearching && (
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <Loader className="w-4 h-4 animate-spin" />
+                      <span>Поиск...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Правая часть - иконки */}
+          <div className="flex items-center gap-3">
+            {/* Иконка голосового поиска (только если поиск активен) */}
+            {showSearchInput && speechSupported && (
               <button
                 onClick={handleVoiceSearch}
                 className={`p-2 rounded-lg transition-colors ${
@@ -1231,144 +1365,9 @@ const Header = ({
         </div>
       )}
 
-      {/* Модалка поисковых результатов через портал */}
-      {showSearchResults &&
-        typeof window !== "undefined" &&
-        createPortal(
-          <>
-            {/* Overlay */}
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
-              onClick={() => {
-                setShowSearchResults(false);
-                setCurrentSearchQuery(""); // Очищаем сохраненный запрос
-                // Деактивируем оверлей при закрытии результатов
-                setIsSearchFocused(false);
-                onSearchFocus && onSearchFocus(false);
-              }}
-            />
 
-            {/* Модалка с результатами */}
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
-              <div className="bg-background rounded-xl shadow-2xl border border-border max-w-6xl w-full max-h-[85vh] overflow-hidden pointer-events-auto">
-                {/* Заголовок модалки */}
-                <div className="flex items-center justify-between p-6 border-b border-border">
-                  <h3 className="text-xl font-semibold text-foreground">
-                    Результаты поиска: "{currentSearchQuery}"
-                  </h3>
-                  <button
-                    onClick={() => {
-                      setShowSearchResults(false);
-                      setCurrentSearchQuery(""); // Очищаем сохраненный запрос
-                      // Деактивируем оверлей при закрытии результатов
-                      setIsSearchFocused(false);
-                      onSearchFocus && onSearchFocus(false);
-                    }}
-                    className="p-2 rounded-lg hover:bg-secondary transition-colors"
-                    title="Закрыть"
-                  >
-                    <X className="w-5 h-5 text-foreground" />
-                  </button>
-                </div>
 
-                {/* Содержимое модалки */}
-                <div className="p-6">
-                  {isSearching ? (
-                    <div className="flex items-center justify-center py-16">
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <Loader className="w-6 h-6 animate-spin" />
-                        <span className="text-lg">Поиск...</span>
-                      </div>
-                    </div>
-                  ) : searchResults.length > 0 ? (
-                    <SearchResultsSlider
-                      movies={getSortedSearchResults()}
-                      isLoading={isSearching}
-                      filterTabs={filterTabs}
-                      activeFilterTab={activeFilterTab}
-                      onFilterTabChange={handleFilterTabClick}
-                      onMovieClick={handleMovieClick}
-                    />
-                  ) : (
-                    <div className="text-center py-16">
-                      <p className="text-muted-foreground mb-2 text-lg">
-                        Ничего не найдено
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Попробуйте изменить запрос
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>,
-          document.body
-        )}
 
-      {/* Модальное окно поиска */}
-      {showSearchModal &&
-        typeof window !== "undefined" &&
-        createPortal(
-          <>
-            {/* Затемненный фон */}
-            <div
-              className="fixed inset-0 bg-black/70 z-[90]"
-              onClick={() => {
-                setShowSearchModal(false);
-                setModalSearchQuery("");
-              }}
-            />
-
-            {/* Форма поиска по центру */}
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 gap-4">
-              <input
-                type="text"
-                value={modalSearchQuery}
-                placeholder="Поиск фильмов и сериалов..."
-                className="pl-6 pr-6 py-5 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:shadow-[0_0_20px_rgba(0,0,0,0.5)] w-[500px] h-16 text-xl transition-all duration-200 shadow-lg"
-                onChange={(e) => setModalSearchQuery(e.target.value)}
-                onKeyPress={(e) => {
-                   if (e.key === 'Enter' && modalSearchQuery.trim()) {
-                     // Выполняем поиск
-                     setCurrentSearchQuery(modalSearchQuery);
-                     searchMovies(modalSearchQuery, false);
-                     setShowSearchModal(false);
-                     setModalSearchQuery("");
-                   }
-                 }}
-                autoFocus
-              />
-              <button
-                onClick={() => {
-                   if (modalSearchQuery.trim()) {
-                     setCurrentSearchQuery(modalSearchQuery);
-                     searchMovies(modalSearchQuery, false);
-                     setShowSearchModal(false);
-                     setModalSearchQuery("");
-                   }
-                 }}
-                disabled={!modalSearchQuery.trim()}
-                className="w-16 h-16 bg-blue-600 hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white rounded-full transition-colors font-medium flex items-center justify-center"
-                style={{filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6))'}}
-              >
-                <Search className="w-6 h-6" />
-              </button>
-              <button
-                onClick={() => {
-                  setShowSearchModal(false);
-                  setModalSearchQuery("");
-                }}
-                className="w-16 h-16 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full transition-colors flex items-center justify-center"
-                style={{filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6))'}}
-                title="Отменить поиск"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </>,
-          document.body
-        )}
 
       {/* PlayerModal для фильмов из поиска */}
       <PlayerModal
