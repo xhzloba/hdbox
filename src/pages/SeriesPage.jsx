@@ -9,6 +9,59 @@ import AdultContentDialog from "../components/AdultContentDialog";
 
 import SettingsContext from "../contexts/SettingsContext";
 
+// Выносим tabs в константу вне компонента чтобы избежать пересоздания
+const SERIES_TABS = [
+  {
+    id: "updatings",
+    title: "Обновления",
+    url: "https://api.vokino.tv/v2/list?sort=updatings&type=serial",
+  },
+  {
+    id: "new",
+    title: "Новинки",
+    url: "https://api.vokino.tv/v2/list?sort=new&type=serial",
+  },
+  {
+    id: "popular",
+    title: "Популярное",
+    url: "https://api.vokino.tv/v2/list?sort=popular&type=serial",
+  },
+  {
+    id: "rating",
+    title: "Лучшее",
+    url: "https://api.vokino.tv/v2/list?sort=rating&type=serial",
+  },
+  {
+    id: "divider",
+    title: "",
+    isDivider: true,
+  },
+  {
+    id: "hbo-max",
+    title: "HBO Max",
+    url: "https://api.vokino.tv/v2/compilations/content/65a982c3c9e4458dd2558651",
+    isCompilation: true,
+  },
+  {
+    id: "kion",
+    title: "KION",
+    url: "https://api.vokino.tv/v2/compilations/content/65a9567148ed1afd744a552f",
+    isCompilation: true,
+  },
+  {
+    id: "fox",
+    title: "FOX",
+    url: "https://api.vokino.tv/v2/compilations/content/65aaaf32ce9f3661fe41dcfa",
+    isCompilation: true,
+  },
+  {
+    id: "netflix",
+    title: "Netflix",
+    url: "https://api.vokino.tv/v2/compilations/content/65a6b9dabce57d552a34b40d",
+    isCompilation: true,
+  },
+];
+
 const SeriesPage = () => {
   const [activeTab, setActiveTab] = useState("updatings");
   const [series, setSeries] = useState([]);
@@ -18,81 +71,112 @@ const SeriesPage = () => {
   const [selectedAdultSeries, setSelectedAdultSeries] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
-  const [compilationCounts, setCompilationCounts] = useState({});
+  const [compilationCounts, setCompilationCounts] = useState(null);
+  
+  // Добавляем useEffect для отслеживания изменений compilationCounts
+  useEffect(() => {
+    console.log('🔄 compilationCounts changed:', compilationCounts);
+  }, [compilationCounts]);
+  const [compilationCountsLoading, setCompilationCountsLoading] = useState(true);
 
-  const tabs = [
-    {
-      id: "updatings",
-      title: "Обновления",
-      url: "https://api.vokino.tv/v2/list?sort=updatings&type=serial",
-    },
-    {
-      id: "new",
-      title: "Новинки",
-      url: "https://api.vokino.tv/v2/list?sort=new&type=serial",
-    },
-    {
-      id: "popular",
-      title: "Популярное",
-      url: "https://api.vokino.tv/v2/list?sort=popular&type=serial",
-    },
-    {
-      id: "rating",
-      title: "Лучшее",
-      url: "https://api.vokino.tv/v2/list?sort=rating&type=serial",
-    },
-    {
-      id: "divider",
-      title: "",
-      isDivider: true,
-    },
-    {
-      id: "hbo-max",
-      title: "HBO Max",
-      url: "https://api.vokino.tv/v2/compilations/content/65a982c3c9e4458dd2558651",
-      isCompilation: true,
-    },
-    {
-      id: "kion",
-      title: "KION",
-      url: "https://api.vokino.tv/v2/compilations/content/65a9567148ed1afd744a552f",
-      isCompilation: true,
-    },
-    {
-      id: "fox",
-      title: "FOX",
-      url: "https://api.vokino.tv/v2/compilations/content/65aaaf32ce9f3661fe41dcfa",
-      isCompilation: true,
-    },
-  ];
+  const tabs = SERIES_TABS;
   // Функция для удаления дубликатов сериалов по ID
 
   // Предварительная загрузка счетчиков подборок при инициализации
   useEffect(() => {
+    console.log('🔄 Starting loadCompilationCounts useEffect');
     const loadCompilationCounts = async () => {
+      // Сбрасываем состояние перед загрузкой
+      setCompilationCounts(null);
+      setCompilationCountsLoading(true);
+      
       const compilationTabs = tabs.filter(tab => tab.isCompilation);
+      console.log('📊 Compilation tabs to load:', compilationTabs.map(t => t.title));
+      
+      const fetchWithRetry = async (url, tabTitle, maxRetries = 3) => {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            console.log(`🌐 Attempt ${attempt}/${maxRetries}: Fetching count for ${tabTitle} from ${url}`);
+            
+            // Добавляем таймаут для запроса
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд таймаут
+            
+            const response = await fetch(url, { 
+              signal: controller.signal,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            // Детальная проверка структуры ответа
+            if (!data || typeof data !== 'object') {
+              throw new Error('Invalid response format: not an object');
+            }
+            
+            if (!Array.isArray(data.channels)) {
+              console.warn(`⚠️ ${tabTitle}: channels is not an array, got:`, typeof data.channels, data.channels);
+              return 0;
+            }
+            
+            const count = data.channels.length;
+            console.log(`✅ ${tabTitle} count:`, count, `(attempt ${attempt})`);
+            return count;
+            
+          } catch (error) {
+            console.error(`❌ Attempt ${attempt}/${maxRetries} failed for ${tabTitle}:`, {
+              error: error.message,
+              name: error.name,
+              url: url
+            });
+            
+            if (attempt === maxRetries) {
+              console.error(`🚨 All ${maxRetries} attempts failed for ${tabTitle}`);
+              return 0;
+            }
+            
+            // Задержка перед повторной попыткой (экспоненциальная задержка)
+            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+            console.log(`⏳ Retrying ${tabTitle} in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      };
       
       const countPromises = compilationTabs.map(async (tab) => {
-        try {
-          const response = await fetch(tab.url);
-          const data = await response.json();
-          return { id: tab.id, count: data.channels ? data.channels.length : 0 };
-        } catch (error) {
-          console.error(`Error loading count for ${tab.title}:`, error);
-          return { id: tab.id, count: 0 };
-        }
+        const count = await fetchWithRetry(tab.url, tab.title);
+        return { id: tab.id, count };
       });
       
       const results = await Promise.all(countPromises);
+      console.log('📈 All results:', results);
       const counts = {};
       results.forEach(result => {
         counts[result.id] = result.count;
       });
       
+      console.log('🎯 Final counts object:', counts);
+      console.log('🔧 Setting compilation counts and loading to false');
       setCompilationCounts(counts);
+      setCompilationCountsLoading(false);
     };
     
     loadCompilationCounts();
+    
+    // Cleanup функция для сброса состояния при размонтировании
+    return () => {
+      setCompilationCounts(null);
+      setCompilationCountsLoading(true);
+    };
   }, []); // Выполняется только при монтировании компонента
 
 
@@ -131,7 +215,6 @@ const SeriesPage = () => {
           if (data.channels && data.channels.length > 0) {
     
             setSeries(data.channels);
-            setCompilationCounts(prev => ({ ...prev, [tab.id]: data.channels.length }));
             setHasMore(false); // Подборки не имеют пагинации
           } else {
             setSeries([]);
@@ -405,10 +488,16 @@ const SeriesPage = () => {
               }`}
               >
                 {tab.title}
-                {tab.isCompilation && compilationCounts[tab.id] && (
-                  <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center bg-primary/20 text-primary">
-                    {compilationCounts[tab.id]}
-                  </span>
+                {tab.isCompilation && (
+                  <div className="ml-2 w-8 flex items-center justify-center">
+                    {compilationCountsLoading ? (
+                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-transparent border-t-primary" />
+                    ) : compilationCounts && compilationCounts[tab.id] !== undefined ? (
+                      <span className="text-xs px-1.5 py-0.5 rounded-full text-center bg-primary/20 text-primary">
+                        {compilationCounts[tab.id]}
+                      </span>
+                    ) : null}
+                  </div>
                 )}
               </button>
             );
