@@ -78,6 +78,12 @@ const SERIES_TABS = [
     url: "https://api.vokino.tv/v2/compilations/content/65a943811228b82ed988d3dc",
     isCompilation: true,
   },
+  {
+    id: "amc",
+    title: "AMC",
+    url: "https://api.vokino.tv/v2/compilations/content/65a95edd2b34412c2ad95bee",
+    isCompilation: true,
+  },
 ];
 
 const SeriesPage = () => {
