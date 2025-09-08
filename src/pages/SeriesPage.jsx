@@ -60,6 +60,24 @@ const SERIES_TABS = [
     url: "https://api.vokino.tv/v2/compilations/content/65a6b9dabce57d552a34b40d",
     isCompilation: true,
   },
+  {
+    id: "start",
+    title: "START",
+    url: "https://api.vokino.tv/v2/compilations/content/65a95233cc1b09d659daf258",
+    isCompilation: true,
+  },
+  {
+    id: "the-cw",
+    title: "The CW",
+    url: "https://api.vokino.tv/v2/compilations/content/65aadc5433b3f4c779c49a94",
+    isCompilation: true,
+  },
+  {
+    id: "apple",
+    title: "Apple",
+    url: "https://api.vokino.tv/v2/compilations/content/65a943811228b82ed988d3dc",
+    isCompilation: true,
+  },
 ];
 
 const SeriesPage = () => {
