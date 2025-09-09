@@ -6,11 +6,12 @@ import { ChevronDown } from "lucide-react";
 import MovieCard from "../components/MovieCard";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
+import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 
 import SettingsContext from "../contexts/SettingsContext";
 
-// Выносим tabs в константу вне компонента чтобы избежать пересоздания
-const SERIES_TABS = [
+// Основные табы
+const MAIN_TABS = [
   {
     id: "updatings",
     title: "Обновления",
@@ -31,11 +32,10 @@ const SERIES_TABS = [
     title: "Лучшее",
     url: "https://api.vokino.tv/v2/list?sort=rating&type=serial",
   },
-  {
-    id: "divider",
-    title: "",
-    isDivider: true,
-  },
+];
+
+// Подборки
+const COMPILATION_TABS = [
   {
     id: "hbo-max",
     title: "HBO Max",
@@ -86,6 +86,9 @@ const SERIES_TABS = [
   },
 ];
 
+// Все табы для совместимости
+const SERIES_TABS = [...MAIN_TABS, ...COMPILATION_TABS];
+
 const SeriesPage = () => {
   const [activeTab, setActiveTab] = useState("updatings");
   const [series, setSeries] = useState([]);
@@ -96,6 +99,7 @@ const SeriesPage = () => {
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const [compilationCounts, setCompilationCounts] = useState(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
   // Добавляем useEffect для отслеживания изменений compilationCounts
   useEffect(() => {
@@ -114,7 +118,7 @@ const SeriesPage = () => {
       setCompilationCounts(null);
       setCompilationCountsLoading(true);
       
-      const compilationTabs = tabs.filter(tab => tab.isCompilation);
+      const compilationTabs = COMPILATION_TABS;
       console.log('📊 Compilation tabs to load:', compilationTabs.map(t => t.title));
       
       const fetchWithRetry = async (url, tabTitle, maxRetries = 3) => {
@@ -387,9 +391,14 @@ const SeriesPage = () => {
   }, [handleScroll]);
 
   const handleTabClick = (tabId) => {
-    if (tabId !== activeTab && tabId !== "divider") {
+    if (tabId !== activeTab) {
       setActiveTab(tabId);
     }
+  };
+
+  const handleCompilationSelect = (tabId) => {
+    setActiveTab(tabId);
+    setIsPopoverOpen(false);
   };
 
   const handleAdultContentClick = (series) => {
@@ -482,50 +491,81 @@ const SeriesPage = () => {
     <div className="flex-1 px-6 lg:px-12 py-8">
       {/* Табы */}
       <div className="mb-6">
-        <div
-          className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${
-            "gap-1"
-          }`}
-          style={{
-            background: 'linear-gradient(131deg, #191919, #242323)',
-            boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
-          }}
-        >
-          {tabs.map((tab, index) => {
-            if (tab.isDivider) {
-              return (
-                <div
-                  key={tab.id}
-                  className="w-px h-6 bg-gray-400 mx-2"
-                />
-              );
-            }
-            
-            return (
+        <div className="flex items-center gap-3">
+          {/* Основные табы */}
+          <div
+            className="bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1"
+            style={{
+              background: 'linear-gradient(131deg, #191919, #242323)',
+              boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+            }}
+          >
+            {MAIN_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id)}
                 className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
-                activeTab === tab.id
-                  ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                  : "hover:bg-background/50 hover:text-foreground"
-              }`}
+                  activeTab === tab.id
+                    ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                    : "hover:bg-background/50 hover:text-foreground"
+                }`}
               >
                 {tab.title}
-                {tab.isCompilation && (
-                  <div className="ml-2 w-8 flex items-center justify-center">
-                    {compilationCountsLoading ? (
-                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-transparent border-t-primary" />
-                    ) : compilationCounts && compilationCounts[tab.id] !== undefined ? (
-                      <span className="text-xs px-1.5 py-0.5 rounded-full text-center bg-primary/20 text-primary">
-                        {compilationCounts[tab.id]}
-                      </span>
-                    ) : null}
-                  </div>
-                )}
               </button>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* Круглая кнопка для подборок */}
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className={`w-10 h-10 rounded-full inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                  COMPILATION_TABS.some(tab => tab.id === activeTab)
+                    ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                    : "hover:bg-background/50 hover:text-foreground text-muted-foreground"
+                }`}
+                style={{
+                  background: COMPILATION_TABS.some(tab => tab.id === activeTab) 
+                    ? undefined 
+                    : 'linear-gradient(131deg, #191919, #242323)',
+                  boxShadow: COMPILATION_TABS.some(tab => tab.id === activeTab)
+                    ? undefined
+                    : '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+                }}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-2" align="start">
+              <div className="space-y-1">
+                <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+                  Подборки сериалов
+                </div>
+                {COMPILATION_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleCompilationSelect(tab.id)}
+                    className={`w-full flex items-center justify-between px-2 py-2 text-sm rounded-md transition-colors ${
+                      activeTab === tab.id
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    }`}
+                  >
+                    <span>{tab.title}</span>
+                    <div className="flex items-center justify-center">
+                      {compilationCountsLoading ? (
+                        <div className="w-3 h-3 animate-spin rounded-full border border-transparent border-t-primary" />
+                      ) : compilationCounts && compilationCounts[tab.id] !== undefined ? (
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">
+                          {compilationCounts[tab.id]}
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
