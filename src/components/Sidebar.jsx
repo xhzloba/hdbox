@@ -155,6 +155,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     data-menu-id={item.id}
                     style={{ 
                       userSelect: 'none',
+                      background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                      boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                      borderTop: isActive ? '1px solid transparent' : '1px solid #545454',
                       ...(isActive && isOpen && {
                         background: 'linear-gradient(304deg, rgb(25, 25, 25), rgb(36, 35, 35))',
                         boxShadow: 'inset rgb(0 0 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset'
@@ -162,10 +165,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       ...(isActive && !isOpen && {
                         background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
                         boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset'
-                      }),
-                      ...(!isActive && {
-                        background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                        boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset'
                       })
                     }}
                   >
