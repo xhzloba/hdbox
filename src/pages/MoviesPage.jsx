@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import MovieCard from "../components/MovieCard";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
+import BackToTopButton from "../components/BackToTopButton";
 
 import SettingsContext from "../contexts/SettingsContext";
 
@@ -375,6 +376,9 @@ const MoviesPage = () => {
         movie={selectedAdultMovie}
         onAccessGranted={handleAccessGranted}
       />
+
+      {/* Кнопка "Наверх" */}
+      <BackToTopButton />
 
       {/* Сообщение об окончании контента */}
       {!hasMore && movies.length > 0 && (

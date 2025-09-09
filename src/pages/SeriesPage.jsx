@@ -6,6 +6,7 @@ import { ChevronDown, MoreHorizontal } from "lucide-react";
 import MovieCard from "../components/MovieCard";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
+import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 
 import SettingsContext from "../contexts/SettingsContext";
@@ -82,6 +83,12 @@ const COMPILATION_TABS = [
     id: "amc",
     title: "AMC",
     url: "https://api.vokino.tv/v2/compilations/content/65a95edd2b34412c2ad95bee",
+    isCompilation: true,
+  },
+  {
+    id: "premier",
+    title: "PREMIER",
+    url: "https://api.vokino.tv/v2/compilations/content/65abad2c1d125fc30bb3df8d",
     isCompilation: true,
   },
 ];
@@ -774,6 +781,9 @@ function VirtualizedSeriesGrid({ items, transformItem, onAdultContentClick }) {
           );
         })}
       </div>
+      
+      {/* Кнопка "Наверх" */}
+      <BackToTopButton />
     </div>
   );
-}
+};
