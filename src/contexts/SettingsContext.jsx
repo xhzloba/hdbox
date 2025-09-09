@@ -17,6 +17,7 @@ export const SettingsProvider = ({ children }) => {
   const [showRatingAsIcons, setShowRatingAsIcons] = useState(true)
   const [showFavoriteButton, setShowFavoriteButton] = useState(true)
   const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true)
+  const [pageStylesEnabled, setPageStylesEnabled] = useState(false)
   const [defaultPlayer, setDefaultPlayer] = useState('renewall')
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -30,6 +31,7 @@ export const SettingsProvider = ({ children }) => {
         setShowRatingAsIcons(settings.showRatingAsIcons ?? true)
         setShowFavoriteButton(settings.showFavoriteButton ?? true)
         setCardShadowsEnabled(settings.cardShadowsEnabled ?? true)
+        setPageStylesEnabled(settings.pageStylesEnabled ?? false)
         setDefaultPlayer(settings.defaultPlayer ?? 'renewall')
       }
     } catch (error) {
@@ -48,6 +50,7 @@ export const SettingsProvider = ({ children }) => {
           showRatingAsIcons,
           showFavoriteButton,
           cardShadowsEnabled,
+          pageStylesEnabled,
           defaultPlayer
         }
         localStorage.setItem('movieCardSettings', JSON.stringify(settings))
@@ -55,7 +58,7 @@ export const SettingsProvider = ({ children }) => {
         console.error('Ошибка сохранения настроек:', error)
       }
     }
-  }, [showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, defaultPlayer, isLoaded])
+  }, [showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, pageStylesEnabled, defaultPlayer, isLoaded])
 
   const toggleShowDetails = () => {
     setShowDetails(prev => !prev)
@@ -73,6 +76,10 @@ export const SettingsProvider = ({ children }) => {
     setCardShadowsEnabled(prev => !prev)
   }
 
+  const togglePageStyles = () => {
+    setPageStylesEnabled(prev => !prev)
+  }
+
   const value = {
     showDetails,
     setShowDetails,
@@ -86,6 +93,9 @@ export const SettingsProvider = ({ children }) => {
     cardShadowsEnabled,
     setCardShadowsEnabled,
     toggleCardShadows,
+    pageStylesEnabled,
+    setPageStylesEnabled,
+    togglePageStyles,
     defaultPlayer,
     setDefaultPlayer,
     isLoaded

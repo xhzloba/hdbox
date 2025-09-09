@@ -22,12 +22,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
     return null
   }
   
-  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, cardShadowsEnabled, toggleCardShadows, defaultPlayer, setDefaultPlayer } = settingsContext
+  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, cardShadowsEnabled, toggleCardShadows, pageStylesEnabled, togglePageStyles, defaultPlayer, setDefaultPlayer } = settingsContext
   // Временное состояние для настроек до подтверждения
   const [tempShowDetails, setTempShowDetails] = useState(showDetails)
   const [tempShowRatingAsIcons, setTempShowRatingAsIcons] = useState(showRatingAsIcons)
   const [tempShowFavoriteButton, setTempShowFavoriteButton] = useState(showFavoriteButton)
   const [tempCardShadowsEnabled, setTempCardShadowsEnabled] = useState(cardShadowsEnabled)
+  const [tempPageStylesEnabled, setTempPageStylesEnabled] = useState(pageStylesEnabled)
   const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer)
 
   // Синхронизируем временное состояние с основным при открытии
@@ -37,9 +38,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
       setTempShowRatingAsIcons(showRatingAsIcons)
       setTempShowFavoriteButton(showFavoriteButton)
       setTempCardShadowsEnabled(cardShadowsEnabled)
+      setTempPageStylesEnabled(pageStylesEnabled)
       setTempDefaultPlayer(defaultPlayer)
     }
-  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, defaultPlayer])
+  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, pageStylesEnabled, defaultPlayer])
 
   const handleConfirm = () => {
     // Применяем изменения только при подтверждении
@@ -55,6 +57,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (tempCardShadowsEnabled !== cardShadowsEnabled) {
       toggleCardShadows()
     }
+    if (tempPageStylesEnabled !== pageStylesEnabled) {
+      togglePageStyles()
+    }
     if (tempDefaultPlayer !== defaultPlayer) {
       setDefaultPlayer(tempDefaultPlayer)
     }
@@ -67,6 +72,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     setTempShowRatingAsIcons(showRatingAsIcons)
     setTempShowFavoriteButton(showFavoriteButton)
     setTempCardShadowsEnabled(cardShadowsEnabled)
+    setTempPageStylesEnabled(pageStylesEnabled)
     setTempDefaultPlayer(defaultPlayer)
     onClose()
   }
@@ -85,6 +91,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const handleToggleCardShadowsTemp = () => {
     setTempCardShadowsEnabled(!tempCardShadowsEnabled)
+  }
+
+  const handleTogglePageStylesTemp = () => {
+    setTempPageStylesEnabled(!tempPageStylesEnabled)
   }
 
   return (
@@ -233,6 +243,39 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
                     tempCardShadowsEnabled ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {/* Page Styles Toggle */}
+            <div 
+              onClick={handleTogglePageStylesTemp}
+              className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                tempPageStylesEnabled ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+              }`}
+            >
+              <div className="flex flex-col">
+                <label className={`text-sm font-medium mb-1 ${
+                  tempPageStylesEnabled ? 'text-sidebar-primary-foreground' : ''
+                }`}>
+                  Стили страниц
+                </label>
+                <p className={`text-xs ${
+                  tempPageStylesEnabled ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
+                }`}>
+                  Закругленные углы и тени для страниц
+                </p>
+              </div>
+              
+              <button
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                  tempPageStylesEnabled ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                    tempPageStylesEnabled ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
                   }`}
                 />
               </button>

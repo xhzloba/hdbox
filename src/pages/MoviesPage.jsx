@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { ChevronDown } from "lucide-react";
 import MovieCard from "../components/MovieCard";
@@ -10,6 +10,9 @@ import AdultContentDialog from "../components/AdultContentDialog";
 import SettingsContext from "../contexts/SettingsContext";
 
 const MoviesPage = () => {
+  const settings = useContext(SettingsContext);
+  const pageStylesEnabled = settings?.pageStylesEnabled ?? false;
+  
   const [activeTab, setActiveTab] = useState("updatings");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -297,7 +300,17 @@ const MoviesPage = () => {
   };
 
   return (
-    <div className="flex-1 px-6 lg:px-12 py-8">
+    <div 
+      className="flex-1 px-6 lg:px-12 py-8" 
+      style={pageStylesEnabled ? {
+        background: '#222121',
+        borderTopLeftRadius: '50px',
+        borderTopRightRadius: '50px',
+        borderTopWidth: '1px',
+        borderTopColor: '#6a6767',
+        boxShadow: 'inset 0px 13px 20px 4px black',
+      } : {}}
+    >
       {/* Табы */}
       <div className="mb-6">
         <div
