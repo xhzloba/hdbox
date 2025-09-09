@@ -100,6 +100,7 @@ const SeriesPage = () => {
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const [compilationCounts, setCompilationCounts] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [selectedCompilation, setSelectedCompilation] = useState(null);
   
   // Получаем настройки из контекста
   const settingsContext = useContext(SettingsContext);
@@ -395,14 +396,44 @@ const SeriesPage = () => {
   }, [handleScroll]);
 
   const handleTabClick = (tabId) => {
-    if (tabId !== activeTab) {
-      setActiveTab(tabId);
+    if (activeTab === tabId) return;
+    
+    // Сбрасываем выбранную подборку при клике на основные табы
+    if (MAIN_TABS.some(tab => tab.id === tabId)) {
+      setSelectedCompilation(null);
     }
+    
+    setActiveTab(tabId);
+    setSeries([]);
+    setPage(1);
+    setHasMore(true);
+    setHasAttemptedFetch(false);
+    
+    // Сбрасываем состояние загрузки
+    setLoading(false);
+    
+    // Принудительно запускаем загрузку для нового таба
+    setTimeout(() => {
+      fetchSeries(tabId, 1, true);
+    }, 0);
   };
 
   const handleCompilationSelect = (tabId) => {
+    const selectedTab = COMPILATION_TABS.find(tab => tab.id === tabId);
+    setSelectedCompilation(selectedTab);
     setActiveTab(tabId);
     setIsPopoverOpen(false);
+    
+    // Сбрасываем данные и загружаем новые
+    setSeries([]);
+    setPage(1);
+    setHasMore(true);
+    setHasAttemptedFetch(false);
+    setLoading(false);
+    
+    setTimeout(() => {
+      fetchSeries(tabId, 1, true);
+    }, 0);
   };
 
   const handleAdultContentClick = (series) => {
@@ -529,11 +560,11 @@ const SeriesPage = () => {
             ))}
           </div>
 
-          {/* Круглая кнопка для подборок */}
+          {/* Кнопка для подборок с анимацией */}
           <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
               <button
-                className={`w-10 h-10 rounded-full inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95 ${
+                className={`${selectedCompilation ? 'px-4' : 'w-10'} h-10 rounded-full inline-flex items-center justify-center gap-2 text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95 ${
                   COMPILATION_TABS.some(tab => tab.id === activeTab)
                     ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
                     : "hover:bg-background/50 hover:text-foreground text-muted-foreground"
@@ -547,11 +578,16 @@ const SeriesPage = () => {
                     : isPopoverOpen 
                       ? 'inset 7px 5px 8px #000000, 2px 2px 20px #303132'
                       : '7px 5px 8px #000000, inset 2px 2px 20px #303132',
-                  transition: 'all 0.3s ease-in-out'
+                  transition: 'all 0.3s ease-in-out, width 0.3s ease-in-out'
                 }}
               >
+                {selectedCompilation && (
+                  <span className="whitespace-nowrap animate-in fade-in-0 slide-in-from-left-2 duration-300">
+                    {selectedCompilation.title}
+                  </span>
+                )}
                 <ChevronDown 
-                  className="w-4 h-4 transition-transform duration-300 ease-in-out" 
+                  className="w-4 h-4 transition-transform duration-300 ease-in-out flex-shrink-0" 
                   style={{
                     transform: isPopoverOpen ? 'rotate(180deg)' : 'rotate(0deg)'
                   }}
