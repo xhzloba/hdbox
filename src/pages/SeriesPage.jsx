@@ -530,7 +530,10 @@ const SeriesPage = () => {
                     : 'linear-gradient(131deg, #191919, #242323)',
                   boxShadow: COMPILATION_TABS.some(tab => tab.id === activeTab)
                     ? undefined
-                    : '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+                    : isPopoverOpen 
+                      ? 'inset 7px 5px 8px #000000, 2px 2px 20px #303132'
+                      : '7px 5px 8px #000000, inset 2px 2px 20px #303132',
+                  transition: 'all 0.3s ease-in-out'
                 }}
               >
                 <ChevronDown 
