@@ -147,13 +147,27 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       ${!isOpen ? "lg:px-2 lg:justify-center" : ""}
                       ${
                         isActive
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary"
+                          ? "text-white"
+                          : "text-gray-300 hover:text-white"
                       }
                     `}
                     title={!isOpen ? item.label : ""}
                     data-menu-id={item.id}
-                    style={{ userSelect: 'none' }}
+                    style={{ 
+                      userSelect: 'none',
+                      ...(isActive && isOpen && {
+                        background: 'linear-gradient(304deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                        boxShadow: 'inset rgb(0 0 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset'
+                      }),
+                      ...(isActive && !isOpen && {
+                        background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
+                        boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset'
+                      }),
+                      ...(!isActive && {
+                        background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                        boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset'
+                      })
+                    }}
                   >
                     <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" />
                     {isOpen && (
