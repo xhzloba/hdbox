@@ -119,7 +119,6 @@ const SeriesPage = () => {
   }, [compilationCounts]);
   const [compilationCountsLoading, setCompilationCountsLoading] = useState(true);
 
-  const tabs = SERIES_TABS;
   // Функция для удаления дубликатов сериалов по ID
 
   // Предварительная загрузка счетчиков подборок при инициализации
@@ -220,7 +219,7 @@ const SeriesPage = () => {
   }, []); // Выполняется только при монтировании компонента
 
 
-  const allTabs = tabs;
+
   const removeDuplicates = useCallback((existingSeries, newSeries) => {
     const existingIds = new Set(
       existingSeries.map((series) => series.details.id)
@@ -243,7 +242,7 @@ const SeriesPage = () => {
 
       setLoading(true);
       try {
-        const tab = tabs.find((t) => t.id === tabId);
+        const tab = SERIES_TABS.find((t) => t.id === tabId);
         let allSeries = [];
 
         if (tab.isCompilation) {
@@ -335,6 +334,7 @@ const SeriesPage = () => {
   );
 
   useEffect(() => {
+    // Ставим loading=true сразу, чтобы не мигал пустой экран
     setLoading(true);
     setHasAttemptedFetch(false);
     setSeries([]);
@@ -348,7 +348,7 @@ const SeriesPage = () => {
 
   const handleScroll = useCallback(() => {
     // Проверяем, является ли текущий таб подборкой
-    const currentTab = tabs.find((t) => t.id === activeTab);
+    const currentTab = SERIES_TABS.find((t) => t.id === activeTab);
     if (currentTab?.isCompilation) {
       return; // Подборки не поддерживают пагинацию
     }
@@ -385,7 +385,7 @@ const SeriesPage = () => {
     console.log("Loading next page:", nextPage);
     setPage(nextPage);
     fetchSeries(activeTab, nextPage, false);
-  }, [activeTab, hasMore, loading, page, series.length, allTabs]);
+  }, [activeTab, hasMore, loading, page, series.length]);
 
   useEffect(() => {
     let ticking = false;
