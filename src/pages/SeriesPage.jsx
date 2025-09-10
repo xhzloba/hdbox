@@ -91,6 +91,18 @@ const COMPILATION_TABS = [
     url: "https://api.vokino.tv/v2/compilations/content/65abad2c1d125fc30bb3df8d",
     isCompilation: true,
   },
+  {
+    id: "paramount",
+    title: "Paramount+",
+    url: "https://api.vokino.tv/v2/compilations/content/65a94cfd72dc1bebf189878b",
+    isCompilation: true,
+  },
+  {
+    id: "hulu",
+    title: "Hulu",
+    url: "https://api.vokino.tv/v2/compilations/content/65b7e6b0d43413036b2c342f",
+    isCompilation: true,
+  },
 ];
 
 // Все табы для совместимости
