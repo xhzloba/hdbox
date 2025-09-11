@@ -86,7 +86,7 @@ const SearchResultsSlider = ({
         apiMovie.rating ||
         "0.0",
       age: apiMovie.details?.age_rating || apiMovie.age || "0",
-      description: apiMovie.details?.description || apiMovie.description || "",
+      description: apiMovie.details?.about || apiMovie.about || apiMovie.details?.description || apiMovie.description || "",
       // Дополнительные поля для совместимости
       details: apiMovie.details || {},
     };
@@ -460,7 +460,7 @@ const Header = ({
         movie.rating ||
         "0.0",
       age: movie.details?.age_rating || movie.age || "0",
-      description: movie.details?.description || movie.description || "",
+      description: movie.details?.about || movie.about || movie.details?.description || movie.description || "",
       details: movie.details || {},
     };
 
