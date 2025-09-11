@@ -11,21 +11,6 @@ import {
   Settings,
   Lock,
   Unlock,
-  Baby,
-  Info,
-  Globe,
-  Star,
-  Shield,
-  Sliders,
-  Palette,
-  TrendingDown,
-  Minus,
-  TrendingUp,
-  Award,
-  ThumbsDown,
-  Meh,
-  ThumbsUp,
-  Zap,
   Mic,
   MicOff,
   ChevronLeft,
@@ -256,8 +241,6 @@ const Header = ({
   const [dialogMode, setDialogMode] = useState(null); // 'setup' | 'disable' | null
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showInfoDialog, setShowInfoDialog] = useState(false);
-  const [activeInfoTab, setActiveInfoTab] = useState("general");
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -274,6 +257,7 @@ const Header = ({
   const [voiceSearchMessage, setVoiceSearchMessage] = useState(""); // новое состояние для сообщения голосового поиска
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
   const [showSearchInput, setShowSearchInput] = useState(false); // состояние для показа поля поиска в хедере
+  const [currentTime, setCurrentTime] = useState(new Date()); // состояние для текущего времени
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
@@ -304,6 +288,32 @@ const Header = ({
       );
     }
   }, []);
+
+  // Обновление времени каждую секунду
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Функция для форматирования времени
+  const formatDateTime = (date) => {
+    const days = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+    const months = [
+      'янв', 'фев', 'мар', 'апр', 'май', 'июн',
+      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'
+    ];
+
+    const dayOfWeek = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${dayOfWeek}, ${day} ${month}. ${hours}:${minutes}`;
+  };
 
 
   // Конфигурация табов фильтрации для модалки поиска
@@ -401,19 +411,7 @@ const Header = ({
     setSelectedMovieForPlayer(null);
   };
 
-  const infoTabs = [
-    { id: "general", title: "Общее", icon: Globe },
-    { id: "ratings", title: "Рейтинги", icon: Star },
-    { id: "security", title: "Безопасность", icon: Shield },
-    { id: "settings", title: "Настройки", icon: Sliders },
-    { id: "interface", title: "Интерфейс", icon: Palette },
-  ];
 
-  const handleInfoTabClick = (tabId) => {
-    if (tabId !== activeInfoTab) {
-      setActiveInfoTab(tabId);
-    }
-  };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -717,272 +715,7 @@ const Header = ({
 
 
 
-  const renderInfoTabContent = () => {
-    switch (activeInfoTab) {
-      case "general":
-        return (
-          <div className="space-y-4">
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-lg border-b border-border pb-2">
-                О платформе
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Современная платформа для просмотра фильмов и сериалов с богатым
-                функционалом и удобным интерфейсом. Поддерживает различные
-                режимы просмотра и персонализацию контента.
-              </p>
-            </div>
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-base border-b border-border pb-2">
-                Основные возможности
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 p-2 bg-background/50 rounded">
-                  <span className="text-sm text-muted-foreground">
-                    Большая коллекция фильмов и сериалов
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-2 bg-background/50 rounded">
-                  <span className="text-sm text-muted-foreground">
-                    Поиск по названию и жанрам
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-2 bg-background/50 rounded">
-                  <span className="text-sm text-muted-foreground">
-                    Категоризация контента
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-2 bg-background/50 rounded">
-                  <span className="text-sm text-muted-foreground">
-                    Возрастные ограничения
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case "ratings":
-        return (
-          <div className="space-y-4">
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-lg border-b border-border pb-2">
-                Система рейтингов
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Рейтинг рассчитывается на основе данных из трех источников:
-              </p>
-              <div className="grid grid-cols-1 gap-2 mb-4">
-                <div className="bg-background/50 p-3 rounded flex items-center gap-3">
-                  <Star className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-foreground">
-                      КиноПоиск
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      — российская база данных
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-background/50 p-3 rounded flex items-center gap-3">
-                  <Star className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-foreground">IMDB</span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      — международная база данных
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-background/50 p-3 rounded flex items-center gap-3">
-                  <Star className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-foreground">TMDB</span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      — The Movie Database
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground font-medium mb-4">
-                Итоговый рейтинг — среднее арифметическое всех доступных оценок
-              </p>
-            </div>
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-base border-b border-border pb-2">
-                Отображение рейтинга
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-3 p-3 bg-background/50 rounded">
-                  <div className="w-8 h-8 bg-red-500/20 rounded flex items-center justify-center">
-                    <ThumbsDown className="w-4 h-4 text-red-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      &lt; 5.5
-                    </div>
-                    <div className="text-xs text-muted-foreground">Низкий</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-background/50 rounded">
-                  <div className="w-8 h-8 bg-gray-500/20 rounded flex items-center justify-center">
-                    <Meh className="w-4 h-4 text-gray-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      5.6-7.4
-                    </div>
-                    <div className="text-xs text-muted-foreground">Средний</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-background/50 rounded">
-                  <div className="w-8 h-8 bg-green-500/20 rounded flex items-center justify-center">
-                    <ThumbsUp className="w-4 h-4 text-green-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      7.5-8.2
-                    </div>
-                    <div className="text-xs text-muted-foreground">Высокий</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-background/50 rounded">
-                  <div className="w-8 h-8 bg-green-400/20 rounded flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      8.3-10
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Отличный
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case "security":
-        return (
-          <div className="space-y-4">
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-lg border-b border-border pb-2">
-                Безопасность и контроль
-              </div>
-              <div className="space-y-4">
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-2 flex items-center gap-2">
-                    <Baby className="h-4 w-4 text-pink-500" />
-                    Kids режим
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Безопасная среда для детей с ограниченным контентом.
-                    Доступны только мультфильмы и мультсериалы, подходящие для
-                    детского просмотра. Интерфейс адаптирован для детей с яркими
-                    цветами.
-                  </p>
-                </div>
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-2 flex items-center gap-2">
-                    <Lock className="h-4 w-4 text-red-500" />
-                    Родительский контроль
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Система защиты контента 18+ с помощью PIN-кода. Позволяет
-                    ограничить доступ к взрослому контенту и создать безопасную
-                    среду для семейного просмотра.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case "settings":
-        return (
-          <div className="space-y-4">
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-lg border-b border-border pb-2">
-                Персонализация
-              </div>
-              <div className="space-y-4">
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-2">
-                    Избранное
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Сохраняйте понравившиеся фильмы и сериалы в личную коллекцию
-                    для быстрого доступа. Создавайте персональные списки и
-                    управляйте своими предпочтениями.
-                  </p>
-                </div>
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-3">
-                    Настройки отображения
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-3 p-2 rounded">
-                      <div>
-                        <div className="text-sm font-medium text-foreground">
-                          Показывать детали
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Отображение информации о фильме на карточке
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-2 rounded">
-                      <div>
-                        <div className="text-sm font-medium text-foreground">
-                          Рейтинг иконками
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Переключение между иконками и цифрами
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case "interface":
-        return (
-          <div className="space-y-4">
-            <div className="bg-muted/30 p-4 rounded-lg">
-              <div className="font-semibold text-foreground mb-3 text-lg border-b border-border pb-2">
-                Интерфейс и дизайн
-              </div>
-              <div className="space-y-4">
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-2 flex items-center gap-2">
-                    <Sun className="h-4 w-4 text-yellow-500" />
-                    Темы оформления
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Поддержка светлой и темной темы для комфортного просмотра в
-                    любое время суток. Автоматическое переключение в зависимости
-                    от времени или ручная настройка.
-                  </p>
-                </div>
-                <div className="bg-background/50 p-4 rounded">
-                  <div className="font-medium text-foreground mb-2 flex items-center gap-2">
-                    <Maximize className="h-4 w-4 text-blue-500" />
-                    Адаптивный дизайн
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Платформа оптимизирована для всех устройств: компьютеры,
-                    планшеты и смартфоны. Поддержка полноэкранного режима для
-                    максимального погружения.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+
 
   return (
     <>
@@ -1238,16 +971,7 @@ const Header = ({
 
 
 
-            <button
-              onClick={() => {
-                setActiveInfoTab("general");
-                setShowInfoDialog(true);
-              }}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
-              title="О платформе"
-            >
-              <Info className="w-5 h-5 text-foreground" />
-            </button>
+
 
             <button
               onClick={() => setShowSettingsModal(true)}
@@ -1256,6 +980,17 @@ const Header = ({
             >
               <Settings className="w-5 h-5 text-foreground" />
             </button>
+
+            {/* Отображение времени и даты */}
+            <div 
+              className="px-3 py-2 text-sm text-foreground font-medium rounded-lg"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset'
+              }}
+            >
+              {formatDateTime(currentTime)}
+            </div>
 
             <button
               onClick={toggleFullscreen}
@@ -1273,55 +1008,7 @@ const Header = ({
               )}
             </button>
 
-            <AlertDialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-              <AlertDialogContent className="max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-2xl xl:max-w-3xl h-[65vh] flex flex-col">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2 text-xl">
-                    <Info className="h-6 w-6 text-blue-500" />О платформе
-                    Streaming Service
-                  </AlertDialogTitle>
-                </AlertDialogHeader>
 
-                {/* Табы */}
-                <div className="mb-6">
-                  <div className="bg-muted text-muted-foreground rounded-lg p-1 overflow-x-auto w-fit">
-                    <div className="flex items-center gap-1">
-                      {infoTabs.map((tab) => {
-                        const IconComponent = tab.icon;
-                        return (
-                          <button
-                            key={tab.id}
-                            onClick={() => handleInfoTabClick(tab.id)}
-                            className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 min-w-fit ${
-                              activeInfoTab === tab.id
-                                ? "bg-background text-foreground shadow-sm"
-                                : "hover:bg-background/50 hover:text-foreground"
-                            }`}
-                          >
-                            <IconComponent className="w-4 h-4 flex-shrink-0" />
-                            <span>{tab.title}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Контент вкладок */}
-                <AlertDialogDescription className="text-left flex-1 overflow-y-auto pr-2">
-                  {renderInfoTabContent()}
-                </AlertDialogDescription>
-
-                <AlertDialogFooter className="mt-6">
-                  <AlertDialogAction
-                    onClick={() => setShowInfoDialog(false)}
-                    className="px-6"
-                  >
-                    Понятно
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
 
             <SettingsModal
               isOpen={showSettingsModal}
