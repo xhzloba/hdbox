@@ -739,10 +739,14 @@ const Header = ({
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 group hover:animate-pulse hover:bg-blue-500"
-              style={{
+              style={sidebarOpen ? {
                 background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
                 boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
                 borderTop: '1px solid rgb(84, 84, 84)'
+              } : {
+                background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset',
+                borderTop: '1px solid transparent'
               }}
               aria-label="Переключить меню"
             >
@@ -753,7 +757,7 @@ const Header = ({
                   }`} 
                 />
                 <X 
-                  className={`absolute inset-0 w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
+                  className={`absolute inset-0 w-5 h-5 ${sidebarOpen ? "text-gray-400" : "text-white"} group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
                     sidebarOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
                   }`} 
                 />
@@ -762,16 +766,24 @@ const Header = ({
 
             {/* Кнопка поиска рядом с меню */}
             <button
-              onClick={toggleSearchInput}
+              onClick={() => {
+                if (showSearchInput && searchQuery.trim()) {
+                  // Если форма открыта и есть текст - выполняем поиск
+                  searchMovies(searchQuery.trim(), false);
+                } else {
+                  // Иначе переключаем видимость формы
+                  toggleSearchInput();
+                }
+              }}
               className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
               style={{
                 background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
                 boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
                 borderTop: '1px solid rgb(84, 84, 84)'
               }}
-              title="Поиск фильмов"
+              title={showSearchInput && searchQuery.trim() ? "Выполнить поиск" : "Поиск фильмов"}
             >
-              <Search className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+              <Search className={`${showSearchInput ? "w-3 h-3" : "w-5 h-5"} text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]`} />
             </button>
 
             {/* Логотип */}
@@ -792,7 +804,7 @@ const Header = ({
                   type="text"
                   value={searchQuery}
                   placeholder="Поиск фильмов и сериалов..."
-                  className="pl-10 pr-24 py-2 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
+                  className="pl-12 pr-24 py-3 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
                   onFocus={handleSearchFocus}
                   onBlur={(e) => {
                     // Задержка перед скрытием, чтобы можно было кликнуть на результаты
