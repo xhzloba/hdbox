@@ -35,9 +35,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     setSidebarOpen((prev) => !prev);
   }, []);
 
-  const toggleTheme = () => {
-    // Эта функция больше не нужна, так как Header использует useTheme напрямую
-  };
+
 
   const handleSearchFocus = useCallback((isActive: boolean) => {
     if (isActive) {

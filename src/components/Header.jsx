@@ -3,8 +3,6 @@ import {
   Menu,
   Search,
   X,
-  Sun,
-  Moon,
   Maximize,
   Minimize,
   Loader,
