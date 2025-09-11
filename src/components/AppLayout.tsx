@@ -97,6 +97,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   onSearchFocus={handleSearchFocus}
                   isSearchActive={isSearchActive}
                   isSearchAnimating={isSearchAnimating}
+                  sidebarOpen={sidebarOpen}
                 />
                 <main className="flex-1">{children}</main>
               </div>

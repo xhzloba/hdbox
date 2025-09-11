@@ -234,6 +234,7 @@ const Header = ({
   onSearchFocus,
   isSearchActive,
   isSearchAnimating,
+  sidebarOpen,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dialogMode, setDialogMode] = useState(null); // 'setup' | 'disable' | null
@@ -737,7 +738,7 @@ const Header = ({
           <div className="flex items-center gap-3 relative">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 group hover:animate-pulse"
+              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 group hover:animate-pulse hover:bg-blue-500"
               style={{
                 background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
                 boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
@@ -745,7 +746,18 @@ const Header = ({
               }}
               aria-label="Переключить меню"
             >
-              <Menu className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+              <div className="relative w-5 h-5">
+                <Menu 
+                  className={`absolute inset-0 w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
+                    sidebarOpen ? 'rotate-0 opacity-100' : 'rotate-90 opacity-0'
+                  }`} 
+                />
+                <X 
+                  className={`absolute inset-0 w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
+                    sidebarOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                  }`} 
+                />
+              </div>
             </button>
 
             {/* Кнопка поиска рядом с меню */}
