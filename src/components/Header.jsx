@@ -47,6 +47,9 @@ const SearchResultsSlider = ({
   activeFilterTab,
   onFilterTabChange,
   onMovieClick,
+  hasMoreResults,
+  isLoadingMore,
+  onLoadMore,
 }) => {
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
@@ -218,6 +221,29 @@ const SearchResultsSlider = ({
               )}
             </div>
           ))}
+          
+          {/* Кнопка "Загрузить еще" */}
+          {!isLoading && hasMoreResults && (
+            <div className="w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] flex-shrink-0 flex items-center justify-center">
+              <button
+                onClick={onLoadMore}
+                disabled={isLoadingMore}
+                className="h-full min-h-[180px] md:min-h-[300px] w-full bg-muted hover:bg-muted/80 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-all duration-200 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader className="w-6 h-6 animate-spin" />
+                    <span className="text-xs text-center px-2">Загрузка...</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronRight className="w-6 h-6" />
+                    <span className="text-xs text-center px-2">Загрузить еще</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -251,7 +277,7 @@ const Header = ({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [activeFilterTab, setActiveFilterTab] = useState("title"); // новое состояние для активного таба фильтрации
+  const [activeFilterTab, setActiveFilterTab] = useState("default"); // новое состояние для активного таба фильтрации
   const [selectedMovieForPlayer, setSelectedMovieForPlayer] = useState(null);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const [currentSearchQuery, setCurrentSearchQuery] = useState(""); // для отображения в заголовке модалки
@@ -259,6 +285,10 @@ const Header = ({
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
   const [showSearchInput, setShowSearchInput] = useState(false); // состояние для показа поля поиска в хедере
   const [currentTime, setCurrentTime] = useState(new Date()); // состояние для текущего времени
+  // Состояния для пагинации поиска
+  const [currentSearchPage, setCurrentSearchPage] = useState(1);
+  const [hasMoreSearchResults, setHasMoreSearchResults] = useState(false);
+  const [isLoadingMoreResults, setIsLoadingMoreResults] = useState(false);
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
@@ -347,7 +377,8 @@ const Header = ({
 
   // Конфигурация табов фильтрации для модалки поиска
   const filterTabs = [
-    { id: "title", title: "По названию", icon: "AZ" },
+    { id: "default", title: "По названию", icon: "AZ" },
+    { id: "title", title: "По алфавиту", icon: "AZ" },
     { id: "year", title: "По году", icon: "Calendar" },
     { id: "rating", title: "По рейтингу", icon: "Star" },
   ];
@@ -359,6 +390,10 @@ const Header = ({
     const sortedResults = [...searchResults];
 
     switch (activeFilterTab) {
+      case "default":
+        // Возвращаем результаты в исходном порядке API (максимально точное соответствие)
+        return sortedResults;
+
       case "title":
         return sortedResults.sort((a, b) => {
           const titleA = (a.details?.name || a.title || "").toLowerCase();
@@ -514,6 +549,10 @@ const Header = ({
     setSearchResults([]);
     setShowSearchResults(false);
     setCurrentSearchQuery(""); // Очищаем также сохраненный запрос
+    // Сбрасываем состояния пагинации
+    setCurrentSearchPage(1);
+    setHasMoreSearchResults(false);
+    setIsLoadingMoreResults(false);
 
     // Деактивируем оверлей при очистке поиска
     setIsSearchFocused(false);
@@ -533,6 +572,10 @@ const Header = ({
       setSearchResults([]);
       setShowSearchResults(false);
       setCurrentSearchQuery("");
+      // Сбрасываем состояния пагинации
+      setCurrentSearchPage(1);
+      setHasMoreSearchResults(false);
+      setIsLoadingMoreResults(false);
       setIsSearchFocused(false);
       onSearchFocus && onSearchFocus(false);
     } else {
@@ -547,21 +590,26 @@ const Header = ({
   };
 
   // Функция поиска фильмов
-  const searchMovies = async (query, shouldClearInput = false) => {
+  const searchMovies = async (query, shouldClearInput = false, page = 1) => {
     if (!query.trim()) {
       setSearchResults([]);
       setShowSearchResults(false);
+      setHasMoreSearchResults(false);
+      setCurrentSearchPage(1);
       return;
     }
 
     setIsSearching(true);
-    // Сбрасываем фильтр на "По названию" при новом поиске
-    setActiveFilterTab("title");
+    // Сбрасываем фильтр на "По названию" при новом поиске (только для первой страницы)
+    if (page === 1) {
+      setActiveFilterTab("default");
+      setCurrentSearchPage(1);
+    }
 
     try {
       const url = `https://api.vokino.tv/v2/search?name=${encodeURIComponent(
         query
-      )}&page=1`;
+      )}&page=${page}`;
       console.log("API URL:", url);
 
       const response = await fetch(url);
@@ -576,23 +624,41 @@ const Header = ({
       // Используем data.channels согласно структуре API
       if (data && data.channels && Array.isArray(data.channels)) {
         console.log("First movie data structure:", data.channels[0]);
-        setSearchResults(data.channels.slice(0, 12)); // Ограничиваем до 12 результатов
+        
+        if (page === 1) {
+          // Первая страница - заменяем результаты
+          setSearchResults(data.channels);
+        } else {
+          // Следующие страницы - добавляем к существующим результатам
+          setSearchResults(prev => [...prev, ...data.channels]);
+        }
+        
+        // Проверяем, есть ли еще результаты (если получили меньше чем обычно или пустой массив)
+        setHasMoreSearchResults(data.channels.length > 0 && data.channels.length >= 10);
+        setCurrentSearchPage(page);
         setShowSearchResults(true);
 
-        // Сохраняем поисковый запрос для отображения в заголовке модалки
-        setCurrentSearchQuery(query);
+        // Сохраняем поисковый запрос для отображения в заголовке модалки (только для первой страницы)
+        if (page === 1) {
+          setCurrentSearchQuery(query);
+        }
 
         // Очищаем поле поиска только если shouldClearInput = true (для поиска из хедера)
-        if (shouldClearInput) {
+        if (shouldClearInput && page === 1) {
           setSearchQuery("");
         }
 
-        // Активируем оверлей при показе результатов
-        setIsSearchFocused(true);
-        onSearchFocus && onSearchFocus(true);
+        // Активируем оверлей при показе результатов (только для первой страницы)
+        if (page === 1) {
+          setIsSearchFocused(true);
+          onSearchFocus && onSearchFocus(true);
+        }
       } else {
-        setSearchResults([]);
-        setShowSearchResults(false);
+        if (page === 1) {
+          setSearchResults([]);
+          setShowSearchResults(false);
+        }
+        setHasMoreSearchResults(false);
       }
     } catch (error) {
       console.error("Ошибка поиска:", error);
@@ -605,6 +671,27 @@ const Header = ({
       setShowSearchResults(false);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Функция загрузки следующей страницы результатов поиска
+  const loadMoreSearchResults = async () => {
+    if (!currentSearchQuery || !hasMoreSearchResults || isLoadingMoreResults) {
+      return;
+    }
+
+    setIsLoadingMoreResults(true);
+    try {
+      await searchMovies(currentSearchQuery, false, currentSearchPage + 1);
+    } catch (error) {
+      console.error("Ошибка загрузки дополнительных результатов:", error);
+      toast({
+        title: "Ошибка загрузки",
+        description: "Не удалось загрузить дополнительные результаты.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMoreResults(false);
     }
   };
 
@@ -881,19 +968,12 @@ const Header = ({
                             key={tab.id}
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleFilterTabClick(tab.id)}
-                            className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                            className={`inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                               activeFilterTab === tab.id
                                 ? "bg-background text-foreground shadow-sm"
                                 : "hover:bg-background/50 hover:text-foreground"
                             }`}
                           >
-                            {tab.icon === "AZ" && (
-                              <span className="w-3 h-3 text-xs font-bold">AZ</span>
-                            )}
-                            {tab.icon === "Calendar" && (
-                              <span className="w-3 h-3 text-xs">📅</span>
-                            )}
-                            {tab.icon === "Star" && <Star className="w-3 h-3" />}
                             {tab.title}
                           </button>
                         ))}
@@ -902,7 +982,7 @@ const Header = ({
                     
                     {/* Список фильмов */}
                     <div className="p-2">
-                      {getSortedSearchResults().slice(0, 8).map((movie) => {
+                      {getSortedSearchResults().map((movie) => {
                         const transformedMovie = {
                           id: movie.id || movie.details?.id || Math.random().toString(36),
                           title: movie.details?.name || movie.title || movie.name || "Неизвестное название",
@@ -956,6 +1036,26 @@ const Header = ({
                           </div>
                         );
                       })}
+                      
+                      {/* Кнопка "Загрузить еще" */}
+                      {hasMoreSearchResults && (
+                        <div className="p-2 border-t border-border">
+                          <button
+                            onClick={loadMoreSearchResults}
+                            disabled={isLoadingMoreResults}
+                            className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isLoadingMoreResults ? (
+                              <>
+                                <Loader className="w-4 h-4 animate-spin" />
+                                <span>Загрузка...</span>
+                              </>
+                            ) : (
+                              <span>Загрузить еще</span>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
