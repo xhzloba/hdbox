@@ -737,19 +737,29 @@ const Header = ({
           <div className="flex items-center gap-3 relative">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0"
+              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
               aria-label="Переключить меню"
             >
-              <Menu className="w-5 h-5 text-foreground" />
+              <Menu className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
             </button>
 
             {/* Кнопка поиска рядом с меню */}
             <button
               onClick={toggleSearchInput}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors flex-shrink-0 relative z-[10000]"
+              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
               title="Поиск фильмов"
             >
-              <Search className="w-5 h-5 text-foreground" />
+              <Search className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
             </button>
 
             {/* Логотип */}
@@ -789,10 +799,15 @@ const Header = ({
                 {/* Кнопка закрытия поиска */}
               <button
                 onClick={toggleSearchInput}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
+                style={{
+                  background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                  boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                  borderTop: '1px solid rgb(84, 84, 84)'
+                }}
                 title="Закрыть поиск"
               >
-                <X className="w-4 h-4 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
+                <X className="w-4 h-4 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
               </button>
               
 
@@ -800,10 +815,15 @@ const Header = ({
                  <button
                    onMouseDown={(e) => e.preventDefault()}
                    onClick={handleClearSearch}
-                   className="absolute right-16 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted hover:bg-red-900/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999]"
+                   className="absolute right-16 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
+                   style={{
+                     background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                     boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                     borderTop: '1px solid rgb(84, 84, 84)'
+                   }}
                    title="Очистить поиск"
                  >
-                   <X className="w-3.5 h-3.5 text-muted-foreground hover:text-red-400 transition-colors duration-200" />
+                   <X className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                  </button>
                )}
                 
@@ -930,31 +950,41 @@ const Header = ({
                   // Затем запускаем голосовой поиск
                   handleVoiceSearch();
                 }}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-all duration-300 group ${
                   isListening
-                    ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                    : "hover:bg-secondary"
+                    ? "animate-pulse"
+                    : "hover:animate-pulse"
                 }`}
+                style={{
+                  background: isListening ? 'rgb(239, 68, 68)' : 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                  boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                  borderTop: '1px solid rgb(84, 84, 84)'
+                }}
                 title={isListening ? "Остановить запись" : "Голосовой поиск"}
                 disabled={!speechSupported}
               >
                 {isListening ? (
                   <MicOff className="w-5 h-5 text-white" />
                 ) : (
-                  <Mic className="w-5 h-5 text-foreground" />
+                  <Mic className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                 )}
               </button>
             )}
 
             <button
               onClick={handleParentalControlClick}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+              className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
               title="Родительский контроль"
             >
               {isParentalControlEnabled ? (
-                <Lock className="w-5 h-5 text-foreground" />
+                <Lock className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
               ) : (
-                <Unlock className="w-5 h-5 text-foreground" />
+                <Unlock className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
               )}
             </button>
 
@@ -973,10 +1003,15 @@ const Header = ({
 
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+              className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
               title="Настройки"
             >
-              <Settings className="w-5 h-5 text-foreground" />
+              <Settings className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
             </button>
 
             {/* Отображение времени и даты */}
@@ -986,7 +1021,12 @@ const Header = ({
 
             <button
               onClick={toggleFullscreen}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
+              className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
               title={
                 isFullscreen
                   ? "Выйти из полноэкранного режима"
@@ -994,9 +1034,9 @@ const Header = ({
               }
             >
               {isFullscreen ? (
-                <Minimize className="w-5 h-5 text-foreground" />
+                <Minimize className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
               ) : (
-                <Maximize className="w-5 h-5 text-foreground" />
+                <Maximize className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
               )}
             </button>
 
