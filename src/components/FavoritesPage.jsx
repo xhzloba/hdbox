@@ -293,7 +293,13 @@ const FavoritesPage = () => {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
+          <div 
+            className="flex items-center gap-2 p-1 rounded-lg w-fit"
+            style={{
+              background: 'linear-gradient(131deg, #191919, #242323)',
+              boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+            }}
+          >
             {/* Таб "Все" - не перетаскиваемый */}
             {(() => {
               const allTab = tabs.find(tab => tab.id === 'all')
@@ -373,7 +379,11 @@ const FavoritesPage = () => {
             {/* Кнопка сворачивания/разворачивания */}
             <button
               onClick={toggleTabsCollapse}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20"
+              className="flex items-center justify-center w-8 h-8 rounded-md text-sm font-medium transition-all duration-200 text-muted-foreground hover:scale-105 active:scale-95"
+              style={{
+                background: 'linear-gradient(131deg, #191919, #242323)',
+                boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+              }}
               title={isTabsCollapsed ? 'Развернуть табы' : 'Свернуть табы'}
             >
               {isTabsCollapsed ? (
@@ -386,14 +396,13 @@ const FavoritesPage = () => {
             {/* Кнопка Lock/Unlock */}
             <button
               onClick={toggleTabsLock}
-              className={`
-                flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200
-                ${
-                  isTabsLocked
-                    ? 'bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20'
-                    : 'bg-primary/10 text-primary hover:bg-primary/20'
-                }
-              `}
+              className={`flex items-center justify-center w-8 h-8 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 ${
+                isTabsLocked ? 'text-muted-foreground' : 'text-primary'
+              }`}
+              style={{
+                background: 'linear-gradient(131deg, #191919, #242323)',
+                boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+              }}
               title={isTabsLocked ? 'Разблокировать перемещение табов' : 'Заблокировать перемещение табов'}
             >
               {isTabsLocked ? (
@@ -407,7 +416,13 @@ const FavoritesPage = () => {
             {favorites.length > 0 && (
               <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
                 <AlertDialogTrigger asChild>
-                  <button className="px-3 py-2 rounded-md text-sm font-medium bg-destructive/30 text-destructive hover:bg-destructive/50 transition-all duration-200 flex items-center gap-2">
+                  <button 
+                    className="flex items-center justify-center w-8 h-8 rounded-md text-sm font-medium text-destructive transition-all duration-200 hover:scale-105 active:scale-95"
+                    style={{
+                      background: 'linear-gradient(131deg, #191919, #242323)',
+                      boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
+                    }}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </AlertDialogTrigger>
