@@ -982,13 +982,7 @@ const Header = ({
             </button>
 
             {/* Отображение времени и даты */}
-            <div 
-              className="px-3 py-2 text-sm text-foreground font-medium rounded-lg"
-              style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset'
-              }}
-            >
+            <div className="px-3 py-2 text-sm text-foreground font-medium rounded-lg bg-muted border border-border shadow-lg">
               {formatDateTime(currentTime)}
             </div>
 
