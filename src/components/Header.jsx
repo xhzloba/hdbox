@@ -13,6 +13,7 @@ import {
   MicOff,
   ChevronLeft,
   ChevronRight,
+  Delete,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -296,6 +297,27 @@ const Header = ({
 
     return () => clearInterval(timer);
   }, []);
+
+  // Обработчик клика вне области поиска для закрытия поиска
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSearchInput && searchInputRef.current) {
+        const searchContainer = searchInputRef.current.closest('.relative');
+        if (searchContainer && !searchContainer.contains(event.target)) {
+          setShowSearchInput(false);
+          setShowSearchResults(false);
+          setIsSearchFocused(false);
+          onSearchFocus && onSearchFocus(false);
+          setSearchQuery("");
+        }
+      }
+    };
+
+    if (showSearchInput) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSearchInput, onSearchFocus]);
 
   // Функция для форматирования времени
   const formatDateTime = (date) => {
@@ -807,15 +829,20 @@ const Header = ({
                   className="pl-12 pr-24 py-3 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
                   onFocus={handleSearchFocus}
                   onBlur={(e) => {
-                    // Задержка перед скрытием, чтобы можно было кликнуть на результаты
-                    setTimeout(() => {
-                      if (!e.currentTarget.contains(document.activeElement)) {
+                    // Проверяем, что фокус не переходит на элементы результатов поиска
+                    const relatedTarget = e.relatedTarget;
+                    const searchContainer = e.currentTarget.closest('.relative');
+                    
+                    // Если клик не по элементам поиска, закрываем поиск
+                    if (!relatedTarget || !searchContainer?.contains(relatedTarget)) {
+                      setTimeout(() => {
                         setShowSearchInput(false);
                         setShowSearchResults(false);
                         setIsSearchFocused(false);
                         onSearchFocus && onSearchFocus(false);
-                      }
-                    }, 200);
+                        setSearchQuery("");
+                      }, 150);
+                    }
                   }}
                   onChange={handleSearchChange}
                   onKeyPress={handleSearchKeyPress}
@@ -839,7 +866,7 @@ const Header = ({
                  <button
                    onMouseDown={(e) => e.preventDefault()}
                    onClick={handleClearSearch}
-                   className="absolute right-16 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
+                   className="absolute right-12 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
                    style={{
                      background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
                      boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
@@ -847,7 +874,7 @@ const Header = ({
                    }}
                    title="Очистить поиск"
                  >
-                   <X className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                   <Delete className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                  </button>
                )}
                 
