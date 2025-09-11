@@ -304,7 +304,14 @@ const Header = ({
     const handleClickOutside = (event) => {
       if (showSearchInput && searchInputRef.current) {
         const searchContainer = searchInputRef.current.closest('.relative');
-        if (searchContainer && !searchContainer.contains(event.target)) {
+        
+        // Проверяем, что клик не по области результатов поиска или табам фильтрации
+        const isClickOnSearchResults = event.target.closest('[data-search-results]');
+        const isClickOnFilterTabs = event.target.closest('[data-filter-tabs]');
+        const isClickOnSearchDropdown = event.target.closest('.absolute.top-full');
+        
+        if (searchContainer && !searchContainer.contains(event.target) && 
+            !isClickOnSearchResults && !isClickOnFilterTabs && !isClickOnSearchDropdown) {
           setShowSearchInput(false);
           setShowSearchResults(false);
           setIsSearchFocused(false);
@@ -829,22 +836,6 @@ const Header = ({
                   placeholder="Поиск фильмов и сериалов..."
                   className="pl-12 pr-24 py-3 bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 w-[500px] transition-all duration-200 relative z-[9999]"
                   onFocus={handleSearchFocus}
-                  onBlur={(e) => {
-                    // Проверяем, что фокус не переходит на элементы результатов поиска
-                    const relatedTarget = e.relatedTarget;
-                    const searchContainer = e.currentTarget.closest('.relative');
-                    
-                    // Если клик не по элементам поиска, закрываем поиск
-                    if (!relatedTarget || !searchContainer?.contains(relatedTarget)) {
-                      setTimeout(() => {
-                        setShowSearchInput(false);
-                        setShowSearchResults(false);
-                        setIsSearchFocused(false);
-                        onSearchFocus && onSearchFocus(false);
-                        setSearchQuery("");
-                      }, 150);
-                    }
-                  }}
                   onChange={handleSearchChange}
                   onKeyPress={handleSearchKeyPress}
                 />
@@ -881,13 +872,14 @@ const Header = ({
                 
                 {/* Выпадающий список результатов поиска */}
                 {showSearchResults && searchResults.length > 0 && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl max-h-96 overflow-y-auto z-[9999]">
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl max-h-96 overflow-y-auto z-[9999]" data-search-results>
                     {/* Табы фильтрации */}
-                    <div className="p-4 border-b border-border">
+                    <div className="p-4 border-b border-border" data-filter-tabs>
                       <div className="bg-muted text-muted-foreground rounded-lg p-1 flex items-center gap-1">
                         {filterTabs.map((tab) => (
                           <button
                             key={tab.id}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleFilterTabClick(tab.id)}
                             className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                               activeFilterTab === tab.id
@@ -970,7 +962,7 @@ const Header = ({
                 
                 {/* Сообщение о том, что ничего не найдено */}
                 {showSearchResults && searchResults.length === 0 && !isSearching && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]">
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]" data-search-results>
                     <div className="text-center text-muted-foreground">
                       <p>Ничего не найдено</p>
                       <p className="text-sm mt-1">Попробуйте изменить запрос</p>
@@ -980,7 +972,7 @@ const Header = ({
                 
                 {/* Индикатор загрузки */}
                 {isSearching && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]">
+                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]" data-search-results>
                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
                       <Loader className="w-4 h-4 animate-spin" />
                       <span>Поиск...</span>
