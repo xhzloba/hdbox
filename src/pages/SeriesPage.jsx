@@ -50,6 +50,12 @@ const COMPILATION_TABS = [
     isCompilation: true,
   },
   {
+    id: "fx",
+    title: "FX",
+    url: "https://api.vokino.tv/v2/compilations/content/65aa9cd65c350868501d64de",
+    isCompilation: true,
+  },
+  {
     id: "fox",
     title: "FOX",
     url: "https://api.vokino.tv/v2/compilations/content/65aaaf32ce9f3661fe41dcfa",
