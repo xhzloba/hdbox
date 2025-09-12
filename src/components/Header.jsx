@@ -433,6 +433,8 @@ const Header = ({
 
   // Обработчик клика по фильму в результатах поиска
   const handleMovieClick = (movie) => {
+    // Очищаем поисковый запрос
+    setSearchQuery('');
     // Сначала закрываем результаты поиска и поле поиска
     setShowSearchResults(false);
     setShowSearchInput(false);

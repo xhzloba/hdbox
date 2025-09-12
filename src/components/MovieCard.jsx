@@ -235,103 +235,107 @@ const MovieCard = ({
           </div>
         )}
 
-        {/* Normal Hover Overlay */}
+        {/* Normal Hover Overlay - только кнопка плей */}
         {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div className="flex items-center gap-3">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+            <div className="transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsPlayerModalOpen(true);
                 }}
-                className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
+                className="p-2.5 bg-primary rounded-full hover:bg-primary/90 hover:scale-105 transition-all duration-200 shadow-lg shadow-primary/30"
               >
-                <Play className="w-4 h-4 text-primary-foreground fill-current" />
-              </button>
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  
-                  // Детальная отладочная информация
-                  console.log('=== Share Button Debug Info ===');
-                  console.log('Browser:', navigator.userAgent);
-                  console.log('navigator.share supported:', !!navigator.share);
-                  console.log('Protocol:', window.location.protocol);
-                  console.log('Host:', window.location.host);
-                  console.log('Movie data:', { title: movie.title, year: movie.year, type: movie.type });
-                  
-                  // Формируем данные для sharing
-                  const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
-                  const shareText = movie.year 
-                    ? `Посмотри ${movie.title} (${movie.year}) - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`
-                    : `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`;
-                  
-                  const shareData = {
-                    title: titleWithYear,
-                    text: shareText,
-                    url: window.location.href
-                  };
-                  
-                  console.log('Share data:', shareData);
-                  
-                  // Приоритет Web Share API - используем если доступен, независимо от протокола
-                  if (navigator.share) {
-                    try {
-                      console.log('Attempting to share via Web Share API...');
-                      await navigator.share(shareData);
-                      console.log('✅ Share successful via Web Share API');
-                      // НЕ показываем alert - нативный UI уже показал результат
-                    } catch (error) {
-                      console.log('Share error:', error.name, error.message);
-                      // Игнорируем ошибку отмены пользователем
-                      if (error.name === 'AbortError' || error.message.includes('canceled') || error.message.includes('cancelled')) {
-                        console.log('Share cancelled by user - this is normal');
-                        return;
-                      }
-                      // Для других ошибок используем fallback
-                      console.log('Using fallback due to Web Share API error');
-                      const fallbackText = movie.year 
-                        ? `${movie.title} (${movie.year}) - ${window.location.href}`
-                        : `${movie.title} - ${window.location.href}`;
-                      try {
-                        await navigator.clipboard.writeText(fallbackText);
-                        alert('📋 Ссылка скопирована в буфер обмена!');
-                      } catch (clipboardError) {
-                        console.error('Clipboard error:', clipboardError);
-                        alert('❌ Ошибка при копировании в буфер обмена');
-                      }
-                    }
-                  } else {
-                    // Fallback - копирование в буфер обмена
-                    console.log('Web Share API not supported, using clipboard fallback');
-                    const fallbackText = movie.year 
-                      ? `${movie.title} (${movie.year}) - ${window.location.href}`
-                      : `${movie.title} - ${window.location.href}`;
-                    try {
-                      await navigator.clipboard.writeText(fallbackText);
-                      alert('📋 Ссылка скопирована в буфер обмена!');
-                    } catch (clipboardError) {
-                      console.error('Clipboard error:', clipboardError);
-                      // Последний fallback - показываем текст для ручного копирования
-                      prompt('Скопируйте ссылку вручную:', fallbackText);
-                    }
-                  }
-                  console.log('=== End Share Debug ===');
-                }}
-                className="p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors"
-              >
-                <svg 
-                  className="w-4 h-4 text-primary-foreground" 
-                  fill="currentColor" 
-                  viewBox="0 0 48 48" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z" fill="currentColor"></path>
-                  <path d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z" fill="currentColor"></path>
-                </svg>
+                <Play className="w-5 h-5 text-primary-foreground fill-current" />
               </button>
             </div>
           </div>
+        )}
+
+        {/* Кнопка поделиться в нижнем правом углу */}
+        {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
+          <button
+            onClick={async (e) => {
+              e.stopPropagation();
+              
+              // Детальная отладочная информация
+              console.log('=== Share Button Debug Info ===');
+              console.log('Browser:', navigator.userAgent);
+              console.log('navigator.share supported:', !!navigator.share);
+              console.log('Protocol:', window.location.protocol);
+              console.log('Host:', window.location.host);
+              console.log('Movie data:', { title: movie.title, year: movie.year, type: movie.type });
+              
+              // Формируем данные для sharing
+              const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
+              const shareText = movie.year 
+                ? `Посмотри ${movie.title} (${movie.year}) - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`
+                : `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`;
+              
+              const shareData = {
+                title: titleWithYear,
+                text: shareText,
+                url: window.location.href
+              };
+              
+              console.log('Share data:', shareData);
+              
+              // Приоритет Web Share API - используем если доступен, независимо от протокола
+              if (navigator.share) {
+                try {
+                  console.log('Attempting to share via Web Share API...');
+                  await navigator.share(shareData);
+                  console.log('✅ Share successful via Web Share API');
+                  // НЕ показываем alert - нативный UI уже показал результат
+                } catch (error) {
+                  console.log('Share error:', error.name, error.message);
+                  // Игнорируем ошибку отмены пользователем
+                  if (error.name === 'AbortError' || error.message.includes('canceled') || error.message.includes('cancelled')) {
+                    console.log('Share cancelled by user - this is normal');
+                    return;
+                  }
+                  // Для других ошибок используем fallback
+                  console.log('Using fallback due to Web Share API error');
+                  const fallbackText = movie.year 
+                    ? `${movie.title} (${movie.year}) - ${window.location.href}`
+                    : `${movie.title} - ${window.location.href}`;
+                  try {
+                    await navigator.clipboard.writeText(fallbackText);
+                    alert('📋 Ссылка скопирована в буфер обмена!');
+                  } catch (clipboardError) {
+                    console.error('Clipboard error:', clipboardError);
+                    alert('❌ Ошибка при копировании в буфер обмена');
+                  }
+                }
+              } else {
+                // Fallback - копирование в буфер обмена
+                console.log('Web Share API not supported, using clipboard fallback');
+                const fallbackText = movie.year 
+                  ? `${movie.title} (${movie.year}) - ${window.location.href}`
+                  : `${movie.title} - ${window.location.href}`;
+                try {
+                  await navigator.clipboard.writeText(fallbackText);
+                  alert('📋 Ссылка скопирована в буфер обмена!');
+                } catch (clipboardError) {
+                  console.error('Clipboard error:', clipboardError);
+                  // Последний fallback - показываем текст для ручного копирования
+                  prompt('Скопируйте ссылку вручную:', fallbackText);
+                }
+              }
+              console.log('=== End Share Debug ===');
+            }}
+            className="absolute bottom-2 right-2 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100"
+          >
+            <svg 
+              className="w-4 h-4 text-primary-foreground" 
+              fill="currentColor" 
+              viewBox="0 0 48 48" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z" fill="currentColor"></path>
+              <path d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z" fill="currentColor"></path>
+            </svg>
+          </button>
         )}
 
         {/* Rating Display */}
