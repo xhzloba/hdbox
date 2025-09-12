@@ -347,7 +347,14 @@ const MovieCard = ({
                   movie.rating
                 );
                 return (
-                  <div className="bg-black/70 rounded-full p-1.5 flex items-center justify-center">
+                  <div 
+                    className="bg-black/70 rounded-full p-1.5 flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                      boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                      borderTop: '1px solid rgb(84, 84, 84)'
+                    }}
+                  >
                 <IconComponent className={`w-4 h-4 ${color}`} />
               </div>
                 );
