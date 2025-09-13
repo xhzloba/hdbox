@@ -9,7 +9,6 @@ import { ParentalControlProvider } from "../contexts/ParentalControlContext";
 import { SettingsProvider } from "../contexts/SettingsContext";
 import FlyingPoster from "./FlyingPoster";
 import { Toaster } from "@/components/ui/toaster";
-import DesktopOnlyWrapper from "./DesktopOnlyWrapper";
 
 // Функция getInitialTheme больше не нужна, next-themes управляет темой автоматически
 
@@ -82,7 +81,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <DesktopOnlyWrapper>
     <SettingsProvider>
         <ParentalControlProvider>
           <FavoritesProvider>
@@ -121,6 +119,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </FavoritesProvider>
         </ParentalControlProvider>
     </SettingsProvider>
-    </DesktopOnlyWrapper>
   );
 }
