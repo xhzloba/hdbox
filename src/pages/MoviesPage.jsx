@@ -2,13 +2,49 @@
 
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MoreHorizontal } from "lucide-react";
 import MovieCard from "../components/MovieCard";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
+import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
+
 
 import SettingsContext from "../contexts/SettingsContext";
+
+const MAIN_TABS = [
+  {
+    id: "updatings",
+    title: "Обновления",
+    url: "https://api.vokino.tv/v2/list?sort=updatings&type=movie",
+  },
+  {
+    id: "new",
+    title: "Новинки",
+    url: "https://api.vokino.tv/v2/list?sort=new&type=movie",
+  },
+  {
+    id: "popular",
+    title: "Популярное",
+    url: "https://api.vokino.tv/v2/list?sort=popular&type=movie",
+  },
+  {
+    id: "rating",
+    title: "Лучшее",
+    url: "https://api.vokino.tv/v2/list?sort=rating&type=movie",
+  },
+];
+
+const COMPILATION_TABS = [
+  {
+    id: "top250",
+    title: "Топ 250",
+    url: "https://api.vokino.tv/v2/compilations/content/66fa5fc9dd606aae9ea0a9dc",
+    isCompilation: true,
+  },
+];
+
+const ALL_TABS = [...MAIN_TABS, ...COMPILATION_TABS];
 
 const MoviesPage = () => {
   const settings = useContext(SettingsContext);
@@ -22,29 +58,12 @@ const MoviesPage = () => {
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [selectedCompilation, setSelectedCompilation] = useState(null);
 
-  const tabs = [
-    {
-      id: "updatings",
-      title: "Обновления",
-      url: "https://api.vokino.tv/v2/list?sort=updatings&type=movie",
-    },
-    {
-      id: "new",
-      title: "Новинки",
-      url: "https://api.vokino.tv/v2/list?sort=new&type=movie",
-    },
-    {
-      id: "popular",
-      title: "Популярное",
-      url: "https://api.vokino.tv/v2/list?sort=popular&type=movie",
-    },
-    {
-      id: "rating",
-      title: "Лучшее",
-      url: "https://api.vokino.tv/v2/list?sort=rating&type=movie",
-    },
-  ];
+  const isCompilationActive = COMPILATION_TABS.find(tab => tab.id === activeTab)?.isCompilation || false;
+
+  const tabs = MAIN_TABS;
 
   // Функция для удаления дубликатов фильмов по ID
   const removeDuplicates = useCallback((existingMovies, newMovies) => {
@@ -63,75 +82,91 @@ const MoviesPage = () => {
     return uniqueNewMovies;
   }, []);
 
+
+
   const fetchMovies = useCallback(
     async (tabId, pageNum = 1, reset = false) => {
       if (loading) return;
 
       setLoading(true);
       try {
-        const tab = tabs.find((t) => t.id === tabId);
+        const tab = ALL_TABS.find((t) => t.id === tabId);
         let allMovies = [];
 
-        if (reset && pageNum === 1) {
-          // При первой загрузке любого таба загружаем сразу 2 страницы
-          const [page1Response, page2Response] = await Promise.all([
-            fetch(`${tab.url}&page=1`),
-            fetch(`${tab.url}&page=2`),
-          ]);
-
-          const [page1Data, page2Data] = await Promise.all([
-            page1Response.json(),
-            page2Response.json(),
-          ]);
-
-          if (page1Data.channels && page1Data.channels.length > 0) {
-            allMovies = [...allMovies, ...page1Data.channels];
-          }
-
-          if (page2Data.channels && page2Data.channels.length > 0) {
-            allMovies = [...allMovies, ...page2Data.channels];
-          }
-
-          setPage(2); // Устанавливаем страницу на 2, так как уже загрузили первые две
-
-          // Проверяем, есть ли еще данные
-          if (!page2Data.channels || page2Data.channels.length < 15) {
-            setHasMore(false);
-          }
-
-          if (allMovies.length > 0) {
-            const uniqueMovies = removeDuplicates([], allMovies);
-            setMovies(uniqueMovies);
+        if (tab.isCompilation) {
+          // Для подборок загружаем данные напрямую без пагинации
+          const response = await fetch(tab.url);
+          const data = await response.json();
+        
+          if (data.channels && data.channels.length > 0) {
+            setMovies(data.channels);
+            setHasMore(false); // Подборки не имеют пагинации
           } else {
             setMovies([]);
             setHasMore(false);
           }
         } else {
-          // Обычная загрузка одной страницы
-          const url = `${tab.url}&page=${pageNum}`;
-          console.log("Fetching movies:", { tabId, pageNum, url });
-          const response = await fetch(url);
-          const data = await response.json();
-          console.log("API Response:", {
-            channels: data.channels?.length,
-            hasMore: data.channels?.length >= 15,
-          });
+          if (reset && pageNum === 1) {
+            // При первой загрузке любого таба загружаем сразу 2 страницы
+            const [page1Response, page2Response] = await Promise.all([
+              fetch(`${tab.url}&page=1`),
+              fetch(`${tab.url}&page=2`),
+            ]);
 
-          if (data.channels && data.channels.length > 0) {
-            if (reset) {
-              setMovies(data.channels);
-            } else {
-              setMovies((prev) => {
-                const uniqueNewMovies = removeDuplicates(prev, data.channels);
-                console.log(
-                  `Добавлено ${uniqueNewMovies.length} уникальных фильмов из ${data.channels.length}`
-                );
-                return [...prev, ...uniqueNewMovies];
-              });
+            const [page1Data, page2Data] = await Promise.all([
+              page1Response.json(),
+              page2Response.json(),
+            ]);
+
+            if (page1Data.channels && page1Data.channels.length > 0) {
+              allMovies = [...allMovies, ...page1Data.channels];
             }
-            setHasMore(data.channels.length >= 15);
+
+            if (page2Data.channels && page2Data.channels.length > 0) {
+              allMovies = [...allMovies, ...page2Data.channels];
+            }
+
+            setPage(2); // Устанавливаем страницу на 2, так как уже загрузили первые две
+
+            // Проверяем, есть ли еще данные
+            if (!page2Data.channels || page2Data.channels.length < 15) {
+              setHasMore(false);
+            }
+
+            if (allMovies.length > 0) {
+              const uniqueMovies = removeDuplicates([], allMovies);
+              setMovies(uniqueMovies);
+            } else {
+              setMovies([]);
+              setHasMore(false);
+            }
           } else {
-            setHasMore(false);
+            // Обычная загрузка одной страницы
+            const url = `${tab.url}&page=${pageNum}`;
+            console.log("Fetching movies:", { tabId, pageNum, url });
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log("API Response:", {
+              channels: data.channels?.length,
+              hasMore: data.channels?.length >= 15,
+            });
+
+            if (data.channels && data.channels.length > 0) {
+              if (reset) {
+                setMovies(data.channels);
+              } else {
+                setMovies((prev) => {
+                  const uniqueNewMovies = removeDuplicates(prev, data.channels);
+                  console.log(
+                    `Добавлено ${uniqueNewMovies.length} уникальных фильмов из ${data.channels.length}`
+                  );
+                  return [...prev, ...uniqueNewMovies];
+                });
+              }
+              setHasMore(data.channels.length >= 15);
+            } else {
+              setHasMore(false);
+            }
           }
         }
       } catch (error) {
@@ -191,7 +226,7 @@ const MoviesPage = () => {
     console.log("Loading next page:", nextPage);
     setPage(nextPage);
     fetchMovies(activeTab, nextPage, false);
-  }, [activeTab, hasMore, loading, page, movies.length]);
+  }, [activeTab, hasMore, loading, page, movies.length, fetchMovies]);
 
   useEffect(() => {
     let ticking = false;
@@ -209,9 +244,44 @@ const MoviesPage = () => {
   }, [handleScroll]);
 
   const handleTabClick = (tabId) => {
-    if (tabId !== activeTab) {
-      setActiveTab(tabId);
+    if (activeTab === tabId) return;
+    
+    // Сбрасываем выбранную подборку при клике на основные табы
+    if (MAIN_TABS.some(tab => tab.id === tabId)) {
+      setSelectedCompilation(null);
     }
+    
+    setActiveTab(tabId);
+    setMovies([]);
+    setPage(1);
+    setHasMore(true);
+    setHasAttemptedFetch(false);
+    
+    // Сбрасываем состояние загрузки
+    setLoading(false);
+    
+    // Принудительно запускаем загрузку для нового таба
+    setTimeout(() => {
+      fetchMovies(tabId, 1, true);
+    }, 0);
+  };
+
+  const handleCompilationSelect = (tabId) => {
+    const selectedTab = COMPILATION_TABS.find(tab => tab.id === tabId);
+    setSelectedCompilation(selectedTab);
+    setActiveTab(tabId);
+    setIsPopoverOpen(false);
+    
+    // Сбрасываем данные и загружаем новые
+    setMovies([]);
+    setPage(1);
+    setHasMore(true);
+    setHasAttemptedFetch(false);
+    setLoading(false);
+    
+    setTimeout(() => {
+      fetchMovies(tabId, 1, true);
+    }, 0);
   };
 
   const handleAdultContentClick = (movie) => {
@@ -313,11 +383,9 @@ const MoviesPage = () => {
       } : {}}
     >
       {/* Табы */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center gap-3">
         <div
-          className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${
-            "gap-1"
-          }`}
+          className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${"gap-1"}`}
           style={{
             background: 'linear-gradient(131deg, #191919, #242323)',
             boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
@@ -337,6 +405,60 @@ const MoviesPage = () => {
             </button>
           ))}
         </div>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className={`${selectedCompilation ? 'px-4' : 'w-10'} h-10 rounded-full inline-flex items-center justify-center gap-2 text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95 ${
+                COMPILATION_TABS.some(tab => tab.id === activeTab)
+                  ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
+                  : "hover:bg-background/50 hover:text-foreground text-muted-foreground"
+              }`}
+              style={{
+                background: COMPILATION_TABS.some(tab => tab.id === activeTab) 
+                  ? undefined 
+                  : 'linear-gradient(131deg, #191919, #242323)',
+                boxShadow: COMPILATION_TABS.some(tab => tab.id === activeTab)
+                  ? undefined
+                  : isPopoverOpen 
+                    ? 'inset 7px 5px 8px #000000, 2px 2px 20px #303132'
+                    : '7px 5px 8px #000000, inset 2px 2px 20px #303132',
+                transition: 'all 0.3s ease-in-out, width 0.3s ease-in-out'
+              }}
+            >
+              {selectedCompilation && (
+                <span className="whitespace-nowrap animate-in fade-in-0 slide-in-from-left-2 duration-300">
+                  {selectedCompilation.title}
+                </span>
+              )}
+              <ChevronDown 
+                className="w-4 h-4 transition-transform duration-300 ease-in-out flex-shrink-0" 
+                style={{
+                  transform: isPopoverOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
+              />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-2" align="start">
+            <div className="space-y-1">
+              <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+                Подборки фильмов
+              </div>
+              {COMPILATION_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleCompilationSelect(tab.id)}
+                  className={`w-full flex items-center justify-between px-2 py-2 text-sm rounded-md transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  <span>{tab.title}</span>
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Контейнер с фильмами (виртуализированный по строкам) */}
