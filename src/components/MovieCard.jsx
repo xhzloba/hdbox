@@ -17,7 +17,6 @@ import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
 import PlayerModal from "./PlayerModal";
 
-
 // Функция для определения иконки и цвета на основе рейтинга
 const getRatingIcon = (rating) => {
   const numRating = parseFloat(rating);
@@ -50,15 +49,15 @@ const getRatingIcon = (rating) => {
 // Функция для определения типа контента
 const getContentType = (type) => {
   if (!type) return null;
-  
+
   const typeStr = type.toString().toLowerCase();
-  
-  if (typeStr.includes('movie') || typeStr.includes('multfilm')) {
-    return 'Фильм';
-  } else if (typeStr.includes('serial') || typeStr.includes('tv')) {
-    return 'Сериал';
+
+  if (typeStr.includes("movie") || typeStr.includes("multfilm")) {
+    return "Фильм";
+  } else if (typeStr.includes("serial") || typeStr.includes("tv")) {
+    return "Сериал";
   }
-  
+
   return null;
 };
 
@@ -86,7 +85,7 @@ const MovieCard = ({
   let isAdultContent = () => false;
   let canAccessAdultContent = () => true;
   let isMovieUnlocked = () => true;
-  
+
   try {
     const parentalControl = useParentalControl();
     isParentalControlEnabled = parentalControl.isParentalControlEnabled;
@@ -95,7 +94,7 @@ const MovieCard = ({
     isMovieUnlocked = parentalControl.isMovieUnlocked;
   } catch (error) {
     // Контекст недоступен, используем значения по умолчанию
-    console.warn('ParentalControlContext not available, using defaults');
+    console.warn("ParentalControlContext not available, using defaults");
   }
   const settingsContext = useContext(SettingsContext);
   const showDetails = settingsContext?.showDetails ?? true; // По умолчанию показываем детали
@@ -158,7 +157,11 @@ const MovieCard = ({
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
       } ${
         isNew
-          ? `border-2 border-yellow-400 ${cardShadowsEnabled ? 'shadow-lg shadow-yellow-400/20' : ''} animate-pulse hover:border-yellow-300 ${cardShadowsEnabled ? 'hover:shadow-yellow-300/30' : ''} animate-[fadeInScale_0.6s_ease-out]`
+          ? `border-2 border-yellow-400 ${
+              cardShadowsEnabled ? "shadow-lg shadow-yellow-400/20" : ""
+            } animate-pulse hover:border-yellow-300 ${
+              cardShadowsEnabled ? "hover:shadow-yellow-300/30" : ""
+            } animate-[fadeInScale_0.6s_ease-out]`
           : "border border-transparent hover:border-gray-600"
       }`}
       style={{
@@ -167,7 +170,7 @@ const MovieCard = ({
           ? {
               animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",
             }
-          : {})
+          : {}),
       }}
     >
       <div
@@ -202,8 +205,6 @@ const MovieCard = ({
           </div>
         )}
 
-
-
         {/* Age Rating on Poster */}
         {movie.age && (
           <div
@@ -220,8 +221,6 @@ const MovieCard = ({
             </span>
           </div>
         )}
-
-
 
         {/* Blocked Content Overlay */}
         {isAdult && isParentalControlEnabled && !isUnlocked && (
@@ -257,83 +256,105 @@ const MovieCard = ({
           <button
             onClick={async (e) => {
               e.stopPropagation();
-              
+
               // Детальная отладочная информация
-              console.log('=== Share Button Debug Info ===');
-              console.log('Browser:', navigator.userAgent);
-              console.log('navigator.share supported:', !!navigator.share);
-              console.log('Protocol:', window.location.protocol);
-              console.log('Host:', window.location.host);
-              console.log('Movie data:', { title: movie.title, year: movie.year, type: movie.type });
-              
+              console.log("=== Share Button Debug Info ===");
+              console.log("Browser:", navigator.userAgent);
+              console.log("navigator.share supported:", !!navigator.share);
+              console.log("Protocol:", window.location.protocol);
+              console.log("Host:", window.location.host);
+              console.log("Movie data:", {
+                title: movie.title,
+                year: movie.year,
+                type: movie.type,
+              });
+
               // Формируем данные для sharing
-              const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
-              const shareText = movie.year 
-                ? `Посмотри ${movie.title} (${movie.year}) - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`
-                : `Посмотри ${movie.title} - отличный ${movie.type === 'series' ? 'сериал' : 'фильм'}!`;
-              
+              const titleWithYear = movie.year
+                ? `${movie.title} (${movie.year})`
+                : movie.title;
+              const shareText = movie.year
+                ? `Посмотри ${movie.title} (${movie.year}) - отличный ${
+                    movie.type === "series" ? "сериал" : "фильм"
+                  }!`
+                : `Посмотри ${movie.title} - отличный ${
+                    movie.type === "series" ? "сериал" : "фильм"
+                  }!`;
+
               const shareData = {
                 title: titleWithYear,
                 text: shareText,
-                url: window.location.href
+                url: window.location.href,
               };
-              
-              console.log('Share data:', shareData);
-              
+
+              console.log("Share data:", shareData);
+
               // Приоритет Web Share API - используем если доступен, независимо от протокола
               if (navigator.share) {
                 try {
-                  console.log('Attempting to share via Web Share API...');
+                  console.log("Attempting to share via Web Share API...");
                   await navigator.share(shareData);
-                  console.log('✅ Share successful via Web Share API');
+                  console.log("✅ Share successful via Web Share API");
                   // НЕ показываем alert - нативный UI уже показал результат
                 } catch (error) {
-                  console.log('Share error:', error.name, error.message);
+                  console.log("Share error:", error.name, error.message);
                   // Игнорируем ошибку отмены пользователем
-                  if (error.name === 'AbortError' || error.message.includes('canceled') || error.message.includes('cancelled')) {
-                    console.log('Share cancelled by user - this is normal');
+                  if (
+                    error.name === "AbortError" ||
+                    error.message.includes("canceled") ||
+                    error.message.includes("cancelled")
+                  ) {
+                    console.log("Share cancelled by user - this is normal");
                     return;
                   }
                   // Для других ошибок используем fallback
-                  console.log('Using fallback due to Web Share API error');
-                  const fallbackText = movie.year 
+                  console.log("Using fallback due to Web Share API error");
+                  const fallbackText = movie.year
                     ? `${movie.title} (${movie.year}) - ${window.location.href}`
                     : `${movie.title} - ${window.location.href}`;
                   try {
                     await navigator.clipboard.writeText(fallbackText);
-                    alert('📋 Ссылка скопирована в буфер обмена!');
+                    alert("📋 Ссылка скопирована в буфер обмена!");
                   } catch (clipboardError) {
-                    console.error('Clipboard error:', clipboardError);
-                    alert('❌ Ошибка при копировании в буфер обмена');
+                    console.error("Clipboard error:", clipboardError);
+                    alert("❌ Ошибка при копировании в буфер обмена");
                   }
                 }
               } else {
                 // Fallback - копирование в буфер обмена
-                console.log('Web Share API not supported, using clipboard fallback');
-                const fallbackText = movie.year 
+                console.log(
+                  "Web Share API not supported, using clipboard fallback"
+                );
+                const fallbackText = movie.year
                   ? `${movie.title} (${movie.year}) - ${window.location.href}`
                   : `${movie.title} - ${window.location.href}`;
                 try {
                   await navigator.clipboard.writeText(fallbackText);
-                  alert('📋 Ссылка скопирована в буфер обмена!');
+                  alert("📋 Ссылка скопирована в буфер обмена!");
                 } catch (clipboardError) {
-                  console.error('Clipboard error:', clipboardError);
+                  console.error("Clipboard error:", clipboardError);
                   // Последний fallback - показываем текст для ручного копирования
-                  prompt('Скопируйте ссылку вручную:', fallbackText);
+                  prompt("Скопируйте ссылку вручную:", fallbackText);
                 }
               }
-              console.log('=== End Share Debug ===');
+              console.log("=== End Share Debug ===");
             }}
             className="absolute bottom-2 right-2 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100"
           >
-            <svg 
-              className="w-4 h-4 text-primary-foreground" 
-              fill="currentColor" 
-              viewBox="0 0 48 48" 
+            <svg
+              className="w-4 h-4 text-primary-foreground"
+              fill="currentColor"
+              viewBox="0 0 48 48"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z" fill="currentColor"></path>
-              <path d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z" fill="currentColor"></path>
+              <path
+                d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z"
+                fill="currentColor"
+              ></path>
+              <path
+                d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z"
+                fill="currentColor"
+              ></path>
             </svg>
           </button>
         )}
@@ -347,16 +368,18 @@ const MovieCard = ({
                   movie.rating
                 );
                 return (
-                  <div 
+                  <div
                     className="bg-black/70 rounded-full p-1.5 flex items-center justify-center"
                     style={{
-                      background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                      boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                      borderTop: '1px solid rgb(84, 84, 84)'
+                      background:
+                        "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                      boxShadow:
+                        "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                      borderTop: "1px solid rgb(84, 84, 84)",
                     }}
                   >
-                <IconComponent className={`w-4 h-4 ${color}`} />
-              </div>
+                    <IconComponent className={`w-4 h-4 ${color}`} />
+                  </div>
                 );
               })()
             ) : (
@@ -374,43 +397,43 @@ const MovieCard = ({
       <button
         onClick={handleAddToFavorites}
         className={`absolute top-2 left-2 z-30 group/ribbon transition-all duration-200 hover:scale-105 ${
-          showFavoriteButton 
-            ? "opacity-100" 
+          showFavoriteButton
+            ? "opacity-100"
             : "opacity-0 group-hover:opacity-100"
         }`}
       >
-          <svg 
-            className="w-7 h-10" 
-            width="28" 
-            height="40" 
-            viewBox="0 0 28 40" 
-            xmlns="http://www.w3.org/2000/svg" 
-            role="presentation"
-          >
-            {/* Основной полигон ленточки */}
-            <polygon 
-              className={`transition-colors duration-200 ${
-                isInFavorites 
-                  ? "fill-sidebar-primary group-hover/ribbon:fill-sidebar-primary/80" 
-                  : "fill-gray-700 opacity-60 group-hover/ribbon:opacity-80"
-              }`}
-              points="28 0 0 0 0 38 14.2843 30.4308 28 37.2353"
-            />
-            {/* Полигон для тени */}
-            <polygon 
-              className="fill-black/20" 
-              points="28 37.2353 28 39.2353 14.2843 32.4308 0 40 0 38 14.2843 30.4308"
-            />
-          </svg>
-          {/* Иконка внутри ленточки */}
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-            {isInFavorites ? (
-              <Check className="w-3.5 h-3.5 text-white" />
-            ) : (
-              <Plus className="w-3.5 h-3.5 text-white" />
-            )}
-          </div>
-        </button>
+        <svg
+          className="w-7 h-10"
+          width="28"
+          height="40"
+          viewBox="0 0 28 40"
+          xmlns="http://www.w3.org/2000/svg"
+          role="presentation"
+        >
+          {/* Основной полигон ленточки */}
+          <polygon
+            className={`transition-colors duration-200 ${
+              isInFavorites
+                ? "fill-sidebar-primary group-hover/ribbon:fill-sidebar-primary/80"
+                : "fill-gray-700 opacity-60 group-hover/ribbon:opacity-80"
+            }`}
+            points="28 0 0 0 0 38 14.2843 30.4308 28 37.2353"
+          />
+          {/* Полигон для тени */}
+          <polygon
+            className="fill-black/20"
+            points="28 37.2353 28 39.2353 14.2843 32.4308 0 40 0 38 14.2843 30.4308"
+          />
+        </svg>
+        {/* Иконка внутри ленточки */}
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+          {isInFavorites ? (
+            <Check className="w-3.5 h-3.5 text-white" />
+          ) : (
+            <Plus className="w-3.5 h-3.5 text-white" />
+          )}
+        </div>
+      </button>
 
       {/* Текстовый блок с информацией о фильме - показывается только если включены детали */}
       {showDetails && (
@@ -419,19 +442,21 @@ const MovieCard = ({
           <div className="grid grid-cols-[auto_1fr] gap-2 mb-1">
             {/* Позиция слева, занимает высоту всего блока */}
             {showPosition && position && position <= 10 && (
-              <div 
+              <div
                 className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent self-center"
                 style={{
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)',
-                  letterSpacing: '0.02em',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                  fontFamily:
+                    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  textShadow:
+                    "0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)",
+                  letterSpacing: "0.02em",
+                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
                 }}
               >
                 {position}
               </div>
             )}
-            
+
             {/* Колонка с информацией справа */}
             <div className="flex flex-col justify-center">
               <h3 className="text-sm font-medium text-foreground line-clamp-1 mb-1">
@@ -455,13 +480,37 @@ const MovieCard = ({
               </div>
             </div>
           </div>
-          
+
           {/* Бейджик типа контента под всем блоком */}
           {getContentType(movie.type) && showContentTypeBadge && (
             <div>
-              <span className="text-[10px] px-1.5 py-1 bg-gray-600/70 text-gray-200 rounded font-medium">
-                {getContentType(movie.type)}
-              </span>
+              {getContentType(movie.type) === "Фильм" ? (
+                <div className="flex items-center gap-1">
+                  <svg
+                    aria-hidden="true"
+                    className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0"
+                    fill="currentColor"
+                    height="48"
+                    viewBox="0 0 48 48"
+                    width="48"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      clipRule="evenodd"
+                      d="M42 24C42 31.2328 38.3435 37.6115 32.7782 41.3886C33.1935 41.2738 33.602 41.1447 34 41C45.1693 36.9384 47 32 47 32L48 35C48 35 44.3832 40.459 34.5 43.5C28 45.5 21 45 21 45C9.40202 45 0 35.598 0 24C0 12.402 9.40202 3 21 3C32.598 3 42 12.402 42 24ZM21 19C24.3137 19 27 16.3137 27 13C27 9.68629 24.3137 7 21 7C17.6863 7 15 9.68629 15 13C15 16.3137 17.6863 19 21 19ZM10 30C13.3137 30 16 27.3137 16 24C16 20.6863 13.3137 18 10 18C6.68629 18 4 20.6863 4 24C4 27.3137 6.68629 30 10 30ZM38 24C38 27.3137 35.3137 30 32 30C28.6863 30 26 27.3137 26 24C26 20.6863 28.6863 18 32 18C35.3137 18 38 20.6863 38 24ZM21 26C22.1046 26 23 25.1046 23 24C23 22.8954 22.1046 22 21 22C19.8954 22 19 22.8954 19 24C19 25.1046 19.8954 26 21 26ZM27 35C27 38.3137 24.3137 41 21 41C17.6863 41 15 38.3137 15 35C15 31.6863 17.6863 29 21 29C24.3137 29 27 31.6863 27 35Z"
+                      fill="currentColor"
+                      fillRule="evenodd"
+                    ></path>
+                  </svg>
+                  <span className="text-[10px] px-1.5 py-1 text-gray-200 font-medium">
+                    фильм
+                  </span>
+                </div>
+              ) : (
+                <span className="text-[10px] px-1.5 py-1 bg-gray-600/70 text-gray-200 rounded font-medium">
+                  {getContentType(movie.type)}
+                </span>
+              )}
             </div>
           )}
         </div>
