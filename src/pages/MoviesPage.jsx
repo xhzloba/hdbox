@@ -614,6 +614,7 @@ function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick }) {
                   <MovieCard
                     movie={transformItem(movie)}
                     onAdultContentClick={onAdultContentClick}
+                    showAllGenres={true}
                   />
                 </div>
               ))}

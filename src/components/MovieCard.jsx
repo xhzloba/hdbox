@@ -438,12 +438,16 @@ const MovieCard = ({
                 {movie.title}
               </h3>
               <div className="text-xs text-muted-foreground">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span>{movie.year}</span>
-                  <span className="text-xs px-2 py-1 bg-secondary rounded text-gray-500">
+                <div className="flex items-center gap-0.5 flex-wrap">
+                  {movie.year && (
+                    <span className="text-xs pr-2 py-0.5 bg-secondary rounded text-gray-500 leading-tight">
+                      {movie.year}
+                    </span>
+                  )}
+                  <span className="text-xs pr-1 py-0.5 bg-secondary rounded text-gray-500 leading-tight">
                     {Array.isArray(movie.genre)
                       ? showAllGenres
-                        ? movie.genre.join(", ")
+                        ? movie.genre.slice(0, 2).join(", ")
                         : movie.genre[0] || movie.genre
                       : movie.genre}
                   </span>
