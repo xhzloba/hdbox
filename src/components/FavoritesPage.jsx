@@ -445,10 +445,20 @@ const FavoritesPage = () => {
                    px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200
                    ${
                      selectedCountry === country
-                       ? 'bg-primary text-primary-foreground shadow-sm'
-                       : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                       ? 'text-white'
+                       : 'text-muted-foreground hover:text-foreground'
                    }
                  `}
+                 style={selectedCountry === country ? {
+                   background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
+                   boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset',
+                   borderTop: '1px solid transparent',
+                   color: '#ffffff'
+                 } : {
+                   background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                   boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                   borderTop: '1px solid rgb(84, 84, 84)'
+                 }}
                >
                  {country}
                </button>
@@ -475,10 +485,20 @@ const FavoritesPage = () => {
                    px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200
                    ${
                      selectedGenre === genre
-                       ? 'bg-primary text-primary-foreground shadow-sm'
-                       : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                       ? 'text-white'
+                       : 'text-muted-foreground hover:text-foreground'
                    }
                  `}
+                 style={selectedGenre === genre ? {
+                   background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
+                   boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset',
+                   borderTop: '1px solid transparent',
+                   color: '#ffffff'
+                 } : {
+                   background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                   boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                   borderTop: '1px solid rgb(84, 84, 84)'
+                 }}
                >
                  {genre}
                </button>
