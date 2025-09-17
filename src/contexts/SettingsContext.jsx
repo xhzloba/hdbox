@@ -1,45 +1,47 @@
-'use client'
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-const SettingsContext = createContext()
+const SettingsContext = createContext();
 
 export const useSettings = () => {
-  const context = useContext(SettingsContext)
+  const context = useContext(SettingsContext);
   if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider')
+    throw new Error("useSettings must be used within a SettingsProvider");
   }
-  return context
-}
+  return context;
+};
 
 export const SettingsProvider = ({ children }) => {
-  const [showDetails, setShowDetails] = useState(true)
-  const [showRatingAsIcons, setShowRatingAsIcons] = useState(true)
-  const [showFavoriteButton, setShowFavoriteButton] = useState(true)
-  const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true)
-  const [pageStylesEnabled, setPageStylesEnabled] = useState(false)
-  const [defaultPlayer, setDefaultPlayer] = useState('renewall')
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [showDetails, setShowDetails] = useState(true);
+  const [showRatingAsIcons, setShowRatingAsIcons] = useState(true);
+  const [showFavoriteButton, setShowFavoriteButton] = useState(true);
+  const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true);
+  const [coloredHoverEnabled, setColoredHoverEnabled] = useState(true);
+  const [pageStylesEnabled, setPageStylesEnabled] = useState(false);
+  const [defaultPlayer, setDefaultPlayer] = useState("renewall");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Загрузка настроек из localStorage при инициализации
   useEffect(() => {
     try {
-      const savedSettings = localStorage.getItem('movieCardSettings')
+      const savedSettings = localStorage.getItem("movieCardSettings");
       if (savedSettings) {
-        const settings = JSON.parse(savedSettings)
-        setShowDetails(settings.showDetails ?? true)
-        setShowRatingAsIcons(settings.showRatingAsIcons ?? true)
-        setShowFavoriteButton(settings.showFavoriteButton ?? true)
-        setCardShadowsEnabled(settings.cardShadowsEnabled ?? true)
-        setPageStylesEnabled(settings.pageStylesEnabled ?? false)
-        setDefaultPlayer(settings.defaultPlayer ?? 'renewall')
+        const settings = JSON.parse(savedSettings);
+        setShowDetails(settings.showDetails ?? true);
+        setShowRatingAsIcons(settings.showRatingAsIcons ?? true);
+        setShowFavoriteButton(settings.showFavoriteButton ?? true);
+        setCardShadowsEnabled(settings.cardShadowsEnabled ?? true);
+        setColoredHoverEnabled(settings.coloredHoverEnabled ?? true);
+        setPageStylesEnabled(settings.pageStylesEnabled ?? false);
+        setDefaultPlayer(settings.defaultPlayer ?? "renewall");
       }
     } catch (error) {
-      console.error('Ошибка загрузки настроек:', error)
+      console.error("Ошибка загрузки настроек:", error);
     } finally {
-      setIsLoaded(true)
+      setIsLoaded(true);
     }
-  }, [])
+  }, []);
 
   // Сохранение настроек в localStorage при изменении
   useEffect(() => {
@@ -50,35 +52,49 @@ export const SettingsProvider = ({ children }) => {
           showRatingAsIcons,
           showFavoriteButton,
           cardShadowsEnabled,
+          coloredHoverEnabled,
           pageStylesEnabled,
-          defaultPlayer
-        }
-        localStorage.setItem('movieCardSettings', JSON.stringify(settings))
+          defaultPlayer,
+        };
+        localStorage.setItem("movieCardSettings", JSON.stringify(settings));
       } catch (error) {
-        console.error('Ошибка сохранения настроек:', error)
+        console.error("Ошибка сохранения настроек:", error);
       }
     }
-  }, [showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, pageStylesEnabled, defaultPlayer, isLoaded])
+  }, [
+    showDetails,
+    showRatingAsIcons,
+    showFavoriteButton,
+    cardShadowsEnabled,
+    coloredHoverEnabled,
+    pageStylesEnabled,
+    defaultPlayer,
+    isLoaded,
+  ]);
 
   const toggleShowDetails = () => {
-    setShowDetails(prev => !prev)
-  }
+    setShowDetails((prev) => !prev);
+  };
 
   const toggleShowRatingAsIcons = () => {
-    setShowRatingAsIcons(prev => !prev)
-  }
+    setShowRatingAsIcons((prev) => !prev);
+  };
 
   const toggleShowFavoriteButton = () => {
-    setShowFavoriteButton(prev => !prev)
-  }
+    setShowFavoriteButton((prev) => !prev);
+  };
 
   const toggleCardShadows = () => {
-    setCardShadowsEnabled(prev => !prev)
-  }
+    setCardShadowsEnabled((prev) => !prev);
+  };
+
+  const toggleColoredHover = () => {
+    setColoredHoverEnabled((prev) => !prev);
+  };
 
   const togglePageStyles = () => {
-    setPageStylesEnabled(prev => !prev)
-  }
+    setPageStylesEnabled((prev) => !prev);
+  };
 
   const value = {
     showDetails,
@@ -93,19 +109,22 @@ export const SettingsProvider = ({ children }) => {
     cardShadowsEnabled,
     setCardShadowsEnabled,
     toggleCardShadows,
+    coloredHoverEnabled,
+    setColoredHoverEnabled,
+    toggleColoredHover,
     pageStylesEnabled,
     setPageStylesEnabled,
     togglePageStyles,
     defaultPlayer,
     setDefaultPlayer,
-    isLoaded
-  }
+    isLoaded,
+  };
 
   return (
     <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
-  )
-}
+  );
+};
 
-export default SettingsContext
+export default SettingsContext;

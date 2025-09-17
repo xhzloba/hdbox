@@ -101,6 +101,7 @@ const MovieCard = ({
   const showRatingAsIcons = settingsContext?.showRatingAsIcons ?? true; // По умолчанию показываем иконки
   const showFavoriteButton = settingsContext?.showFavoriteButton ?? true; // По умолчанию показываем кнопку избранного
   const cardShadowsEnabled = settingsContext?.cardShadowsEnabled ?? true; // По умолчанию показываем тени
+  const coloredHoverEnabled = settingsContext?.coloredHoverEnabled ?? true; // По умолчанию включено цветное затемнение
   const isInFavorites = isInFavoritesOrPending(movie.id);
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
@@ -236,7 +237,38 @@ const MovieCard = ({
 
         {/* Normal Hover Overlay - только кнопка плей */}
         {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center"
+            style={{
+              background: (() => {
+                // Если цветное затемнение отключено, всегда используем черное
+                if (!coloredHoverEnabled) {
+                  return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
+                }
+
+                if (!movie.rating)
+                  return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
+
+                const numRating = parseFloat(movie.rating);
+
+                if (numRating < 5.5) {
+                  // Красноватое для плохих фильмов
+                  return "linear-gradient(to top, rgba(139,0,0,0.7) 0%, rgba(139,0,0,0.4) 50%, transparent 100%)";
+                } else if (numRating >= 5.6 && numRating < 7.5) {
+                  // Серое для средних
+                  return "linear-gradient(to top, rgba(75,85,99,0.7) 0%, rgba(75,85,99,0.4) 50%, transparent 100%)";
+                } else if (numRating >= 7.5 && numRating < 8.3) {
+                  // Зеленоватое для хороших
+                  return "linear-gradient(to top, rgba(34,139,34,0.7) 0%, rgba(34,139,34,0.4) 50%, transparent 100%)";
+                } else if (numRating >= 8.3 && numRating <= 10) {
+                  // Яркое зеленое для шедевров
+                  return "linear-gradient(to top, rgba(50,205,50,0.7) 0%, rgba(50,205,50,0.4) 50%, transparent 100%)";
+                }
+
+                return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
+              })(),
+            }}
+          >
             <div className="transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <button
                 onClick={(e) => {

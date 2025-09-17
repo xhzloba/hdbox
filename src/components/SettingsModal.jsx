@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useContext, useState, useEffect } from 'react'
-import { Settings } from 'lucide-react'
+import React, { useContext, useState, useEffect } from "react";
+import { Settings } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,95 +11,141 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../components/ui/alert-dialog'
-import SettingsContext from '../contexts/SettingsContext'
+} from "../../components/ui/alert-dialog";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../../components/ui/tabs";
+import SettingsContext from "../contexts/SettingsContext";
 
 const SettingsModal = ({ isOpen, onClose }) => {
-  const settingsContext = useContext(SettingsContext)
-  
+  const settingsContext = useContext(SettingsContext);
+
   // Если контекст не доступен, не рендерим диалог
   if (!settingsContext) {
-    return null
+    return null;
   }
-  
-  const { showDetails, toggleShowDetails, showRatingAsIcons, toggleShowRatingAsIcons, showFavoriteButton, toggleShowFavoriteButton, cardShadowsEnabled, toggleCardShadows, pageStylesEnabled, togglePageStyles, defaultPlayer, setDefaultPlayer } = settingsContext
+
+  const {
+    showDetails,
+    toggleShowDetails,
+    showRatingAsIcons,
+    toggleShowRatingAsIcons,
+    showFavoriteButton,
+    toggleShowFavoriteButton,
+    cardShadowsEnabled,
+    toggleCardShadows,
+    coloredHoverEnabled,
+    toggleColoredHover,
+    pageStylesEnabled,
+    togglePageStyles,
+    defaultPlayer,
+    setDefaultPlayer,
+  } = settingsContext;
   // Временное состояние для настроек до подтверждения
-  const [tempShowDetails, setTempShowDetails] = useState(showDetails)
-  const [tempShowRatingAsIcons, setTempShowRatingAsIcons] = useState(showRatingAsIcons)
-  const [tempShowFavoriteButton, setTempShowFavoriteButton] = useState(showFavoriteButton)
-  const [tempCardShadowsEnabled, setTempCardShadowsEnabled] = useState(cardShadowsEnabled)
-  const [tempPageStylesEnabled, setTempPageStylesEnabled] = useState(pageStylesEnabled)
-  const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer)
+  const [tempShowDetails, setTempShowDetails] = useState(showDetails);
+  const [tempShowRatingAsIcons, setTempShowRatingAsIcons] =
+    useState(showRatingAsIcons);
+  const [tempShowFavoriteButton, setTempShowFavoriteButton] =
+    useState(showFavoriteButton);
+  const [tempCardShadowsEnabled, setTempCardShadowsEnabled] =
+    useState(cardShadowsEnabled);
+  const [tempColoredHoverEnabled, setTempColoredHoverEnabled] =
+    useState(coloredHoverEnabled);
+  const [tempPageStylesEnabled, setTempPageStylesEnabled] =
+    useState(pageStylesEnabled);
+  const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer);
+  const [activeTab, setActiveTab] = useState("display");
 
   // Синхронизируем временное состояние с основным при открытии
   useEffect(() => {
     if (isOpen) {
-      setTempShowDetails(showDetails)
-      setTempShowRatingAsIcons(showRatingAsIcons)
-      setTempShowFavoriteButton(showFavoriteButton)
-      setTempCardShadowsEnabled(cardShadowsEnabled)
-      setTempPageStylesEnabled(pageStylesEnabled)
-      setTempDefaultPlayer(defaultPlayer)
+      setTempShowDetails(showDetails);
+      setTempShowRatingAsIcons(showRatingAsIcons);
+      setTempShowFavoriteButton(showFavoriteButton);
+      setTempCardShadowsEnabled(cardShadowsEnabled);
+      setTempColoredHoverEnabled(coloredHoverEnabled);
+      setTempPageStylesEnabled(pageStylesEnabled);
+      setTempDefaultPlayer(defaultPlayer);
     }
-  }, [isOpen, showDetails, showRatingAsIcons, showFavoriteButton, cardShadowsEnabled, pageStylesEnabled, defaultPlayer])
+  }, [
+    isOpen,
+    showDetails,
+    showRatingAsIcons,
+    showFavoriteButton,
+    cardShadowsEnabled,
+    coloredHoverEnabled,
+    pageStylesEnabled,
+    defaultPlayer,
+  ]);
 
   const handleConfirm = () => {
     // Применяем изменения только при подтверждении
     if (tempShowDetails !== showDetails) {
-      toggleShowDetails()
+      toggleShowDetails();
     }
     if (tempShowRatingAsIcons !== showRatingAsIcons) {
-      toggleShowRatingAsIcons()
+      toggleShowRatingAsIcons();
     }
     if (tempShowFavoriteButton !== showFavoriteButton) {
-      toggleShowFavoriteButton()
+      toggleShowFavoriteButton();
     }
     if (tempCardShadowsEnabled !== cardShadowsEnabled) {
-      toggleCardShadows()
+      toggleCardShadows();
+    }
+    if (tempColoredHoverEnabled !== coloredHoverEnabled) {
+      toggleColoredHover();
     }
     if (tempPageStylesEnabled !== pageStylesEnabled) {
-      togglePageStyles()
+      togglePageStyles();
     }
     if (tempDefaultPlayer !== defaultPlayer) {
-      setDefaultPlayer(tempDefaultPlayer)
+      setDefaultPlayer(tempDefaultPlayer);
     }
-    onClose()
-  }
+    onClose();
+  };
 
   const handleCancel = () => {
     // Сбрасываем временные изменения
-    setTempShowDetails(showDetails)
-    setTempShowRatingAsIcons(showRatingAsIcons)
-    setTempShowFavoriteButton(showFavoriteButton)
-    setTempCardShadowsEnabled(cardShadowsEnabled)
-    setTempPageStylesEnabled(pageStylesEnabled)
-    setTempDefaultPlayer(defaultPlayer)
-    onClose()
-  }
+    setTempShowDetails(showDetails);
+    setTempShowRatingAsIcons(showRatingAsIcons);
+    setTempShowFavoriteButton(showFavoriteButton);
+    setTempCardShadowsEnabled(cardShadowsEnabled);
+    setTempColoredHoverEnabled(coloredHoverEnabled);
+    setTempPageStylesEnabled(pageStylesEnabled);
+    setTempDefaultPlayer(defaultPlayer);
+    onClose();
+  };
 
   const handleToggleTemp = () => {
-    setTempShowDetails(!tempShowDetails)
-  }
+    setTempShowDetails(!tempShowDetails);
+  };
 
   const handleToggleRatingTemp = () => {
-    setTempShowRatingAsIcons(!tempShowRatingAsIcons)
-  }
+    setTempShowRatingAsIcons(!tempShowRatingAsIcons);
+  };
 
   const handleToggleFavoriteButtonTemp = () => {
-    setTempShowFavoriteButton(!tempShowFavoriteButton)
-  }
+    setTempShowFavoriteButton(!tempShowFavoriteButton);
+  };
 
   const handleToggleCardShadowsTemp = () => {
-    setTempCardShadowsEnabled(!tempCardShadowsEnabled)
-  }
+    setTempCardShadowsEnabled(!tempCardShadowsEnabled);
+  };
+
+  const handleToggleColoredHoverTemp = () => {
+    setTempColoredHoverEnabled(!tempColoredHoverEnabled);
+  };
 
   const handleTogglePageStylesTemp = () => {
-    setTempPageStylesEnabled(!tempPageStylesEnabled)
-  }
+    setTempPageStylesEnabled(!tempPageStylesEnabled);
+  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleCancel}>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-lg">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-muted-foreground" />
@@ -110,207 +156,339 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {/* Settings Content */}
-        <div className="space-y-6">
-          {/* Movie Card Settings Section */}
-          <div>
+        {/* Settings Content with Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="display">Карточки</TabsTrigger>
+            <TabsTrigger value="player">Плеер</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="display" className="space-y-4 mt-4">
             <h3 className="text-sm font-medium mb-4">Отображение карточек</h3>
-            
+
             {/* Show Details Toggle */}
-            <div 
+            <div
               onClick={handleToggleTemp}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
-                tempShowDetails ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                tempShowDetails
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
               }`}
             >
               <div className="flex flex-col">
-                <label className={`text-sm font-medium mb-1 ${
-                  tempShowDetails ? 'text-sidebar-primary-foreground' : ''
-                }`}>
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempShowDetails ? "text-sidebar-primary-foreground" : ""
+                  }`}
+                >
                   Показывать детали
                 </label>
-                <p className={`text-xs ${
-                  tempShowDetails ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    tempShowDetails
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   Название, год, жанр и кнопка избранного
                 </p>
               </div>
-              
+
               <button
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
-                  tempShowDetails ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                  tempShowDetails
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
-                    tempShowDetails ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                    tempShowDetails
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
                   }`}
                 />
               </button>
             </div>
-            
+
             {/* Show Rating as Icons Toggle */}
-            <div 
+            <div
               onClick={handleToggleRatingTemp}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
-                tempShowRatingAsIcons ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                tempShowRatingAsIcons
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
               }`}
             >
               <div className="flex flex-col">
-                <label className={`text-sm font-medium mb-1 ${
-                  tempShowRatingAsIcons ? 'text-sidebar-primary-foreground' : ''
-                }`}>
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempShowRatingAsIcons
+                      ? "text-sidebar-primary-foreground"
+                      : ""
+                  }`}
+                >
                   Рейтинг иконками
                 </label>
-                <p className={`text-xs ${
-                  tempShowRatingAsIcons ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    tempShowRatingAsIcons
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   Отображать рейтинг иконками
                 </p>
               </div>
-              
+
               <button
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
-                  tempShowRatingAsIcons ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                  tempShowRatingAsIcons
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
-                    tempShowRatingAsIcons ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                    tempShowRatingAsIcons
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
                   }`}
                 />
               </button>
             </div>
-            
+
             {/* Show Favorite Button Toggle */}
-            <div 
+            <div
               onClick={handleToggleFavoriteButtonTemp}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
-                tempShowFavoriteButton ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                tempShowFavoriteButton
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
               }`}
             >
               <div className="flex flex-col">
-                <label className={`text-sm font-medium mb-1 ${
-                  tempShowFavoriteButton ? 'text-sidebar-primary-foreground' : ''
-                }`}>
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempShowFavoriteButton
+                      ? "text-sidebar-primary-foreground"
+                      : ""
+                  }`}
+                >
                   Показывать кнопку избранного
                 </label>
-                <p className={`text-xs ${
-                  tempShowFavoriteButton ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    tempShowFavoriteButton
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   Всегда видимая или только при наведении
                 </p>
               </div>
-              
+
               <button
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
-                  tempShowFavoriteButton ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                  tempShowFavoriteButton
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
-                    tempShowFavoriteButton ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                    tempShowFavoriteButton
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
                   }`}
                 />
               </button>
             </div>
-            
+
             {/* Card Shadows Toggle */}
-            <div 
+            <div
               onClick={handleToggleCardShadowsTemp}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
-                tempCardShadowsEnabled ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                tempCardShadowsEnabled
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
               }`}
             >
               <div className="flex flex-col">
-                <label className={`text-sm font-medium mb-1 ${
-                  tempCardShadowsEnabled ? 'text-sidebar-primary-foreground' : ''
-                }`}>
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempCardShadowsEnabled
+                      ? "text-sidebar-primary-foreground"
+                      : ""
+                  }`}
+                >
                   Тени карточек
                 </label>
-                <p className={`text-xs ${
-                  tempCardShadowsEnabled ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    tempCardShadowsEnabled
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   Отображать тени у карточек фильмов
                 </p>
               </div>
-              
+
               <button
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
-                  tempCardShadowsEnabled ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                  tempCardShadowsEnabled
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
-                    tempCardShadowsEnabled ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                    tempCardShadowsEnabled
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
                   }`}
                 />
               </button>
             </div>
-            
-            {/* Page Styles Toggle */}
-            <div 
-              onClick={handleTogglePageStylesTemp}
+
+            {/* Colored Hover Toggle */}
+            <div
+              onClick={handleToggleColoredHoverTemp}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
-                tempPageStylesEnabled ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                tempColoredHoverEnabled
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
               }`}
             >
               <div className="flex flex-col">
-                <label className={`text-sm font-medium mb-1 ${
-                  tempPageStylesEnabled ? 'text-sidebar-primary-foreground' : ''
-                }`}>
-                  Стили страниц
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempColoredHoverEnabled
+                      ? "text-sidebar-primary-foreground"
+                      : ""
+                  }`}
+                >
+                  Цветное затемнение
                 </label>
-                <p className={`text-xs ${
-                  tempPageStylesEnabled ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                }`}>
-                  Закругленные углы и тени для страниц
+                <p
+                  className={`text-xs ${
+                    tempColoredHoverEnabled
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  Цвет наведения зависит от рейтинга
                 </p>
               </div>
-              
+
               <button
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
-                  tempPageStylesEnabled ? 'bg-sidebar-primary' : 'bg-muted-foreground/30'
+                  tempColoredHoverEnabled
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
-                    tempPageStylesEnabled ? 'translate-x-6 bg-sidebar-primary-foreground' : 'translate-x-1 bg-white'
+                    tempColoredHoverEnabled
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
                   }`}
                 />
               </button>
             </div>
-          </div>
 
-          {/* Default Player Settings Section */}
-          <div>
+            {/* Page Styles Toggle */}
+            <div
+              onClick={handleTogglePageStylesTemp}
+              className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                tempPageStylesEnabled
+                  ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                  : "bg-muted/30"
+              }`}
+            >
+              <div className="flex flex-col">
+                <label
+                  className={`text-sm font-medium mb-1 ${
+                    tempPageStylesEnabled
+                      ? "text-sidebar-primary-foreground"
+                      : ""
+                  }`}
+                >
+                  Стили страниц
+                </label>
+                <p
+                  className={`text-xs ${
+                    tempPageStylesEnabled
+                      ? "text-sidebar-primary-foreground/80"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  Закругленные углы и тени для страниц
+                </p>
+              </div>
+
+              <button
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                  tempPageStylesEnabled
+                    ? "bg-sidebar-primary"
+                    : "bg-muted-foreground/30"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                    tempPageStylesEnabled
+                      ? "translate-x-6 bg-sidebar-primary-foreground"
+                      : "translate-x-1 bg-white"
+                  }`}
+                />
+              </button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="player" className="space-y-4 mt-4">
             <h3 className="text-sm font-medium mb-4">Плеер по умолчанию</h3>
-            
+
             <div className="space-y-3">
               {/* Renewall Option */}
-              <div 
-                onClick={() => setTempDefaultPlayer('renewall')}
+              <div
+                onClick={() => setTempDefaultPlayer("renewall")}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
-                  tempDefaultPlayer === 'renewall' ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                  tempDefaultPlayer === "renewall"
+                    ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                    : "bg-muted/30"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    tempDefaultPlayer === 'renewall' ? 'border-sidebar-primary-foreground' : 'border-muted-foreground'
-                  }`}>
-                    {tempDefaultPlayer === 'renewall' && (
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      tempDefaultPlayer === "renewall"
+                        ? "border-sidebar-primary-foreground"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {tempDefaultPlayer === "renewall" && (
                       <div className="w-2 h-2 rounded-full bg-sidebar-primary-foreground" />
                     )}
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${
-                      tempDefaultPlayer === 'renewall' ? 'text-sidebar-primary-foreground' : ''
-                    }`}>
+                    <label
+                      className={`text-sm font-medium ${
+                        tempDefaultPlayer === "renewall"
+                          ? "text-sidebar-primary-foreground"
+                          : ""
+                      }`}
+                    >
                       Renewall
                     </label>
-                    <p className={`text-xs ${
-                      tempDefaultPlayer === 'renewall' ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                    }`}>
+                    <p
+                      className={`text-xs ${
+                        tempDefaultPlayer === "renewall"
+                          ? "text-sidebar-primary-foreground/80"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       Высокое качество, стабильная работа
                     </p>
                   </div>
@@ -318,29 +496,43 @@ const SettingsModal = ({ isOpen, onClose }) => {
               </div>
 
               {/* Turbo Option */}
-              <div 
-                onClick={() => setTempDefaultPlayer('turbo')}
+              <div
+                onClick={() => setTempDefaultPlayer("turbo")}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
-                  tempDefaultPlayer === 'turbo' ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                  tempDefaultPlayer === "turbo"
+                    ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                    : "bg-muted/30"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    tempDefaultPlayer === 'turbo' ? 'border-sidebar-primary-foreground' : 'border-muted-foreground'
-                  }`}>
-                    {tempDefaultPlayer === 'turbo' && (
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      tempDefaultPlayer === "turbo"
+                        ? "border-sidebar-primary-foreground"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {tempDefaultPlayer === "turbo" && (
                       <div className="w-2 h-2 rounded-full bg-sidebar-primary-foreground" />
                     )}
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${
-                      tempDefaultPlayer === 'turbo' ? 'text-sidebar-primary-foreground' : ''
-                    }`}>
+                    <label
+                      className={`text-sm font-medium ${
+                        tempDefaultPlayer === "turbo"
+                          ? "text-sidebar-primary-foreground"
+                          : ""
+                      }`}
+                    >
                       Turbo
                     </label>
-                    <p className={`text-xs ${
-                      tempDefaultPlayer === 'turbo' ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                    }`}>
+                    <p
+                      className={`text-xs ${
+                        tempDefaultPlayer === "turbo"
+                          ? "text-sidebar-primary-foreground/80"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       Быстрая загрузка, хорошее качество
                     </p>
                   </div>
@@ -348,49 +540,61 @@ const SettingsModal = ({ isOpen, onClose }) => {
               </div>
 
               {/* Alloha Option */}
-              <div 
-                onClick={() => setTempDefaultPlayer('alloha')}
+              <div
+                onClick={() => setTempDefaultPlayer("alloha")}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
-                  tempDefaultPlayer === 'alloha' ? 'bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground' : 'bg-muted/30'
+                  tempDefaultPlayer === "alloha"
+                    ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                    : "bg-muted/30"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    tempDefaultPlayer === 'alloha' ? 'border-sidebar-primary-foreground' : 'border-muted-foreground'
-                  }`}>
-                    {tempDefaultPlayer === 'alloha' && (
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      tempDefaultPlayer === "alloha"
+                        ? "border-sidebar-primary-foreground"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {tempDefaultPlayer === "alloha" && (
                       <div className="w-2 h-2 rounded-full bg-sidebar-primary-foreground" />
                     )}
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${
-                      tempDefaultPlayer === 'alloha' ? 'text-sidebar-primary-foreground' : ''
-                    }`}>
+                    <label
+                      className={`text-sm font-medium ${
+                        tempDefaultPlayer === "alloha"
+                          ? "text-sidebar-primary-foreground"
+                          : ""
+                      }`}
+                    >
                       Alloha
                     </label>
-                    <p className={`text-xs ${
-                      tempDefaultPlayer === 'alloha' ? 'text-sidebar-primary-foreground/80' : 'text-muted-foreground'
-                    }`}>
+                    <p
+                      className={`text-xs ${
+                        tempDefaultPlayer === "alloha"
+                          ? "text-sidebar-primary-foreground/80"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       Альтернативный плеер, множественные источники
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>
-            Отмена
-          </AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel}>Отмена</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>
             Подтвердить
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-}
+  );
+};
 
-export default SettingsModal
+export default SettingsModal;
