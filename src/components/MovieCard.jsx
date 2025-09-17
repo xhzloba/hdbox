@@ -522,7 +522,7 @@ const MovieCard = ({
               })()
             ) : (
               // Если рейтинг иконками выключен, показываем круговой рейтинг
-              <CircularRating rating={movie.rating} size={40} />
+              <CircularRating rating={movie.rating} size={44} />
             )}
           </div>
         )}
