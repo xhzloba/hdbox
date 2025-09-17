@@ -65,6 +65,83 @@ const getBorderColor = (rating) => {
   return "rgb(156, 163, 175)"; // gray-400 - fallback как для среднего рейтинга
 };
 
+// Функция для получения цвета рейтинга (для кругового индикатора)
+const getRatingColor = (rating) => {
+  if (!rating) return "#9ca3af"; // gray-400
+
+  const numRating = parseFloat(rating);
+
+  if (numRating < 5.5) {
+    return "#ef4444"; // red-500
+  } else if (numRating >= 5.6 && numRating < 7.5) {
+    return "#9ca3af"; // gray-400
+  } else if (numRating >= 7.5 && numRating < 8.3) {
+    return "#22c55e"; // green-500
+  } else if (numRating >= 8.3 && numRating <= 10) {
+    return "#4ade80"; // green-400
+  }
+
+  return "#9ca3af"; // gray-400
+};
+
+// Компонент кругового рейтинга
+const CircularRating = ({ rating, size = 32 }) => {
+  if (!rating) return null;
+
+  const numRating = parseFloat(rating);
+  const percentage = Math.round(numRating * 10); // Конвертируем в проценты (6.8 -> 68)
+  const radius = size / 2 - 4; // радиус с учетом отступа от краев
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const color = getRatingColor(rating);
+
+  return (
+    <div
+      className="relative flex items-center justify-center bg-black/70 rounded-full shadow-lg"
+      style={{
+        width: size,
+        height: size,
+        boxShadow:
+          "0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4)",
+      }}
+    >
+      <svg className="transform -rotate-90" width={size} height={size}>
+        {/* Фоновый круг */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="rgba(255, 255, 255, 0.2)"
+          strokeWidth="3"
+          fill="transparent"
+        />
+        {/* Прогресс круг */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth="3"
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="transition-all duration-300"
+        />
+      </svg>
+      {/* Текст в центре */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span
+          className="text-white font-bold text-xs"
+          style={{ fontSize: size > 32 ? "10px" : "8px" }}
+        >
+          {percentage}%
+        </span>
+      </div>
+    </div>
+  );
+};
+
 // Функция для определения типа контента
 const getContentType = (type) => {
   if (!type) return null;
@@ -444,11 +521,8 @@ const MovieCard = ({
                 );
               })()
             ) : (
-              <div className="bg-black/70 rounded px-2 py-1 flex items-center justify-center">
-                <span className="text-white text-xs font-medium">
-                  {parseFloat(movie.rating).toFixed(1)}
-                </span>
-              </div>
+              // Если рейтинг иконками выключен, показываем круговой рейтинг
+              <CircularRating rating={movie.rating} size={40} />
             )}
           </div>
         )}
