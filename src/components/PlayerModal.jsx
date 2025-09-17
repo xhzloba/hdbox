@@ -23,8 +23,8 @@ import SettingsContext from "../contexts/SettingsContext";
 
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
-  const defaultPlayer = settingsContext?.defaultPlayer || 'renewall';
-  
+  const defaultPlayer = settingsContext?.defaultPlayer || "renewall";
+
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [kpId, setKpId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   const [loadedPlayers, setLoadedPlayers] = useState({
     renewall: false,
     turbo: false,
-    alloha: false
+    alloha: false,
   });
 
   const token = "windows_93e27bdd4ca8bfd43c106e8d96f09502_1164344";
@@ -77,7 +77,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setLoadedPlayers({
         renewall: false,
         turbo: false,
-        alloha: false
+        alloha: false,
       });
     }
   }, [isOpen]);
@@ -124,7 +124,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       const timer = setTimeout(() => {
         handleTabChange(defaultPlayer);
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isOpen, defaultPlayer, activeTab]);
@@ -132,7 +132,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   // Обработчик смены табов плееров
   const handleTabChange = async (playerType) => {
     setActiveTab(playerType);
-    
+
     // Проверяем, загружен ли уже этот плеер
     if (loadedPlayers[playerType]) {
       // Плеер уже загружен, показываем его сразу без лоадера
@@ -167,7 +167,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         setSelectedPlayer("turbo");
         setIsPlayerVisible(true);
         setIsTabLoading(false);
-        setLoadedPlayers(prev => ({ ...prev, turbo: true }));
+        setLoadedPlayers((prev) => ({ ...prev, turbo: true }));
       }, 800);
       return;
     } else if (playerType === "alloha") {
@@ -176,7 +176,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         setSelectedPlayer("alloha");
         setIsPlayerVisible(true);
         setIsTabLoading(false);
-        setLoadedPlayers(prev => ({ ...prev, alloha: true }));
+        setLoadedPlayers((prev) => ({ ...prev, alloha: true }));
       }, 800);
       return;
     }
@@ -258,7 +258,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         }
         setSelectedPlayer("renewall");
         setIsPlayerVisible(true);
-        setLoadedPlayers(prev => ({ ...prev, renewall: true }));
+        setLoadedPlayers((prev) => ({ ...prev, renewall: true }));
       } else {
         throw new Error("iframe_url не найден в ответе Renewall");
       }
@@ -300,7 +300,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setLoadedPlayers({
         renewall: false,
         turbo: false,
-        alloha: false
+        alloha: false,
       });
       onClose();
     }
@@ -356,7 +356,11 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={handleClose}>
       <AlertDialogContent
-        className="player-modal max-w-6xl max-h-[90vh] overflow-y-auto"
+        className="player-modal max-w-6xl max-h-[90vh] overflow-y-auto border-2 border-gray-300/40"
+        style={{
+          background: "#202020",
+          boxShadow: "inset 0px 11px 20px 5px black",
+        }}
         onPointerDownOutside={(e) => {
           console.log("Клик вне модалки");
           e.preventDefault();
@@ -403,12 +407,14 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
         {/* Информация о фильме */}
         {movie && (
-          <div 
+          <div
             className="flex gap-4 p-4 bg-muted/50 rounded-lg"
             style={{
-              background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-              boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-              borderTop: '1px solid rgb(84, 84, 84)'
+              background:
+                "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+              boxShadow:
+                "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+              borderTop: "1px solid rgb(84, 84, 84)",
             }}
           >
             <img
@@ -455,7 +461,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                   className="flex items-center gap-2"
                 >
                   Renewall
-                  {activeTab === "renewall" && isTabLoading && !loadedPlayers.renewall ? (
+                  {activeTab === "renewall" &&
+                  isTabLoading &&
+                  !loadedPlayers.renewall ? (
                     <Loader2 className="w-3 h-3 animate-spin ml-2" />
                   ) : franchiseDetails?.quality ? (
                     <span className="text-xs bg-black text-white px-2 py-1 rounded ml-2">
