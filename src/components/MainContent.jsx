@@ -9,9 +9,10 @@ import {
   transformMoviesArray,
   safeTransformApiResponse,
 } from "../utils/dataTransformers";
-
+import { useSettings } from "../contexts/SettingsContext";
 
 const MainContent = ({ sidebarOpen }) => {
+  const { pageStylesEnabled } = useSettings();
   const [popularMovies, setPopularMovies] = useState([]);
   const [newMovies, setNewMovies] = useState([]);
   const [popularMoviesOnly, setPopularMoviesOnly] = useState([]);
@@ -860,8 +861,6 @@ const MainContent = ({ sidebarOpen }) => {
     loadInitialContent();
   }, []);
 
-
-
   // Периодическая проверка новых данных
   useEffect(() => {
     const checkInterval = setInterval(async () => {
@@ -932,7 +931,21 @@ const MainContent = ({ sidebarOpen }) => {
   return (
     <main className="flex-1 bg-background">
       {/* Content Sections */}
-      <div className="px-6 lg:px-12 py-8 space-y-12 bg-background">
+      <div
+        className="px-6 lg:px-12 py-8 space-y-12 bg-background"
+        style={
+          pageStylesEnabled
+            ? {
+                background: "#222121",
+                borderTopLeftRadius: "50px",
+                borderTopRightRadius: "50px",
+                borderTopWidth: "1px",
+                borderTopColor: "#6a6767",
+                boxShadow: "inset 0px 13px 20px 4px black",
+              }
+            : {}
+        }
+      >
         <div>
           {/* Обычный режим - слайдеры фильмов и сериалов */}
           <div className="space-y-12">
