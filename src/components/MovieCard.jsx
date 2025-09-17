@@ -46,6 +46,25 @@ const getRatingIcon = (rating) => {
   return null;
 };
 
+// Функция для определения цвета обводки на основе рейтинга
+const getBorderColor = (rating) => {
+  if (!rating) return "rgb(156, 163, 175)"; // gray-400 - как для среднего рейтинга
+
+  const numRating = parseFloat(rating);
+
+  if (numRating < 5.5) {
+    return "rgb(239, 68, 68)"; // red-500
+  } else if (numRating >= 5.6 && numRating < 7.5) {
+    return "rgb(156, 163, 175)"; // gray-400
+  } else if (numRating >= 7.5 && numRating < 8.3) {
+    return "rgb(34, 197, 94)"; // green-500
+  } else if (numRating >= 8.3 && numRating <= 10) {
+    return "rgb(74, 222, 128)"; // green-400
+  }
+
+  return "rgb(156, 163, 175)"; // gray-400 - fallback как для среднего рейтинга
+};
+
 // Функция для определения типа контента
 const getContentType = (type) => {
   if (!type) return null;
@@ -101,7 +120,7 @@ const MovieCard = ({
   const showRatingAsIcons = settingsContext?.showRatingAsIcons ?? true; // По умолчанию показываем иконки
   const showFavoriteButton = settingsContext?.showFavoriteButton ?? true; // По умолчанию показываем кнопку избранного
   const cardShadowsEnabled = settingsContext?.cardShadowsEnabled ?? true; // По умолчанию показываем тени
-  const coloredHoverEnabled = settingsContext?.coloredHoverEnabled ?? true; // По умолчанию включено цветное затемнение
+  const coloredHoverEnabled = settingsContext?.coloredHoverEnabled ?? false; // По умолчанию отключено цветное затемнение
   const isInFavorites = isInFavoritesOrPending(movie.id);
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
@@ -172,6 +191,16 @@ const MovieCard = ({
               animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",
             }
           : {}),
+      }}
+      onMouseEnter={(e) => {
+        if (coloredHoverEnabled && !isNew) {
+          e.currentTarget.style.borderColor = getBorderColor(movie.rating);
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (coloredHoverEnabled && !isNew) {
+          e.currentTarget.style.borderColor = "";
+        }
       }}
     >
       <div

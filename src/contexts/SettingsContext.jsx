@@ -17,7 +17,7 @@ export const SettingsProvider = ({ children }) => {
   const [showRatingAsIcons, setShowRatingAsIcons] = useState(true);
   const [showFavoriteButton, setShowFavoriteButton] = useState(true);
   const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true);
-  const [coloredHoverEnabled, setColoredHoverEnabled] = useState(true);
+  const [coloredHoverEnabled, setColoredHoverEnabled] = useState(false);
   const [pageStylesEnabled, setPageStylesEnabled] = useState(false);
   const [defaultPlayer, setDefaultPlayer] = useState("renewall");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,7 +32,7 @@ export const SettingsProvider = ({ children }) => {
         setShowRatingAsIcons(settings.showRatingAsIcons ?? true);
         setShowFavoriteButton(settings.showFavoriteButton ?? true);
         setCardShadowsEnabled(settings.cardShadowsEnabled ?? true);
-        setColoredHoverEnabled(settings.coloredHoverEnabled ?? true);
+        setColoredHoverEnabled(settings.coloredHoverEnabled ?? false);
         setPageStylesEnabled(settings.pageStylesEnabled ?? false);
         setDefaultPlayer(settings.defaultPlayer ?? "renewall");
       }
