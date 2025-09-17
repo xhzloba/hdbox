@@ -216,7 +216,16 @@ const MovieCard = ({
     }
   };
 
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
+    // Убираем фокус и сбрасываем border при цветном затемнении
+    if (e.currentTarget) {
+      e.currentTarget.blur();
+      // Сбрасываем borderColor если включено цветное затемнение
+      if (coloredHoverEnabled && !isNew) {
+        e.currentTarget.style.borderColor = "";
+      }
+    }
+
     // Если передан onMovieClick (например, для поисковой модалки), используем его
     if (onMovieClick) {
       onMovieClick(movie);
@@ -276,7 +285,10 @@ const MovieCard = ({
       }}
       onMouseLeave={(e) => {
         if (coloredHoverEnabled && !isNew) {
-          e.currentTarget.style.borderColor = "";
+          // Сбрасываем borderColor только если элемент не в фокусе
+          if (document.activeElement !== e.currentTarget) {
+            e.currentTarget.style.borderColor = "";
+          }
         }
       }}
     >
