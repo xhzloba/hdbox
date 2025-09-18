@@ -315,24 +315,20 @@ const MovieCard = ({
           }}
         />
 
-        {/* NEW Badge */}
-        {isNew && (
+        {/* NEW Badge - убран по запросу пользователя */}
+        {/* {isNew && (
           <div className="absolute top-2 left-2 z-30">
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
               NEW
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Age Rating on Poster */}
         {movie.age && (
           <div
             className={`absolute bottom-2 z-20 ${
-              showPosition && position && position <= 10
-                ? "right-2"
-                : isNew
-                ? "right-12"
-                : "left-2"
+              showPosition && position && position <= 10 ? "right-2" : "left-2"
             }`}
           >
             <span className="text-xs font-medium text-gray-400 drop-shadow-lg">
