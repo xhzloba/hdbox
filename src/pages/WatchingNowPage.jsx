@@ -20,6 +20,90 @@ const WatchingNowPage = () => {
   const [selectedAdultContent, setSelectedAdultContent] = useState(null);
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [positionChanges, setPositionChanges] = useState({});
+
+  // Ключи для localStorage
+  const STORAGE_KEY = "watching-now-positions";
+  const STORAGE_TIMESTAMP_KEY = "watching-now-timestamp";
+
+  // Функция для сохранения позиций в localStorage
+  const savePositionsToStorage = useCallback((contentArray) => {
+    try {
+      const positions = {};
+      contentArray.forEach((item, index) => {
+        positions[item.details.id] = {
+          position: index + 1,
+          title: item.details.name,
+          timestamp: Date.now(),
+        };
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+      localStorage.setItem(STORAGE_TIMESTAMP_KEY, Date.now().toString());
+      console.log("Позиции сохранены в localStorage:", positions);
+    } catch (error) {
+      console.error("Ошибка сохранения позиций:", error);
+    }
+  }, []);
+
+  // Функция для загрузки предыдущих позиций из localStorage
+  const loadPreviousPositions = useCallback(() => {
+    try {
+      const savedPositions = localStorage.getItem(STORAGE_KEY);
+      const savedTimestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+
+      if (savedPositions && savedTimestamp) {
+        const positions = JSON.parse(savedPositions);
+        const timestamp = parseInt(savedTimestamp);
+        const now = Date.now();
+        const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
+
+        // Используем данные только если они не старше 24 часов
+        if (hoursPassed < 24) {
+          console.log("Загружены предыдущие позиции:", positions);
+          return positions;
+        } else {
+          console.log("Предыдущие позиции устарели, очищаем");
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки позиций:", error);
+    }
+    return {};
+  }, []);
+
+  // Функция для вычисления изменений позиций
+  const calculatePositionChanges = useCallback(
+    (newContentArray, previousPositions) => {
+      const changes = {};
+
+      newContentArray.forEach((item, index) => {
+        const currentPosition = index + 1;
+        const itemId = item.details.id;
+        const previousData = previousPositions[itemId];
+
+        if (previousData) {
+          const previousPosition = previousData.position;
+          const positionChange = previousPosition - currentPosition; // Положительное = поднялся, отрицательное = опустился
+
+          if (positionChange !== 0) {
+            changes[itemId] = {
+              change: positionChange,
+              previousPosition,
+              currentPosition,
+              title: item.details.name,
+            };
+          }
+        }
+      });
+
+      console.log("Вычислены изменения позиций:", changes);
+      return changes;
+    },
+    []
+  );
 
   // Функция для удаления дубликатов контента по ID
   const removeDuplicates = useCallback((existingContent, newContent) => {
@@ -45,49 +129,90 @@ const WatchingNowPage = () => {
         let allContent = [];
 
         if (reset && pageNum === 1) {
-          // При первой загрузке загружаем сразу 2 страницы
-          const [page1Response, page2Response] = await Promise.all([
-            fetch(`https://api.vokino.tv/v2/list?sort=watching&page=1`),
-            fetch(`https://api.vokino.tv/v2/list?sort=watching&page=2`),
-          ]);
+          // При первой загрузке загружаем все страницы сразу
+          console.log("Загружаем все страницы контента 'Сейчас смотрят'...");
 
-          const [page1Data, page2Data] = await Promise.all([
-            page1Response.json(),
-            page2Response.json(),
-          ]);
+          let currentPage = 1;
+          let hasMorePages = true;
 
-          if (page1Data.channels && page1Data.channels.length > 0) {
-            allContent = [...allContent, ...page1Data.channels];
+          while (hasMorePages) {
+            try {
+              const response = await fetch(
+                `https://api.vokino.tv/v2/list?sort=watching&page=${currentPage}`
+              );
+              const data = await response.json();
+
+              console.log(
+                `Страница ${currentPage}: ${
+                  data.channels?.length || 0
+                } элементов`
+              );
+
+              if (data.channels && data.channels.length > 0) {
+                allContent = [...allContent, ...data.channels];
+
+                // Если на странице меньше 15 элементов, значит это последняя страница
+                if (data.channels.length < 15) {
+                  hasMorePages = false;
+                }
+                currentPage++;
+              } else {
+                hasMorePages = false;
+              }
+
+              // Защита от бесконечного цикла - максимум 20 страниц
+              if (currentPage > 20) {
+                console.log("Достигнут лимит в 20 страниц");
+                hasMorePages = false;
+              }
+            } catch (pageError) {
+              console.error(
+                `Ошибка загрузки страницы ${currentPage}:`,
+                pageError
+              );
+              hasMorePages = false;
+            }
           }
 
-          if (page2Data.channels && page2Data.channels.length > 0) {
-            allContent = [...allContent, ...page2Data.channels];
-          }
-
-          setPage(2); // Устанавливаем страницу на 2, так как уже загрузили первые две
-
-          // Проверяем, есть ли еще данные
-          if (!page2Data.channels || page2Data.channels.length < 15) {
-            setHasMore(false);
-          }
+          console.log(
+            `Загружено всего ${allContent.length} элементов из ${
+              currentPage - 1
+            } страниц`
+          );
 
           if (allContent.length > 0) {
             const uniqueContent = removeDuplicates([], allContent);
+
+            // Загружаем предыдущие позиции из localStorage
+            const previousPositions = loadPreviousPositions();
+
+            // Вычисляем изменения позиций
+            const changes = calculatePositionChanges(
+              uniqueContent,
+              previousPositions
+            );
+            setPositionChanges(changes);
+
+            // Сохраняем новые позиции
+            savePositionsToStorage(uniqueContent);
+
             setContent(uniqueContent);
+            console.log(
+              `После удаления дубликатов: ${uniqueContent.length} элементов`
+            );
           } else {
             setContent([]);
-            setHasMore(false);
           }
+
+          // Устанавливаем, что больше страниц нет, так как загрузили все
+          setHasMore(false);
+          setPage(currentPage - 1);
         } else {
-          // Обычная загрузка одной страницы
+          // Обычная загрузка одной страницы (не должна использоваться, так как загружаем все сразу)
           const url = `https://api.vokino.tv/v2/list?sort=watching&page=${pageNum}`;
           console.log("Fetching watching content:", { pageNum, url });
           const response = await fetch(url);
           const data = await response.json();
-          console.log("API Response:", {
-            channels: data.channels?.length,
-            hasMore: data.channels?.length >= 15,
-          });
 
           if (data.channels && data.channels.length > 0) {
             if (reset) {
@@ -95,9 +220,6 @@ const WatchingNowPage = () => {
             } else {
               setContent((prev) => {
                 const uniqueNewContent = removeDuplicates(prev, data.channels);
-                console.log(
-                  `Добавлено ${uniqueNewContent.length} уникальных элементов из ${data.channels.length}`
-                );
                 return [...prev, ...uniqueNewContent];
               });
             }
@@ -113,7 +235,13 @@ const WatchingNowPage = () => {
         setHasAttemptedFetch(true);
       }
     },
-    [loading, removeDuplicates]
+    [
+      loading,
+      removeDuplicates,
+      loadPreviousPositions,
+      calculatePositionChanges,
+      savePositionsToStorage,
+    ]
   );
 
   useEffect(() => {
@@ -129,56 +257,9 @@ const WatchingNowPage = () => {
     }, 0);
   }, []); // Загружаем только один раз при монтировании
 
-  const handleScroll = useCallback(() => {
-    // Более надежное определение достижения конца страницы
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.offsetHeight;
-
-    // Загружаем новую страницу за 200px до конца
-    const threshold = 200;
-    const isNearBottom = scrollTop + windowHeight >= documentHeight - threshold;
-
-    console.log("Scroll debug:", {
-      scrollTop,
-      windowHeight,
-      documentHeight,
-      isNearBottom,
-      loading,
-      hasMore,
-      currentPage: page,
-      contentCount: content.length,
-    });
-
-    // Если активен поиск — минимизируем работу обработчика
-    if (document?.documentElement?.dataset?.searchActive === "true") {
-      return;
-    }
-
-    if (!isNearBottom || loading || !hasMore) {
-      return;
-    }
-
-    const nextPage = page + 1;
-    console.log("Loading next page:", nextPage);
-    setPage(nextPage);
-    fetchWatchingContent(nextPage, false);
-  }, [hasMore, loading, page, content.length, fetchWatchingContent]);
-
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (document?.documentElement?.dataset?.searchActive === "true") return;
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        handleScroll();
-        ticking = false;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [handleScroll]);
+  // Убираем логику скролла, так как загружаем все контент сразу
+  // const handleScroll = useCallback(() => { ... }, []);
+  // useEffect(() => { ... }, [handleScroll]);
 
   const handleAdultContentClick = (item) => {
     setSelectedAdultContent(item);
@@ -250,6 +331,9 @@ const WatchingNowPage = () => {
       apiContent.details.tmdb_rating
     );
 
+    // Получаем информацию об изменении позиции для этого элемента
+    const positionChange = positionChanges[apiContent.details.id];
+
     return {
       id: apiContent.details.id,
       ident: apiContent.ident, // Добавляем ident для работы с плеерами
@@ -263,6 +347,14 @@ const WatchingNowPage = () => {
       type: apiContent.details.is_tv ? "serial" : "movie", // Определяем тип на основе is_tv
       country: apiContent.details.country, // Добавляем страну для фильтрации по странам в избранном
       description: apiContent.details.about, // Добавляем описание для модалки плеера
+      // Добавляем информацию об изменении позиции
+      positionChange: positionChange
+        ? {
+            change: positionChange.change,
+            previousPosition: positionChange.previousPosition,
+            currentPosition: positionChange.currentPosition,
+          }
+        : null,
     };
   };
 
@@ -320,13 +412,7 @@ const WatchingNowPage = () => {
         />
       )}
 
-      {/* Индикатор загрузки при подгрузке */}
-      {loading && content.length > 0 && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-          <span className="ml-3 text-gray-400">Загрузка...</span>
-        </div>
-      )}
+      {/* Индикатор загрузки при подгрузке убран, так как загружаем все сразу */}
 
       <AdultContentDialog
         isOpen={isAdultDialogOpen}
@@ -338,10 +424,10 @@ const WatchingNowPage = () => {
       {/* Кнопка "Наверх" */}
       <BackToTopButton />
 
-      {/* Сообщение об окончании контента */}
-      {!hasMore && content.length > 0 && (
+      {/* Сообщение о количестве загруженного контента */}
+      {content.length > 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-400">Больше контента нет</p>
+          <p className="text-gray-400">Показано {content.length} элементов</p>
         </div>
       )}
 

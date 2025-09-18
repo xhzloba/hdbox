@@ -511,30 +511,85 @@ const MovieCard = ({
 
         {/* Rating Display */}
         {movie.showRating && movie.rating && (
-          <div className="absolute top-2 right-2">
-            {showRatingAsIcons && getRatingIcon(movie.rating) ? (
-              (() => {
-                const { icon: IconComponent, color } = getRatingIcon(
-                  movie.rating
-                );
-                return (
-                  <div
-                    className="bg-black/70 rounded-full p-1.5 flex items-center justify-center"
-                    style={{
-                      background:
-                        "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-                      boxShadow:
-                        "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-                      borderTop: "1px solid rgb(84, 84, 84)",
-                    }}
-                  >
-                    <IconComponent className={`w-4 h-4 ${color}`} />
-                  </div>
-                );
-              })()
-            ) : (
-              // Если рейтинг иконками выключен, показываем круговой рейтинг
-              <CircularRating rating={movie.rating} size={44} />
+          <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+            <div>
+              {showRatingAsIcons && getRatingIcon(movie.rating) ? (
+                (() => {
+                  const { icon: IconComponent, color } = getRatingIcon(
+                    movie.rating
+                  );
+                  return (
+                    <div
+                      className="bg-black/70 rounded-full p-1.5 flex items-center justify-center"
+                      style={{
+                        background:
+                          "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                        boxShadow:
+                          "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                        borderTop: "1px solid rgb(84, 84, 84)",
+                      }}
+                    >
+                      <IconComponent className={`w-4 h-4 ${color}`} />
+                    </div>
+                  );
+                })()
+              ) : (
+                // Если рейтинг иконками выключен, показываем круговой рейтинг
+                <CircularRating rating={movie.rating} size={44} />
+              )}
+            </div>
+
+            {/* Position Change Indicator */}
+            {movie.positionChange && (
+              <div
+                className="bg-black/80 rounded-full px-2 py-1 flex items-center gap-1 text-xs font-medium shadow-lg"
+                style={{
+                  background:
+                    "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                  boxShadow:
+                    "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                  borderTop: "1px solid rgb(84, 84, 84)",
+                }}
+              >
+                {movie.positionChange.change > 0 ? (
+                  // Поднялся в рейтинге
+                  <>
+                    <svg
+                      className="w-3 h-3 text-green-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 3a1 1 0 011 1v5.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L9 9.586V4a1 1 0 011-1z"
+                        clipRule="evenodd"
+                        transform="rotate(180 10 10)"
+                      />
+                    </svg>
+                    <span className="text-green-400">
+                      +{movie.positionChange.change}
+                    </span>
+                  </>
+                ) : (
+                  // Опустился в рейтинге
+                  <>
+                    <svg
+                      className="w-3 h-3 text-red-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 3a1 1 0 011 1v5.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L9 9.586V4a1 1 0 011-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-red-400">
+                      {movie.positionChange.change}
+                    </span>
+                  </>
+                )}
+              </div>
             )}
           </div>
         )}
