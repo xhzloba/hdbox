@@ -379,7 +379,6 @@ const MoviesPage = () => {
         borderTopRightRadius: '50px',
         borderTopWidth: '1px',
         borderTopColor: '#6a6767',
-        boxShadow: 'inset 0px 13px 20px 4px black',
       } : {}}
     >
       {/* Табы */}
