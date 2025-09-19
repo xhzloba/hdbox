@@ -26,21 +26,13 @@ const FilmIcon = ({ className }) => (
 );
 
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import { changelogData } from "../data/changelog";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();
   const { getFavoritesCount } = useFavorites();
   const { sidebarShadowsEnabled } = useSettings();
 
-  const [showChangelog, setShowChangelog] = useState(false);
+
 
   // Синхронно читаем настройки из localStorage для предотвращения мерцания
   const getSavedShadowsSetting = () => {
@@ -247,92 +239,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           </ul>
         </nav>
 
-        {/* Version Section */}
-        {isOpen && (
-          <div
-            className="absolute bottom-0 left-0 right-0 p-4 border-t border-sidebar-border"
-            style={{ userSelect: "none" }}
-          >
-            <button
-              onClick={() => setShowChangelog(true)}
-              className="w-full flex items-center gap-3 p-3 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors"
-              style={{ userSelect: "none" }}
-            >
-              <div className="w-8 h-8 bg-sidebar-primary rounded-full flex items-center justify-center">
-                <Info className="w-4 h-4 text-sidebar-primary-foreground" />
-              </div>
-              <div
-                className="flex-1 min-w-0 text-left"
-                style={{ userSelect: "none" }}
-              >
-                <p
-                  className="text-sm font-medium text-blue-500 truncate"
-                  style={{ userSelect: "none" }}
-                >
-                  Версия 2.1
-                </p>
-                <p
-                  className="text-xs text-muted-foreground"
-                  style={{ userSelect: "none" }}
-                >
-                  Нажмите для changelog
-                </p>
-              </div>
-            </button>
-          </div>
-        )}
+
       </div>
 
-      {/* Changelog Dialog */}
-      <AlertDialog open={showChangelog} onOpenChange={setShowChangelog}>
-        <AlertDialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
-          <AlertDialogHeader>
-            <AlertDialogTitle>История изменений</AlertDialogTitle>
-            <AlertDialogCancel className="absolute right-4 top-4 p-2 rounded-lg hover:bg-accent transition-colors">
-              <X className="w-4 h-4" />
-            </AlertDialogCancel>
-          </AlertDialogHeader>
-          <div className="p-4 overflow-y-auto max-h-[60vh]">
-            <div className="space-y-6">
-              {changelogData.map((release) => (
-                <div
-                  key={release.version}
-                  className="border-b border-border pb-4 last:border-b-0"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-foreground">
-                      Версия {release.version}
-                    </h3>
-                    <span className="text-sm text-muted-foreground">
-                      {release.date}
-                    </span>
-                  </div>
-                  <h4 className="text-md font-medium text-primary mb-2">
-                    {release.title}
-                  </h4>
-                  <ul className="space-y-1">
-                    {release.changes.map((change, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-muted-foreground"
-                        style={{ textIndent: "1rem", paddingLeft: "1rem" }}
-                      >
-                        <span
-                          className="text-primary"
-                          style={{ marginLeft: "-1rem", marginRight: "0.5rem" }}
-                        >
-                          -
-                        </span>
-                        {change}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </>
   );
 };
