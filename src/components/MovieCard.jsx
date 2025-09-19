@@ -395,9 +395,9 @@ const MovieCard = ({
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center"
             style={{
               background: (() => {
-                // Если цветное затемнение отключено, всегда используем черное
+                // Если цветное затемнение отключено, используем бледно-бирюзовое затемнение на всю карточку
                 if (!coloredHoverEnabled) {
-                  return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
+                  return "rgba(40, 126, 255, 0.412)";
                 }
 
                 if (!movie.rating)
