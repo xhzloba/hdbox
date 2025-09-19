@@ -224,6 +224,11 @@ const MovieCard = ({
     if (isFavorite(movie.id)) {
       // Если мы на странице избранного, показываем диалог подтверждения
       if (isInFavoritesPage) {
+        // Сбрасываем borderColor при открытии диалога
+        const cardElement = e.currentTarget.closest('.group');
+        if (cardElement && coloredHoverEnabled && !isNew) {
+          cardElement.style.borderColor = "";
+        }
         setShowRemoveDialog(true);
       } else {
         // На других страницах удаляем сразу
@@ -242,6 +247,13 @@ const MovieCard = ({
   const handleCancelRemove = (e) => {
     e.stopPropagation();
     setShowRemoveDialog(false);
+    
+    // Сбрасываем borderColor если включено цветное затемнение
+    // Находим родительский элемент карточки и сбрасываем его borderColor
+    const cardElement = e.target.closest('.group');
+    if (cardElement && coloredHoverEnabled && !isNew) {
+      cardElement.style.borderColor = "";
+    }
   };
 
   const handleCardClick = (e) => {
