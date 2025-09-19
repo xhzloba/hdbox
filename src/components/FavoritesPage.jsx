@@ -692,16 +692,7 @@ const FavoritesPage = () => {
           `}</style>
           {filteredFavorites.map((movie) => (
             <div key={movie.id} className="relative group">
-              <MovieCard movie={movie} showAllGenres={false} />
-
-              {/* Кнопка удаления из избранного */}
-              <button
-                onClick={(e) => handleRemoveFromFavorites(movie.id, e)}
-                className="absolute top-2 left-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/80"
-                title="Удалить из избранного"
-              >
-                <Trash2 className="w-3 h-3 text-destructive-foreground" />
-              </button>
+              <MovieCard movie={movie} showAllGenres={false} isInFavoritesPage={true} />
             </div>
           ))}
         </div>

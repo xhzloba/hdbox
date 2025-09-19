@@ -12,6 +12,16 @@ import {
   Lock,
   Unlock,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
@@ -167,9 +177,11 @@ const MovieCard = ({
   showContentTypeBadge = false,
   position = null,
   showPosition = false,
+  isInFavoritesPage = false,
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const {
     addToFavorites,
     removeFromFavorites,
@@ -210,10 +222,26 @@ const MovieCard = ({
     e.stopPropagation();
     // Проверяем реальное состояние favorites, а не pending
     if (isFavorite(movie.id)) {
-      removeFromFavorites(movie.id);
+      // Если мы на странице избранного, показываем диалог подтверждения
+      if (isInFavoritesPage) {
+        setShowRemoveDialog(true);
+      } else {
+        // На других страницах удаляем сразу
+        removeFromFavorites(movie.id);
+      }
     } else {
       addToFavorites(movie, e.currentTarget);
     }
+  };
+
+  const handleConfirmRemove = () => {
+    removeFromFavorites(movie.id);
+    setShowRemoveDialog(false);
+  };
+
+  const handleCancelRemove = (e) => {
+    e.stopPropagation();
+    setShowRemoveDialog(false);
   };
 
   const handleCardClick = (e) => {
@@ -720,6 +748,27 @@ const MovieCard = ({
         isOpen={isPlayerModalOpen}
         onClose={() => setIsPlayerModalOpen(false)}
       />
+
+      {/* Диалог подтверждения удаления из избранного */}
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить из избранного</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить "{movie.title}" из избранного?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelRemove}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmRemove}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
