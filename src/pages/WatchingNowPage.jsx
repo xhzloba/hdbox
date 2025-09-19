@@ -25,6 +25,8 @@ const WatchingNowPage = () => {
   // Ключи для localStorage
   const STORAGE_KEY = "watching-now-positions";
   const STORAGE_TIMESTAMP_KEY = "watching-now-timestamp";
+  const POSITION_CHANGES_KEY = "watching-now-position-changes";
+  const POSITION_CHANGES_TIMESTAMP_KEY = "watching-now-position-changes-timestamp";
 
   // Функция для сохранения позиций в localStorage
   const savePositionsToStorage = useCallback((contentArray) => {
@@ -43,6 +45,17 @@ const WatchingNowPage = () => {
       console.log("Позиции сохранены в localStorage:", positions);
     } catch (error) {
       console.error("Ошибка сохранения позиций:", error);
+    }
+  }, []);
+
+  // Функция для сохранения изменений позиций в localStorage
+  const savePositionChangesToStorage = useCallback((changes) => {
+    try {
+      localStorage.setItem(POSITION_CHANGES_KEY, JSON.stringify(changes));
+      localStorage.setItem(POSITION_CHANGES_TIMESTAMP_KEY, Date.now().toString());
+      console.log("Изменения позиций сохранены в localStorage:", changes);
+    } catch (error) {
+      console.error("Ошибка сохранения изменений позиций:", error);
     }
   }, []);
 
@@ -72,6 +85,66 @@ const WatchingNowPage = () => {
       console.error("Ошибка загрузки позиций:", error);
     }
     return {};
+  }, []);
+
+  // Функция для загрузки сохраненных изменений позиций из localStorage
+  const loadSavedPositionChanges = useCallback(() => {
+    try {
+      const savedChanges = localStorage.getItem(POSITION_CHANGES_KEY);
+      const savedTimestamp = localStorage.getItem(POSITION_CHANGES_TIMESTAMP_KEY);
+
+      if (savedChanges && savedTimestamp) {
+        const changes = JSON.parse(savedChanges);
+        const timestamp = parseInt(savedTimestamp);
+        const now = Date.now();
+        const hoursPassed = (now - timestamp) / (1000 * 60 * 60);
+
+        // Используем данные только если они не старше 24 часов
+        if (hoursPassed < 24) {
+          console.log("Загружены сохраненные изменения позиций:", changes);
+          return changes;
+        } else {
+          console.log("Сохраненные изменения позиций устарели, очищаем");
+          localStorage.removeItem(POSITION_CHANGES_KEY);
+          localStorage.removeItem(POSITION_CHANGES_TIMESTAMP_KEY);
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки изменений позиций:", error);
+    }
+    return {};
+  }, []);
+
+  // Функция для очистки всех устаревших данных
+  const cleanupOldData = useCallback(() => {
+    try {
+      const now = Date.now();
+      const maxAge = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+      // Проверяем и очищаем позиции
+      const positionsTimestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+      if (positionsTimestamp) {
+        const timestamp = parseInt(positionsTimestamp);
+        if (now - timestamp > maxAge) {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+          console.log("Очищены устаревшие позиции");
+        }
+      }
+
+      // Проверяем и очищаем изменения позиций
+      const changesTimestamp = localStorage.getItem(POSITION_CHANGES_TIMESTAMP_KEY);
+      if (changesTimestamp) {
+        const timestamp = parseInt(changesTimestamp);
+        if (now - timestamp > maxAge) {
+          localStorage.removeItem(POSITION_CHANGES_KEY);
+          localStorage.removeItem(POSITION_CHANGES_TIMESTAMP_KEY);
+          console.log("Очищены устаревшие изменения позиций");
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка очистки устаревших данных:", error);
+    }
   }, []);
 
   // Функция для вычисления изменений позиций
@@ -193,8 +266,9 @@ const WatchingNowPage = () => {
             );
             setPositionChanges(changes);
 
-            // Сохраняем новые позиции
+            // Сохраняем новые позиции и изменения
             savePositionsToStorage(uniqueContent);
+            savePositionChangesToStorage(changes);
 
             setContent(uniqueContent);
             console.log(
@@ -241,6 +315,7 @@ const WatchingNowPage = () => {
       loadPreviousPositions,
       calculatePositionChanges,
       savePositionsToStorage,
+      savePositionChangesToStorage,
     ]
   );
 
@@ -251,11 +326,22 @@ const WatchingNowPage = () => {
     setContent([]);
     setPage(1);
     setHasMore(true);
+    
+    // Очищаем устаревшие данные при монтировании
+    cleanupOldData();
+    
+    // Загружаем сохраненные изменения позиций при монтировании
+    const savedChanges = loadSavedPositionChanges();
+    if (Object.keys(savedChanges).length > 0) {
+      setPositionChanges(savedChanges);
+      console.log("Восстановлены изменения позиций при монтировании:", savedChanges);
+    }
+    
     // Используем setTimeout для обеспечения правильного порядка выполнения
     setTimeout(() => {
       fetchWatchingContent(1, true);
     }, 0);
-  }, []); // Загружаем только один раз при монтировании
+  }, [loadSavedPositionChanges, cleanupOldData]); // Загружаем только один раз при монтировании
 
   // Убираем логику скролла, так как загружаем все контент сразу
   // const handleScroll = useCallback(() => { ... }, []);
