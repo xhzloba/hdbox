@@ -397,7 +397,7 @@ const MovieCard = ({
               background: (() => {
                 // Если цветное затемнение отключено, используем бледно-бирюзовое затемнение на всю карточку
                 if (!coloredHoverEnabled) {
-                  return "rgba(40, 126, 255, 0.412)";
+                  return "rgba(201, 200, 201, 0.276)";
                 }
 
                 if (!movie.rating)
