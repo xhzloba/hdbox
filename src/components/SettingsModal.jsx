@@ -35,6 +35,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
     toggleColoredHover,
     pageStylesEnabled,
     togglePageStyles,
+    showTags,
+    toggleShowTags,
     defaultPlayer,
     setDefaultPlayer,
   } = settingsContext;
@@ -50,6 +52,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     useState(coloredHoverEnabled);
   const [tempPageStylesEnabled, setTempPageStylesEnabled] =
     useState(pageStylesEnabled);
+  const [tempShowTags, setTempShowTags] = useState(showTags);
   const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer);
   const [activeTab, setActiveTab] = useState("display");
 
@@ -62,6 +65,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
       setTempCardShadowsEnabled(cardShadowsEnabled);
       setTempColoredHoverEnabled(coloredHoverEnabled);
       setTempPageStylesEnabled(pageStylesEnabled);
+      setTempShowTags(showTags);
       setTempDefaultPlayer(defaultPlayer);
     }
   }, [
@@ -72,6 +76,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     cardShadowsEnabled,
     coloredHoverEnabled,
     pageStylesEnabled,
+    showTags,
     defaultPlayer,
   ]);
 
@@ -95,6 +100,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (tempPageStylesEnabled !== pageStylesEnabled) {
       togglePageStyles();
     }
+    if (tempShowTags !== showTags) {
+      toggleShowTags();
+    }
     if (tempDefaultPlayer !== defaultPlayer) {
       setDefaultPlayer(tempDefaultPlayer);
     }
@@ -109,6 +117,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     setTempCardShadowsEnabled(cardShadowsEnabled);
     setTempColoredHoverEnabled(coloredHoverEnabled);
     setTempPageStylesEnabled(pageStylesEnabled);
+    setTempShowTags(showTags);
     setTempDefaultPlayer(defaultPlayer);
     onClose();
   };
@@ -135,6 +144,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const handleTogglePageStylesTemp = () => {
     setTempPageStylesEnabled(!tempPageStylesEnabled);
+  };
+
+  const handleToggleShowTagsTemp = () => {
+    setTempShowTags(!tempShowTags);
   };
 
   return (
@@ -462,6 +475,53 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
                       tempPageStylesEnabled
+                        ? "translate-x-6 bg-sidebar-primary-foreground"
+                        : "translate-x-1 bg-white"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Show Tags Toggle */}
+              <div
+                onClick={handleToggleShowTagsTemp}
+                className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                  tempShowTags
+                    ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                    : "bg-muted/30"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <label
+                    className={`text-sm font-medium mb-1 ${
+                      tempShowTags
+                        ? "text-sidebar-primary-foreground"
+                        : ""
+                    }`}
+                  >
+                    Показывать теги качества
+                  </label>
+                  <p
+                    className={`text-xs ${
+                      tempShowTags
+                        ? "text-sidebar-primary-foreground/80"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    HD, 4K и другие теги качества на карточках
+                  </p>
+                </div>
+
+                <button
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                    tempShowTags
+                      ? "bg-sidebar-primary"
+                      : "bg-muted-foreground/30"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                      tempShowTags
                         ? "translate-x-6 bg-sidebar-primary-foreground"
                         : "translate-x-1 bg-white"
                     }`}

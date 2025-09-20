@@ -367,6 +367,7 @@ const MoviesPage = () => {
       type: "movie", // Добавляем тип для правильной фильтрации в избранном
       country: apiMovie.details.country, // Добавляем страну для фильтрации по странам в избранном
       description: apiMovie.details.about, // Добавляем описание для модалки плеера
+      tags: apiMovie.details.tags || [], // Добавляем теги для отображения качества
     };
   };
 
@@ -614,6 +615,7 @@ function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick }) {
                     movie={transformItem(movie)}
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
+                    isInFavoritesPage={false}
                   />
                 </div>
               ))}

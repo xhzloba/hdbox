@@ -210,6 +210,7 @@ const MovieCard = ({
   const showFavoriteButton = settingsContext?.showFavoriteButton ?? true; // По умолчанию показываем кнопку избранного
   const cardShadowsEnabled = settingsContext?.cardShadowsEnabled ?? true; // По умолчанию показываем тени
   const coloredHoverEnabled = settingsContext?.coloredHoverEnabled ?? false; // По умолчанию отключено цветное затемнение
+  const showTags = settingsContext?.showTags ?? false; // По умолчанию теги выключены
   const isInFavorites = isInFavoritesOrPending(movie.id);
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
@@ -364,11 +365,45 @@ const MovieCard = ({
           </div>
         )} */}
 
+        {/* Tags Display - современные стильные бейджики */}
+        {movie.tags && movie.tags.length > 0 && isInFavoritesPage !== true && showTags && (
+          <div className="absolute bottom-2 left-2 z-30 flex flex-col gap-1">
+            {movie.tags.slice(0, 3).map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block px-1 py-0.5 rounded-full text-[9px] font-semibold text-black bg-white backdrop-blur-sm border border-gray-200 transition-all duration-300 hover:scale-105 cursor-default"
+                style={{
+                  width: "fit-content",
+                  minWidth: "auto",
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05)',
+                  letterSpacing: '0.025em',
+                  transform: 'translateZ(0)', // Для лучшей производительности анимаций
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'scale(1.05) translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'scale(1) translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05)';
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Age Rating on Poster */}
         {movie.age && (
           <div
             className={`absolute bottom-2 z-20 ${
-              showPosition && position && position <= 10 ? "right-2" : "left-2"
+              // Если есть теги, размещаем возрастной рейтинг справа, иначе слева
+              movie.tags && movie.tags.length > 0 
+                ? "right-2" 
+                : showPosition && position && position <= 10 
+                  ? "right-2" 
+                  : "left-2"
             }`}
           >
             <span className="text-xs font-medium text-gray-400 drop-shadow-lg">

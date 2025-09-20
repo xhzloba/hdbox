@@ -439,6 +439,7 @@ const SeriesPage = () => {
       type: "serial", // Добавляем тип для правильной фильтрации в избранном
       country: apiSeries.details.country, // Добавляем страну для фильтрации по странам в избранном
       description: apiSeries.details.about, // Добавляем описание для модалки плеера
+      tags: apiSeries.details.tags || [], // Добавляем теги для отображения качества
     };
   };
 
@@ -684,6 +685,7 @@ function VirtualizedSeriesGrid({ items, transformItem, onAdultContentClick }) {
                     movie={transformItem(seriesItem)}
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
+                    isInFavoritesPage={false}
                   />
                 </div>
               ))}

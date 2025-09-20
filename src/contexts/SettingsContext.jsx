@@ -19,6 +19,7 @@ export const SettingsProvider = ({ children }) => {
   const [cardShadowsEnabled, setCardShadowsEnabled] = useState(true);
   const [coloredHoverEnabled, setColoredHoverEnabled] = useState(false);
   const [pageStylesEnabled, setPageStylesEnabled] = useState(false);
+  const [showTags, setShowTags] = useState(false);
   const [defaultPlayer, setDefaultPlayer] = useState("renewall");
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -34,6 +35,7 @@ export const SettingsProvider = ({ children }) => {
         setCardShadowsEnabled(settings.cardShadowsEnabled ?? true);
         setColoredHoverEnabled(settings.coloredHoverEnabled ?? false);
         setPageStylesEnabled(settings.pageStylesEnabled ?? false);
+        setShowTags(settings.showTags ?? false);
         setDefaultPlayer(settings.defaultPlayer ?? "renewall");
       }
     } catch (error) {
@@ -54,6 +56,7 @@ export const SettingsProvider = ({ children }) => {
           cardShadowsEnabled,
           coloredHoverEnabled,
           pageStylesEnabled,
+          showTags,
           defaultPlayer,
         };
         localStorage.setItem("movieCardSettings", JSON.stringify(settings));
@@ -68,6 +71,7 @@ export const SettingsProvider = ({ children }) => {
     cardShadowsEnabled,
     coloredHoverEnabled,
     pageStylesEnabled,
+    showTags,
     defaultPlayer,
     isLoaded,
   ]);
@@ -96,6 +100,10 @@ export const SettingsProvider = ({ children }) => {
     setPageStylesEnabled((prev) => !prev);
   };
 
+  const toggleShowTags = () => {
+    setShowTags((prev) => !prev);
+  };
+
   const value = {
     showDetails,
     setShowDetails,
@@ -115,6 +123,9 @@ export const SettingsProvider = ({ children }) => {
     pageStylesEnabled,
     setPageStylesEnabled,
     togglePageStyles,
+    showTags,
+    setShowTags,
+    toggleShowTags,
     defaultPlayer,
     setDefaultPlayer,
     isLoaded,
