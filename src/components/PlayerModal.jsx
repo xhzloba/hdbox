@@ -19,6 +19,7 @@ import { Play, X, Loader2 } from "lucide-react";
 import VokinoAPI from "../services/api";
 import FullDescriptionModal from "./FullDescriptionModal";
 import { Link } from "../../components/ui/link";
+import { TextShimmer } from "../../components/ui/text-shimmer";
 import SettingsContext from "../contexts/SettingsContext";
 
 const PlayerModal = ({ movie, isOpen, onClose }) => {
@@ -376,7 +377,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           <div className="flex items-center justify-between">
             <AlertDialogTitle className="flex items-center gap-2">
               <Play className="w-5 h-5" />
-              {movie?.title || "Выбор плеера"}
+              <TextShimmer duration={3} spread={1.5}>
+                {movie?.title || "Выбор плеера"}
+              </TextShimmer>
             </AlertDialogTitle>
             <Button
               onClick={(e) => {
