@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, type JSX } from 'react';
+import React, { useMemo, useState, useEffect, type JSX } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,8 @@ interface TextShimmerProps {
   className?: string;
   duration?: number;
   spread?: number;
+  isVisible?: boolean;
+  delay?: number;
 }
 
 export function TextShimmer({
@@ -17,7 +19,24 @@ export function TextShimmer({
   className,
   duration = 2,
   spread = 2,
+  isVisible = true,
+  delay = 0,
 }: TextShimmerProps) {
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+  
+  useEffect(() => {
+    if (isVisible && delay > 0) {
+      setShouldAnimate(false);
+      const timer = setTimeout(() => {
+        setShouldAnimate(true);
+      }, delay);
+      return () => clearTimeout(timer);
+    } else if (isVisible) {
+      setShouldAnimate(true);
+    } else {
+      setShouldAnimate(false);
+    }
+  }, [isVisible, delay]);
   const MotionComponent = motion(Component as keyof JSX.IntrinsicElements);
 
   const dynamicSpread = useMemo(() => {
@@ -43,7 +62,7 @@ export function TextShimmer({
       style={
         {
           '--spread': `${dynamicSpread}px`,
-          backgroundImage: `var(--bg), linear-gradient(var(--base-color), var(--base-color))`,
+          backgroundImage: shouldAnimate ? `var(--bg), linear-gradient(var(--base-color), var(--base-color))` : `linear-gradient(var(--base-color), var(--base-color))`,
         } as React.CSSProperties
       }
     >

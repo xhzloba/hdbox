@@ -347,8 +347,16 @@ const QualityPage = () => {
                   : ""
               }`}
             >
-              {activeTab === tab.id && !loading ? (
-                <TextShimmer key={`shimmer-${tab.id}`} duration={2} spread={1}>{tab.title}</TextShimmer>
+              {activeTab === tab.id ? (
+                <TextShimmer 
+                  key={`shimmer-${tab.id}`} 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!loading}
+                  delay={500}
+                >
+                  {tab.title}
+                </TextShimmer>
               ) : (
                 tab.title
               )}

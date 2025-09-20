@@ -476,8 +476,14 @@ const SeriesPage = () => {
                     : ""
                 }`}
               >
-                {activeTab === tab.id && !loading ? (
-                  <TextShimmer key={`shimmer-${tab.id}`} duration={2} spread={1}>
+                {activeTab === tab.id ? (
+                  <TextShimmer 
+                    key={`shimmer-${tab.id}`} 
+                    duration={2} 
+                    spread={1}
+                    isVisible={!loading}
+                    delay={500}
+                  >
                     {tab.title}
                   </TextShimmer>
                 ) : (

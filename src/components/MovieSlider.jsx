@@ -39,8 +39,16 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             style={{ userSelect: 'none' }}
           >
             <span className="flex items-center gap-2" style={{ userSelect: 'none' }}>
-              {activeTab === tab.value && !isLoading ? (
-                <TextShimmer key={`shimmer-${tab.value}`} duration={2} spread={1}>{tab.label}</TextShimmer>
+              {activeTab === tab.value ? (
+                <TextShimmer 
+                  key={`shimmer-${tab.value}`} 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!isLoading}
+                  delay={500}
+                >
+                  {tab.label}
+                </TextShimmer>
               ) : (
                 tab.label
               )}
@@ -63,8 +71,16 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             style={{ userSelect: 'none' }}
           >
             <span style={{ userSelect: 'none' }}>
-              {activeTab === "watching" && !isLoading ? (
-                <TextShimmer key="shimmer-watching" duration={2} spread={1}>Сейчас смотрят</TextShimmer>
+              {activeTab === "watching" ? (
+                <TextShimmer 
+                  key="shimmer-watching" 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!isLoading}
+                  delay={500}
+                >
+                  Сейчас смотрят
+                </TextShimmer>
               ) : (
                 "Сейчас смотрят"
               )}
@@ -80,8 +96,16 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             style={{ userSelect: 'none' }}
           >
             <span style={{ userSelect: 'none' }}>
-              {activeTab === "popular" && !isLoading ? (
-                <TextShimmer key="shimmer-popular" duration={2} spread={1}>Популярное сейчас</TextShimmer>
+              {activeTab === "popular" ? (
+                <TextShimmer 
+                  key="shimmer-popular" 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!isLoading}
+                  delay={500}
+                >
+                  Популярное сейчас
+                </TextShimmer>
               ) : (
                 "Популярное сейчас"
               )}
@@ -97,8 +121,16 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             style={{ userSelect: 'none' }}
           >
             <span style={{ userSelect: 'none' }}>
-              {activeTab === "movies" && !isLoading ? (
-                <TextShimmer key="shimmer-movies" duration={2} spread={1}>Фильмы</TextShimmer>
+              {activeTab === "movies" ? (
+                <TextShimmer 
+                  key="shimmer-movies" 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!isLoading}
+                  delay={500}
+                >
+                  Фильмы
+                </TextShimmer>
               ) : (
                 "Фильмы"
               )}
@@ -114,8 +146,16 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             style={{ userSelect: 'none' }}
           >
             <span style={{ userSelect: 'none' }}>
-              {activeTab === "series" && !isLoading ? (
-                <TextShimmer key="shimmer-series" duration={2} spread={1}>Сериалы</TextShimmer>
+              {activeTab === "series" ? (
+                <TextShimmer 
+                  key="shimmer-series" 
+                  duration={2} 
+                  spread={1}
+                  isVisible={!isLoading}
+                  delay={500}
+                >
+                  Сериалы
+                </TextShimmer>
               ) : (
                 "Сериалы"
               )}
