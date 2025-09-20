@@ -433,6 +433,7 @@ const WatchingNowPage = () => {
       type: apiContent.details.is_tv ? "serial" : "movie", // Определяем тип на основе is_tv
       country: apiContent.details.country, // Добавляем страну для фильтрации по странам в избранном
       description: apiContent.details.about, // Добавляем описание для модалки плеера
+      tags: apiContent.details.tags || [], // Добавляем теги для отображения качества
       // Добавляем информацию об изменении позиции
       positionChange: positionChange
         ? {
