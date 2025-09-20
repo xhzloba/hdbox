@@ -25,6 +25,31 @@ const FilmIcon = ({ className }) => (
   </svg>
 );
 
+const QualityIcon = ({ className }) => (
+  <svg
+    aria-hidden="true"
+    className={className}
+    fill="currentColor"
+    height="20"
+    viewBox="0 0 20 20"
+    width="20"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      d="M3 4a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 1v6h10V5H5z"
+      clipRule="evenodd"
+    />
+    <path d="M2 6a1 1 0 011-1h1v2H3a1 1 0 01-1-1zM2 10a1 1 0 011-1h1v2H3a1 1 0 01-1-1zM16 6a1 1 0 001-1V4a1 1 0 00-1-1h-1v2h1zM16 10a1 1 0 001-1V8a1 1 0 00-1-1h-1v2h1zM7 15a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" />
+    <rect x="6" y="6" width="2" height="2" rx="0.5" />
+    <rect x="9" y="6" width="2" height="2" rx="0.5" />
+    <rect x="12" y="6" width="2" height="2" rx="0.5" />
+    <rect x="6" y="9" width="2" height="2" rx="0.5" />
+    <rect x="9" y="9" width="2" height="2" rx="0.5" />
+    <rect x="12" y="9" width="2" height="2" rx="0.5" />
+  </svg>
+);
+
 import { useState } from "react";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -64,6 +89,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       label: "Сейчас смотрят",
       id: "watching-now",
       path: "/watching-now",
+    },
+    {
+      icon: QualityIcon,
+      label: "4K UHD DolbyVision",
+      id: "quality",
+      path: "/quality",
     },
     { icon: FilmIcon, label: "Фильмы", id: "movies", path: "/movies" },
     { icon: Tv, label: "Сериалы", id: "series", path: "/series" },
