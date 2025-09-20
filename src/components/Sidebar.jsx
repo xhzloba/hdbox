@@ -92,7 +92,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       icon: QualityIcon,
-      label: "4K UHD DolbyVision",
+      label: "4K HD HDR",
       id: "quality",
       path: "/quality",
     },
