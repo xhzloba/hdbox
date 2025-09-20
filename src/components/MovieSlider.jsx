@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Eye, Star, Film, Tv } from "lucide-react"
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton"
 import MovieCardSkeleton from "./MovieCardSkeleton"
 import AdultContentDialog from "./AdultContentDialog"
+import { TextShimmer } from "../../components/ui/text-shimmer"
 
 
 const MovieSlider = ({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [], showContentTypeBadge = false }) => {
@@ -23,7 +24,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   }
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
-    <div className="bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none', background: 'linear-gradient(131deg, #191919, #242323)', boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132' }}>
+    <div className="bg-muted text-[#71717a] inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none', background: 'linear-gradient(131deg, #191919, #242323)', boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132' }}>
       {tabsConfig ? (
         // Используем кастомную конфигурацию табов
         tabsConfig.map((tab) => (
@@ -32,13 +33,17 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange(tab.value)}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === tab.value
-                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                : "hover:bg-background/50 hover:text-foreground"
+                ? "bg-background ring-2 ring-ring ring-offset-2"
+                : ""
             }`}
             style={{ userSelect: 'none' }}
           >
             <span className="flex items-center gap-2" style={{ userSelect: 'none' }}>
-              {tab.label}
+              {activeTab === tab.value && !isLoading ? (
+                <TextShimmer key={`shimmer-${tab.value}`} duration={2} spread={1}>{tab.label}</TextShimmer>
+              ) : (
+                tab.label
+              )}
               {newIndicators && newIndicators[tab.value] && (
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
               )}
@@ -52,45 +57,69 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
             onClick={() => onTabChange("watching")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "watching"
-                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                : "hover:bg-background/50 hover:text-foreground"
+                ? "bg-background ring-2 ring-ring ring-offset-2"
+                : ""
             }`}
             style={{ userSelect: 'none' }}
           >
-            <span style={{ userSelect: 'none' }}>Сейчас смотрят</span>
+            <span style={{ userSelect: 'none' }}>
+              {activeTab === "watching" && !isLoading ? (
+                <TextShimmer key="shimmer-watching" duration={2} spread={1}>Сейчас смотрят</TextShimmer>
+              ) : (
+                "Сейчас смотрят"
+              )}
+            </span>
           </button>
           <button
             onClick={() => onTabChange("popular")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "popular"
-                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                : "hover:bg-background/50 hover:text-foreground"
+                ? "bg-background ring-2 ring-ring ring-offset-2"
+                : ""
             }`}
             style={{ userSelect: 'none' }}
           >
-            <span style={{ userSelect: 'none' }}>Популярное сейчас</span>
+            <span style={{ userSelect: 'none' }}>
+              {activeTab === "popular" && !isLoading ? (
+                <TextShimmer key="shimmer-popular" duration={2} spread={1}>Популярное сейчас</TextShimmer>
+              ) : (
+                "Популярное сейчас"
+              )}
+            </span>
           </button>
           <button
             onClick={() => onTabChange("movies")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "movies"
-                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                : "hover:bg-background/50 hover:text-foreground"
+                ? "bg-background ring-2 ring-ring ring-offset-2"
+                : ""
             }`}
             style={{ userSelect: 'none' }}
           >
-            <span style={{ userSelect: 'none' }}>Фильмы</span>
+            <span style={{ userSelect: 'none' }}>
+              {activeTab === "movies" && !isLoading ? (
+                <TextShimmer key="shimmer-movies" duration={2} spread={1}>Фильмы</TextShimmer>
+              ) : (
+                "Фильмы"
+              )}
+            </span>
           </button>
           <button
             onClick={() => onTabChange("series")}
             className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
               activeTab === "series"
-                ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                : "hover:bg-background/50 hover:text-foreground"
+                ? "bg-background ring-2 ring-ring ring-offset-2"
+                : ""
             }`}
             style={{ userSelect: 'none' }}
           >
-            <span style={{ userSelect: 'none' }}>Сериалы</span>
+            <span style={{ userSelect: 'none' }}>
+              {activeTab === "series" && !isLoading ? (
+                <TextShimmer key="shimmer-series" duration={2} spread={1}>Сериалы</TextShimmer>
+              ) : (
+                "Сериалы"
+              )}
+            </span>
           </button>
         </>
       )}

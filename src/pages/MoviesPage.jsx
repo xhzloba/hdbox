@@ -8,6 +8,7 @@ import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
+import { TextShimmer } from "../../components/ui/text-shimmer";
 
 
 import SettingsContext from "../contexts/SettingsContext";
@@ -385,7 +386,7 @@ const MoviesPage = () => {
       {/* Табы */}
       <div className="mb-6 flex items-center gap-3">
         <div
-          className={`bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-1 ${"gap-1"}`}
+          className={`bg-muted text-[#71717a] inline-flex w-fit items-center justify-center rounded-lg p-1 ${"gap-1"}`}
           style={{
             background: 'linear-gradient(131deg, #191919, #242323)',
             boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132'
@@ -397,11 +398,17 @@ const MoviesPage = () => {
               onClick={() => handleTabClick(tab.id)}
               className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
                 activeTab === tab.id
-                  ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                  : "hover:bg-background/50 hover:text-foreground"
+                  ? "bg-background ring-2 ring-ring ring-offset-2"
+                  : ""
               }`}
             >
-              {tab.title}
+              {activeTab === tab.id && !loading ? (
+                <TextShimmer key={`shimmer-${tab.id}`} duration={2} spread={1}>
+                  {tab.title}
+                </TextShimmer>
+              ) : (
+                tab.title
+              )}
             </button>
           ))}
         </div>
@@ -410,8 +417,8 @@ const MoviesPage = () => {
             <button
               className={`${selectedCompilation ? 'px-4' : 'w-10'} h-10 rounded-full inline-flex items-center justify-center gap-2 text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95 ${
                 COMPILATION_TABS.some(tab => tab.id === activeTab)
-                  ? "bg-background text-foreground ring-2 ring-ring ring-offset-2"
-                  : "hover:bg-background/50 hover:text-foreground text-muted-foreground"
+                  ? "bg-background ring-2 ring-ring ring-offset-2"
+                  : "text-[#71717a]"
               }`}
               style={{
                 background: COMPILATION_TABS.some(tab => tab.id === activeTab) 
