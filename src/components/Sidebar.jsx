@@ -245,9 +245,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   >
                     <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" />
                     {isOpen && (
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-between w-full min-w-0">
                         <span
-                          className="font-medium"
+                          className="font-medium whitespace-nowrap overflow-hidden text-ellipsis flex-shrink-0"
                           style={{ userSelect: "none" }}
                         >
                           {item.label}
