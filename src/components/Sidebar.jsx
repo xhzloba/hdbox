@@ -228,7 +228,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         isOpen && {
                           userSelect: "none",
                           background:
-                            "linear-gradient(304deg, rgb(0, 151, 255), rgb(13, 27, 37))",
+                            "linear-gradient(45deg, rgb(0, 123, 255), rgb(13, 27, 37))",
                           boxShadow:
                             "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset",
                           borderTop: "1px solid transparent",
@@ -236,9 +236,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       ...(isActive &&
                         !isOpen && {
                           background:
-                            "linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))",
+                            "linear-gradient(45deg, rgb(59, 130, 246), rgb(29, 78, 216))",
                           boxShadow:
-                            "rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset",
+                            "rgb(0, 0, 0) 7px 5px 8px, rgb(59, 130, 246) 2px 2px 20px inset",
                         }),
                     }}
                   >
