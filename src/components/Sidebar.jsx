@@ -226,10 +226,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         : "1px solid #545454",
                       ...(isActive &&
                         isOpen && {
+                          userSelect: "none",
                           background:
-                            "linear-gradient(304deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                            "linear-gradient(304deg, rgb(0, 151, 255), rgb(13, 27, 37))",
                           boxShadow:
-                            "inset rgb(0 0 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset",
+                            "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset",
+                          borderTop: "1px solid transparent",
                         }),
                       ...(isActive &&
                         !isOpen && {
