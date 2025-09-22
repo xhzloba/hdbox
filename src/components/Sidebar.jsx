@@ -236,9 +236,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                       ...(isActive &&
                         !isOpen && {
                           background:
-                            "linear-gradient(45deg, rgb(59, 130, 246), rgb(29, 78, 216))",
+                            "linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))",
                           boxShadow:
-                            "rgb(0, 0, 0) 7px 5px 8px, rgb(59, 130, 246) 2px 2px 20px inset",
+                            "rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset",
+                          borderTop: "1px solid transparent",
                         }),
                     }}
                   >
