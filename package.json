@@ -1,6 +1,7 @@
 {
-  "name": "my-v0-project",
+  "name": "hdbox-streaming-service",
   "version": "0.1.0",
+  "description": "HDBOX - Премиум стриминговый сервис с контентом в высоком качестве",
   "private": true,
   "scripts": {
     "build": "next build",

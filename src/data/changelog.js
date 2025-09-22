@@ -1,4 +1,4 @@
-// Данные changelog для приложения StreamFlix
+// Данные changelog для приложения HDBOX
 export const changelogData = [
   {
     version: "2.1",

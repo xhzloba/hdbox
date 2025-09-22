@@ -29,7 +29,7 @@ export const FavoritesProvider = ({ children }) => {
   // Загрузка избранного из localStorage при инициализации
   useEffect(() => {
     try {
-      const savedFavorites = localStorage.getItem("streamflix-favorites");
+      const savedFavorites = localStorage.getItem("hdbox-favorites");
       if (savedFavorites) {
         setFavorites(JSON.parse(savedFavorites));
       }
@@ -41,7 +41,7 @@ export const FavoritesProvider = ({ children }) => {
   // Сохранение в localStorage при изменении избранного
   useEffect(() => {
     try {
-      localStorage.setItem("streamflix-favorites", JSON.stringify(favorites));
+      localStorage.setItem("hdbox-favorites", JSON.stringify(favorites));
     } catch (error) {
       console.error("Error saving favorites to localStorage:", error);
     }

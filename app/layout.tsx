@@ -7,8 +7,8 @@ import { ThemeProvider } from "../components/theme-provider";
 
 
 export const metadata: Metadata = {
-  title: "StreamFlix",
-  description: "Streaming service for movies and TV shows",
+  title: "HDBOX",
+  description: "Премиум стриминговый сервис с фильмами и сериалами в высоком качестве 4K HDR",
   generator: "Next.js",
 };
 
