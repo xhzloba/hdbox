@@ -14,7 +14,7 @@
 
 ### 2. API запросы:
 
-- **Получение kp_id**: `https://api.vokino.tv/v2/timeline/watch?ident=${movie.ident}&current=99&time=0&token=${token}`
+- **Получение kp_id**: `https://api.vokino.pro/v2/timeline/watch?ident=${movie.ident}&current=99&time=0&token=${token}`
 - **Token**: `windows_93e27bdd4ca8bfd43c106e8d96f09502_1164344`
 
 ### 3. Плееры:

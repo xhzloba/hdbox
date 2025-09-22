@@ -609,7 +609,7 @@ const Header = ({
     }
 
     try {
-      const url = `https://api.vokino.tv/v2/search?name=${encodeURIComponent(
+      const url = `https://api.vokino.pro/v2/search?name=${encodeURIComponent(
         query
       )}&page=${page}`;
       console.log("API URL:", url);

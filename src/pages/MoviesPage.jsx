@@ -17,22 +17,22 @@ const MAIN_TABS = [
   {
     id: "updatings",
     title: "Обновления",
-    url: "https://api.vokino.tv/v2/list?sort=updatings&type=movie",
+    url: "https://api.vokino.pro/v2/list?sort=updatings&type=movie",
   },
   {
     id: "new",
     title: "Новинки",
-    url: "https://api.vokino.tv/v2/list?sort=new&type=movie",
+    url: "https://api.vokino.pro/v2/list?sort=new&type=movie",
   },
   {
     id: "popular",
     title: "Популярное",
-    url: "https://api.vokino.tv/v2/list?sort=popular&type=movie",
+    url: "https://api.vokino.pro/v2/list?sort=popular&type=movie",
   },
   {
     id: "rating",
     title: "Лучшее",
-    url: "https://api.vokino.tv/v2/list?sort=rating&type=movie",
+    url: "https://api.vokino.pro/v2/list?sort=rating&type=movie",
   },
 ];
 
@@ -40,7 +40,7 @@ const COMPILATION_TABS = [
   {
     id: "top250",
     title: "Топ 250",
-    url: "https://api.vokino.tv/v2/compilations/content/66fa5fc9dd606aae9ea0a9dc",
+    url: "https://api.vokino.pro/v2/compilations/content/66fa5fc9dd606aae9ea0a9dc",
     isCompilation: true,
   },
 ];

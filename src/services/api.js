@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://api.vokino.tv/v2";
+const API_BASE_URL = "https://api.vokino.pro/v2";
 
 class VokinoAPI {
   /**

@@ -16,22 +16,22 @@ const QUALITY_TABS = [
   {
     id: "4k-hdr",
     title: "4K HDR",
-    url: "https://api.vokino.tv/v2/list?sort=new&tag=4K%20HDR",
+    url: "https://api.vokino.pro/v2/list?sort=new&tag=4K%20HDR",
   },
   {
     id: "4k",
     title: "4K",
-    url: "https://api.vokino.tv/v2/list?sort=new&tag=4K",
+    url: "https://api.vokino.pro/v2/list?sort=new&tag=4K",
   },
   {
     id: "4k-dolby",
     title: "4K DolbyVision",
-    url: "https://api.vokino.tv/v2/list?sort=new&tag=4K%20DolbyV",
+    url: "https://api.vokino.pro/v2/list?sort=new&tag=4K%20DolbyV",
   },
   {
     id: "60fps",
     title: "60 FPS",
-    url: "https://api.vokino.tv/v2/list?sort=new&tag=60FPS",
+    url: "https://api.vokino.pro/v2/list?sort=new&tag=60FPS",
   },
 ];
 
