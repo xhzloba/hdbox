@@ -404,6 +404,7 @@ const CartoonsPage = () => {
                   spread={1}
                   isVisible={!loading}
                   delay={500}
+                  shimmerColor="rgba(255,105,180,0.9)"
                 >
                   {tab.title}
                 </TextShimmer>

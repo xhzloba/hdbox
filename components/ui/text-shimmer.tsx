@@ -11,6 +11,7 @@ interface TextShimmerProps {
   spread?: number;
   isVisible?: boolean;
   delay?: number;
+  shimmerColor?: string;
 }
 
 export function TextShimmer({
@@ -21,6 +22,7 @@ export function TextShimmer({
   spread = 2,
   isVisible = true,
   delay = 0,
+  shimmerColor,
 }: TextShimmerProps) {
   const [shouldAnimate, setShouldAnimate] = useState(false);
   
@@ -62,6 +64,7 @@ export function TextShimmer({
       style={
         {
           '--spread': `${dynamicSpread}px`,
+          '--base-gradient-color': shimmerColor || undefined,
           backgroundImage: shouldAnimate ? `var(--bg), linear-gradient(var(--base-color), var(--base-color))` : `linear-gradient(var(--base-color), var(--base-color))`,
         } as React.CSSProperties
       }
