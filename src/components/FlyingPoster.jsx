@@ -9,12 +9,10 @@ const FlyingPoster = () => {
   const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    console.log('FlyingPoster useEffect triggered:', animatingMovie)
     let animationTimer, fadeTimer, completeTimer, hideTimer
     
     // Упрощенная логика - запускаем анимацию если есть animatingMovie
     if (animatingMovie) {
-      console.log('Starting animation for movie:', animatingMovie.title)
       setIsVisible(true)
       setOpacity(0.8)
       setIsAnimating(false)
@@ -48,7 +46,6 @@ const FlyingPoster = () => {
       
       // Скрываем элемент после завершения анимации через 950мс
       hideTimer = setTimeout(() => {
-        console.log('Animation completed, hiding element')
         setIsVisible(false)
         setIsAnimating(false)
         setOpacity(0.8) // Сбрасываем opacity для следующей анимации

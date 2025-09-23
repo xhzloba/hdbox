@@ -20,19 +20,16 @@ const validateImageUrl = (url) => {
 
   const urlLower = url.toLowerCase();
   if (invalidPatterns.some((pattern) => urlLower.includes(pattern))) {
-    console.log("🚫 Некорректный URL изображения:", url);
     return null;
   }
 
   // Проверяем, что URL начинается с http:// или https://
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    console.log("🚫 URL не начинается с http/https:", url);
     return null;
   }
 
   // Проверяем минимальную длину URL
   if (url.length < 10) {
-    console.log("🚫 URL слишком короткий:", url);
     return null;
   }
 

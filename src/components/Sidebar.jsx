@@ -1,5 +1,5 @@
 "use client";
-import { Home, Tv, Heart, X, Info } from "lucide-react";
+import { Home, Tv, Heart, X, Info, Baby } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
@@ -50,6 +50,8 @@ const QualityIcon = ({ className }) => (
   </svg>
 );
 
+
+
 import { useState } from "react";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -98,6 +100,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     { icon: FilmIcon, label: "Фильмы", id: "movies", path: "/movies" },
     { icon: Tv, label: "Сериалы", id: "series", path: "/series" },
+    { icon: Baby, label: "Мультфильмы", id: "cartoons", path: "/cartoons" },
     {
       icon: Heart,
       label: "Избранное",

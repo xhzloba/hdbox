@@ -284,7 +284,6 @@ const WatchingNowPage = () => {
         } else {
           // Обычная загрузка одной страницы (не должна использоваться, так как загружаем все сразу)
           const url = `https://api.vokino.pro/v2/list?sort=watching&page=${pageNum}`;
-          console.log("Fetching watching content:", { pageNum, url });
           const response = await fetch(url);
           const data = await response.json();
 

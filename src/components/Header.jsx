@@ -612,7 +612,6 @@ const Header = ({
       const url = `https://api.vokino.pro/v2/search?name=${encodeURIComponent(
         query
       )}&page=${page}`;
-      console.log("API URL:", url);
 
       const response = await fetch(url);
 
@@ -621,11 +620,9 @@ const Header = ({
       }
 
       const data = await response.json();
-      console.log("Raw API response data:", data);
 
       // Используем data.channels согласно структуре API
       if (data && data.channels && Array.isArray(data.channels)) {
-        console.log("First movie data structure:", data.channels[0]);
         
         if (page === 1) {
           // Первая страница - заменяем результаты

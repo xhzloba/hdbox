@@ -478,18 +478,6 @@ const MovieCard = ({
             onClick={async (e) => {
               e.stopPropagation();
 
-              // Детальная отладочная информация
-              console.log("=== Share Button Debug Info ===");
-              console.log("Browser:", navigator.userAgent);
-              console.log("navigator.share supported:", !!navigator.share);
-              console.log("Protocol:", window.location.protocol);
-              console.log("Host:", window.location.host);
-              console.log("Movie data:", {
-                title: movie.title,
-                year: movie.year,
-                type: movie.type,
-              });
-
               // Формируем данные для sharing
               const titleWithYear = movie.year
                 ? `${movie.title} (${movie.year})`
@@ -508,28 +496,21 @@ const MovieCard = ({
                 url: window.location.href,
               };
 
-              console.log("Share data:", shareData);
-
               // Приоритет Web Share API - используем если доступен, независимо от протокола
               if (navigator.share) {
                 try {
-                  console.log("Attempting to share via Web Share API...");
                   await navigator.share(shareData);
-                  console.log("✅ Share successful via Web Share API");
                   // НЕ показываем alert - нативный UI уже показал результат
                 } catch (error) {
-                  console.log("Share error:", error.name, error.message);
                   // Игнорируем ошибку отмены пользователем
                   if (
                     error.name === "AbortError" ||
                     error.message.includes("canceled") ||
                     error.message.includes("cancelled")
                   ) {
-                    console.log("Share cancelled by user - this is normal");
                     return;
                   }
                   // Для других ошибок используем fallback
-                  console.log("Using fallback due to Web Share API error");
                   const fallbackText = movie.year
                     ? `${movie.title} (${movie.year}) - ${window.location.href}`
                     : `${movie.title} - ${window.location.href}`;
@@ -543,9 +524,6 @@ const MovieCard = ({
                 }
               } else {
                 // Fallback - копирование в буфер обмена
-                console.log(
-                  "Web Share API not supported, using clipboard fallback"
-                );
                 const fallbackText = movie.year
                   ? `${movie.title} (${movie.year}) - ${window.location.href}`
                   : `${movie.title} - ${window.location.href}`;
@@ -558,7 +536,6 @@ const MovieCard = ({
                   prompt("Скопируйте ссылку вручную:", fallbackText);
                 }
               }
-              console.log("=== End Share Debug ===");
             }}
             className="absolute bottom-2 right-2 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100"
           >

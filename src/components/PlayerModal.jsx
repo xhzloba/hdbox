@@ -63,7 +63,6 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   // Очищаем состояние при закрытии модалки
   useEffect(() => {
     if (!isOpen) {
-      console.log("Модалка закрыта, очищаем состояние");
       setSelectedPlayer(null);
       setKpId(null);
       setIsLoading(false);
