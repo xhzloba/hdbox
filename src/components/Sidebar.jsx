@@ -236,6 +236,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                             "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset",
                           borderTop: "1px solid transparent",
                         }),
+                      ...(isActive && item.id === "cartoons" && {
+                        userSelect: "none",
+                        background: "linear-gradient(45deg, rgb(255, 0, 200), rgb(13, 27, 37))",
+                        boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) -20px 12px 20px inset",
+                        borderTop: "1px solid transparent",
+                      }),
                       ...(isActive &&
                         !isOpen && {
                           background:
