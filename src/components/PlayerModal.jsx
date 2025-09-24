@@ -132,25 +132,15 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   // Обработчик смены табов плееров
   const handleTabChange = async (playerType) => {
     setActiveTab(playerType);
+    setSelectedPlayer(playerType);
+    setIsPlayerVisible(false); // Сначала показываем превью
+    setIsTabLoading(false);
 
-    // Проверяем, загружен ли уже этот плеер
-    if (loadedPlayers[playerType]) {
-      // Плеер уже загружен, показываем его сразу без лоадера
-      setSelectedPlayer(playerType);
-      setIsPlayerVisible(true);
-      setIsTabLoading(false);
-      return;
-    }
-
-    setIsTabLoading(true);
-    setIsPlayerVisible(false); // Скрываем предыдущий плеер
-
-    // Получаем kp_id только при первом выборе плеера, если еще не загружен
+    // Получаем kp_id если еще не загружен
     let movieKpId = kpId;
     if (!movieKpId) {
       movieKpId = await fetchKpId();
       if (!movieKpId) {
-        setIsTabLoading(false);
         return;
       }
       // Загружаем детали франшизы если еще не загружены
@@ -158,13 +148,24 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         await loadFranchiseDetails(movieKpId);
       }
     }
+  };
+
+  // Обработчик нажатия на кнопку Play в превью
+  const handlePlayClick = async (playerType) => {
+    // Проверяем, загружен ли уже этот плеер
+    if (loadedPlayers[playerType]) {
+      // Плеер уже загружен, показываем его сразу
+      setIsPlayerVisible(true);
+      return;
+    }
+
+    setIsTabLoading(true);
 
     if (playerType === "renewall") {
       await handleRenewall();
     } else if (playerType === "turbo") {
       // Добавляем небольшую задержку для имитации загрузки Turbo плеера
       setTimeout(() => {
-        setSelectedPlayer("turbo");
         setIsPlayerVisible(true);
         setIsTabLoading(false);
         setLoadedPlayers((prev) => ({ ...prev, turbo: true }));
@@ -173,7 +174,6 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     } else if (playerType === "alloha") {
       // Добавляем небольшую задержку для имитации загрузки Alloha плеера
       setTimeout(() => {
-        setSelectedPlayer("alloha");
         setIsPlayerVisible(true);
         setIsTabLoading(false);
         setLoadedPlayers((prev) => ({ ...prev, alloha: true }));
@@ -312,6 +312,56 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     // Сначала вызываем onClose чтобы закрыть модалку
     onClose();
     // Затем очищаем состояние (это произойдет в useEffect при isOpen === false)
+  };
+
+  // Компонент превью плеера с backdrop и кнопкой Play
+  const PlayerPreview = ({ playerType, onPlay }) => {
+    const backdropUrl = movie?.backdrop || movie?.poster || "https://kinohost.web.app/no_poster.png";
+    
+    return (
+      <div 
+        className="relative w-full cursor-pointer group overflow-hidden rounded-lg"
+        style={{ aspectRatio: "16/9" }}
+        onClick={onPlay}
+      >
+        {/* Backdrop изображение */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: `url(${backdropUrl})`,
+            filter: 'brightness(0.7)'
+          }}
+        />
+        
+        {/* Градиент оверлей */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        
+        {/* Кнопка Play */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 group-hover:bg-white/30 transition-all duration-300 group-hover:scale-110">
+            <Play className="w-8 h-8 text-white fill-white" />
+          </div>
+        </div>
+        
+        {/* Информация о плеере */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-semibold text-lg">{movie?.title}</h3>
+              <p className="text-white/80 text-sm capitalize">{playerType} плеер</p>
+            </div>
+            {franchiseDetails?.quality && (
+              <span className="bg-black/60 text-white px-3 py-1 rounded text-sm">
+                {franchiseDetails.quality}
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {/* Hover эффект */}
+        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
+      </div>
+    );
   };
 
   // Рендер iframe плеера
@@ -508,25 +558,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "renewall" ? (
                   renderPlayer()
                 ) : (
-                  <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
-                    style={{ aspectRatio: "16/9" }}
-                  >
-                    {isLoading || isLoadingRenewall ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-muted-foreground">
-                          Получение данных...
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-center space-y-2">
-                        <p className="text-muted-foreground">
-                          Нажмите на таб Renewall для загрузки плеера
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <PlayerPreview 
+                    playerType="renewall" 
+                    onPlay={() => handlePlayClick("renewall")} 
+                  />
                 )}
               </TabsContent>
             )}
@@ -543,25 +578,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "turbo" ? (
                   renderPlayer()
                 ) : (
-                  <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
-                    style={{ aspectRatio: "16/9" }}
-                  >
-                    {isLoading && activeTab === "turbo" ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-muted-foreground">
-                          Получение данных...
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-center space-y-2">
-                        <p className="text-muted-foreground">
-                          Нажмите на таб Turbo для загрузки плеера
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <PlayerPreview 
+                    playerType="turbo" 
+                    onPlay={() => handlePlayClick("turbo")} 
+                  />
                 )}
               </TabsContent>
             )}
@@ -578,25 +598,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "alloha" ? (
                   renderPlayer()
                 ) : (
-                  <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
-                    style={{ aspectRatio: "16/9" }}
-                  >
-                    {isLoading && activeTab === "alloha" ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-muted-foreground">
-                          Получение данных...
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-center space-y-2">
-                        <p className="text-muted-foreground">
-                          Нажмите на таб Alloha для загрузки плеера
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <PlayerPreview 
+                    playerType="alloha" 
+                    onPlay={() => handlePlayClick("alloha")} 
+                  />
                 )}
               </TabsContent>
             )}
