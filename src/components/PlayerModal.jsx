@@ -534,15 +534,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
             {!activeTab && (
               <div
-                className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
+                className="flex items-center justify-center p-8"
                 style={{ aspectRatio: "16/9" }}
               >
-                <div className="text-center space-y-2">
-                  <Play className="w-12 h-12 mx-auto text-muted-foreground/50" />
-                  <p className="text-muted-foreground">
-                    Выберите плеер для просмотра
-                  </p>
-                </div>
               </div>
             )}
 
@@ -550,7 +544,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
               <TabsContent value="renewall" className="mt-0">
                 {isTabLoading ? (
                   <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
+                    className="flex items-center justify-center p-8"
                     style={{ aspectRatio: "16/9" }}
                   >
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -570,7 +564,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
               <TabsContent value="turbo" className="mt-0">
                 {isTabLoading ? (
                   <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
+                    className="flex items-center justify-center p-8"
                     style={{ aspectRatio: "16/9" }}
                   >
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -590,7 +584,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
               <TabsContent value="alloha" className="mt-0">
                 {isTabLoading ? (
                   <div
-                    className="flex items-center justify-center p-8 border-2 border-dashed border-muted-foreground/25 rounded-lg"
+                    className="flex items-center justify-center p-8"
                     style={{ aspectRatio: "16/9" }}
                   >
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
