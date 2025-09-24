@@ -338,6 +338,7 @@ const MoviesPage = () => {
 
   // Преобразование данных из API в формат для MovieCard
   const transformMovieData = (apiMovie) => {
+    
     // Сохраняем все жанры из строки или массива
     let allGenres = apiMovie.details.genre;
     if (Array.isArray(allGenres)) {

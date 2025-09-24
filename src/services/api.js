@@ -393,6 +393,24 @@ class VokinoAPI {
       throw error;
     }
   }
+
+  /**
+   * Получить детальную информацию о фильме включая backdrop
+   * @param {string} ident - идентификатор фильма
+   * @returns {Promise<Object>} - детальная информация фильма
+   */
+  static async getMovieDetails(ident) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/view/${ident}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Ошибка при получении детальной информации фильма:", error);
+      throw error;
+    }
+  }
 }
 
 export default VokinoAPI;

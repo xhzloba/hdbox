@@ -1,6 +1,5 @@
-"use client";
-
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { X, Play, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,18 +8,12 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../components/ui/tabs";
-import { Play, X, Loader2 } from "lucide-react";
-import VokinoAPI from "../services/api";
-import FullDescriptionModal from "./FullDescriptionModal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Link } from "../../components/ui/link";
 import { TextShimmer } from "../../components/ui/text-shimmer";
+import VokinoAPI from "../services/api";
 import SettingsContext from "../contexts/SettingsContext";
+import FullDescriptionModal from "./FullDescriptionModal";
 
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
@@ -42,6 +35,8 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     turbo: false,
     alloha: false,
   });
+  const [movieWithBackdrop, setMovieWithBackdrop] = useState(movie);
+  const [isBackdropLoading, setIsBackdropLoading] = useState(false);
 
   const token = "windows_93e27bdd4ca8bfd43c106e8d96f09502_1164344";
   const franchiseToken = "eedefb541aeba871dcfc756e6b31c02e";
@@ -74,13 +69,15 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setActiveTab(null);
       setIsTabLoading(false);
       setIsDescriptionModalOpen(false);
+      setMovieWithBackdrop(movie);
+      setIsBackdropLoading(false);
       setLoadedPlayers({
         renewall: false,
         turbo: false,
         alloha: false,
       });
     }
-  }, [isOpen]);
+  }, [isOpen, movie]);
 
   // Загружаем детали франшизы после получения kp_id
   const loadFranchiseDetails = async (movieKpId) => {
@@ -96,17 +93,99 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     }
   };
 
+  // Загружаем детальную информацию фильма с backdrop
+  const loadMovieDetails = async () => {
+    console.log('=== loadMovieDetails ВЫЗВАНА ===');
+    console.log('movie объект:', movie);
+    console.log('movie.ident:', movie?.ident);
+    console.log('movie.id:', movie?.id);
+    
+    // Проверяем наличие ident или id для детального API
+    const identifier = movie?.ident || movie?.id;
+    if (!identifier) {
+      console.log('Нет ни ident, ни id, используем исходный movie объект');
+      const updatedMovie = {
+        ...movie,
+        backdrop: movie?.backdrop || movie?.poster
+      };
+      setMovieWithBackdrop(updatedMovie);
+      setIsBackdropLoading(false);
+      return;
+    }
+
+    try {
+      console.log('Вызываем getMovieDetails с identifier:', identifier);
+      const details = await VokinoAPI.getMovieDetails(identifier);
+      console.log('Ответ от getMovieDetails:', details);
+      console.log('bg_poster:', details?.details?.bg_poster);
+      const rawBackdrop = details?.details?.bg_poster?.backdrop;
+      console.log('rawBackdrop:', rawBackdrop);
+      
+      // Валидируем backdrop URL - проверяем что это корректный URL
+      let validBackdrop = null;
+      if (rawBackdrop && 
+          typeof rawBackdrop === 'string' && 
+          rawBackdrop.startsWith('http') && 
+          !rawBackdrop.includes('undefined') && 
+          !rawBackdrop.includes('null') &&
+          !rawBackdrop.includes('httpsnull') &&
+          rawBackdrop.length > 10) { // Минимальная длина валидного URL
+        validBackdrop = rawBackdrop;
+      } else {
+        // Пробуем использовать wide_poster как альтернативу
+        const wideBackdrop = details?.details?.wide_poster;
+        if (wideBackdrop && 
+            typeof wideBackdrop === 'string' && 
+            wideBackdrop.startsWith('http') && 
+            !wideBackdrop.includes('undefined') && 
+            !wideBackdrop.includes('null') &&
+            !wideBackdrop.includes('httpsnull') &&
+            wideBackdrop.length > 10) {
+          validBackdrop = wideBackdrop;
+        }
+      }
+      
+      console.log('validBackdrop после валидации:', validBackdrop);
+      
+      // Обновляем фильм с backdrop из детального API или fallback
+      const updatedMovie = {
+        ...movie,
+        backdrop: validBackdrop || movie?.backdrop || movie?.poster
+      };
+      console.log('Финальный updatedMovie:', updatedMovie);
+      setMovieWithBackdrop(updatedMovie);
+      setIsBackdropLoading(false);
+    } catch (error) {
+      console.error("Ошибка загрузки детальной информации фильма:", error);
+      // В случае ошибки используем исходный объект с fallback логикой
+      const updatedMovie = {
+        ...movie,
+        backdrop: movie?.backdrop || movie?.poster
+      };
+      setMovieWithBackdrop(updatedMovie);
+      setIsBackdropLoading(false);
+    }
+  };
+
   // Автоматически загружаем kp_id и детали франшизы при открытии модалки
   useEffect(() => {
-    if (isOpen && movie && !kpId) {
+    if (isOpen && movie) {
       const loadMovieData = async () => {
         try {
-          // Сначала получаем kp_id
-          const movieKpId = await fetchKpId();
+          // Для фильмов и сериалов не показываем постер сразу, ждем backdrop
+          setIsBackdropLoading(true);
+          
+          // Загружаем детальную информацию фильма с backdrop
+          await loadMovieDetails();
+          
+          // Получаем kp_id если еще не загружен
+          if (!kpId) {
+            const movieKpId = await fetchKpId();
 
-          // Если kp_id получен, загружаем детали франшизы
-          if (movieKpId) {
-            await loadFranchiseDetails(movieKpId);
+            // Если kp_id получен, загружаем детали франшизы
+            if (movieKpId) {
+              await loadFranchiseDetails(movieKpId);
+            }
           }
         } catch (error) {
           console.error("Ошибка загрузки данных фильма:", error);
@@ -186,19 +265,22 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
   // Функция для получения kp_id
   const fetchKpId = async () => {
-    // Отладочная информация о фильме
-    console.log("Объект фильма:", movie);
-    console.log("Доступные ключи:", movie ? Object.keys(movie) : "нет объекта");
-
-    // Проверяем наличие ident или используем id как запасной вариант
-    const identifier = movie?.ident || movie?.id;
+    // Проверяем наличие ident сначала, затем id как запасной вариант
+    let identifier = null;
+    let identifierType = null;
+    
+    if (movie?.ident && movie.ident !== undefined && movie.ident !== null) {
+      identifier = movie.ident;
+      identifierType = "ident";
+    } else if (movie?.id && movie.id !== undefined && movie.id !== null) {
+      identifier = movie.id;
+      identifierType = "id";
+    }
 
     if (!identifier) {
       setError("Отсутствует идентификатор фильма");
       return null;
     }
-
-    console.log("Используемый идентификатор:", identifier);
 
     setIsLoading(true);
     setError(null);
@@ -316,7 +398,20 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
   // Компонент превью плеера с backdrop и кнопкой Play
   const PlayerPreview = ({ playerType, onPlay }) => {
-    const backdropUrl = movie?.backdrop || movie?.poster || "https://kinohost.web.app/no_poster.png";
+    // Если backdrop загружается, показываем лоадер вместо постера
+    if (isBackdropLoading) {
+      return (
+        <div 
+          className="relative w-full flex items-center justify-center bg-muted/20 rounded-lg"
+          style={{ aspectRatio: "16/9" }}
+        >
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+    
+    const backdropUrl = movieWithBackdrop?.backdrop || movieWithBackdrop?.poster || "https://kinohost.web.app/no_poster.png";
+    console.log('PlayerPreview - backdropUrl:', backdropUrl);
     
     return (
       <div 
@@ -346,8 +441,8 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         {/* Информация о плеере */}
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-white font-semibold text-lg">{movie?.title}</h3>
+            <div className="flex flex-col items-start">
+              <h3 className="text-white font-semibold text-lg">{movieWithBackdrop?.title}</h3>
               <p className="text-white/80 text-sm capitalize">{playerType} плеер</p>
             </div>
             {franchiseDetails?.quality && (
@@ -427,7 +522,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
             <AlertDialogTitle className="flex items-center gap-2">
               <Play className="w-5 h-5" />
               <TextShimmer duration={3} spread={1.5}>
-                {movie?.title || "Выбор плеера"}
+                {movieWithBackdrop?.title || "Выбор плеера"}
               </TextShimmer>
             </AlertDialogTitle>
             <Button
@@ -446,7 +541,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           </div>
           <AlertDialogDescription>
             Выберите плеер для просмотра{" "}
-            {movie?.title ? `"${movie.title}"` : "фильма"}
+            {movieWithBackdrop?.title ? `"${movieWithBackdrop.title}"` : "фильма"}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -458,7 +553,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         )}
 
         {/* Информация о фильме */}
-        {movie && (
+        {movieWithBackdrop && (
           <div
             className="flex gap-4 p-4 bg-muted/50 rounded-lg"
             style={{
@@ -470,17 +565,17 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
             }}
           >
             <img
-              src={movie.poster || "https://kinohost.web.app/no_poster.png"}
-              alt={movie.title}
+              src={movieWithBackdrop.poster || "https://kinohost.web.app/no_poster.png"}
+              alt={movieWithBackdrop.title}
               className="w-20 h-30 md:w-24 md:h-36 object-cover rounded"
             />
             <div className="flex-1">
-              {movie.description ? (
+              {movieWithBackdrop.description ? (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {truncateText(movie.description, MAX_DESCRIPTION_LENGTH)}
+                    {truncateText(movieWithBackdrop.description, MAX_DESCRIPTION_LENGTH)}
                   </p>
-                  {shouldShowMoreLink(movie.description) && (
+                  {shouldShowMoreLink(movieWithBackdrop.description) && (
                     <Link
                       onClick={() => setIsDescriptionModalOpen(true)}
                       className="text-sm text-white hover:text-gray-300"
@@ -605,7 +700,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
       {/* Модалка с полным описанием */}
       <FullDescriptionModal
-        movie={movie}
+        movie={movieWithBackdrop}
         isOpen={isDescriptionModalOpen}
         onClose={() => setIsDescriptionModalOpen(false)}
       />
