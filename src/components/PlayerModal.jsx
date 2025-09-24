@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { X, Play, Loader2 } from "lucide-react";
+import { X, Play, Loader2, Heart } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -14,10 +14,12 @@ import { TextShimmer } from "../../components/ui/text-shimmer";
 import VokinoAPI from "../services/api";
 import SettingsContext from "../contexts/SettingsContext";
 import FullDescriptionModal from "./FullDescriptionModal";
+import { useFavorites } from "../contexts/FavoritesContext";
 
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
   const defaultPlayer = settingsContext?.defaultPlayer || "renewall";
+  const { addToFavorites, removeFromFavorites, isFavorite, isInFavoritesOrPending } = useFavorites();
 
   // Функция для форматирования времени из HH:MM в читаемый формат
   const formatDuration = (duration) => {
@@ -453,6 +455,20 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     // Затем очищаем состояние (это произойдет в useEffect при isOpen === false)
   };
 
+  // Обработчик добавления/удаления из избранного
+  const handleFavoriteToggle = (e) => {
+    e.stopPropagation();
+    
+    if (!movieWithBackdrop) return;
+    
+    if (isFavorite(movieWithBackdrop.id)) {
+      removeFromFavorites(movieWithBackdrop.id);
+    } else {
+      // Передаем null как sourceElement, так как анимация не нужна в модальном окне
+      addToFavorites(movieWithBackdrop, null);
+    }
+  };
+
   // Компонент превью плеера с backdrop и кнопкой Play
   const PlayerPreview = ({ playerType, onPlay }) => {
     // Если backdrop загружается, показываем лоадер вместо постера
@@ -577,19 +593,45 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 {movieWithBackdrop?.title || "Выбор плеера"}
               </TextShimmer>
             </AlertDialogTitle>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                forceClose();
-              }}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-destructive/10"
-              title="Закрыть модальное окно полностью"
-            >
-              <X className="w-4 h-4" />
-              <span className="sr-only">Закрыть модальное окно полностью</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Кнопка добавления в избранное */}
+              <Button
+                onClick={handleFavoriteToggle}
+                variant="ghost"
+                size="sm"
+                className={`h-6 w-6 p-0 transition-colors ${
+                  isFavorite(movieWithBackdrop?.id) || isInFavoritesOrPending(movieWithBackdrop?.id)
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                }`}
+                title={isFavorite(movieWithBackdrop?.id) ? "Удалить из избранного" : "Добавить в избранное"}
+              >
+                <Heart 
+                  className={`w-4 h-4 transition-all ${
+                    isFavorite(movieWithBackdrop?.id) || isInFavoritesOrPending(movieWithBackdrop?.id)
+                      ? "fill-current"
+                      : ""
+                  }`} 
+                />
+                <span className="sr-only">
+                  {isFavorite(movieWithBackdrop?.id) ? "Удалить из избранного" : "Добавить в избранное"}
+                </span>
+              </Button>
+              {/* Кнопка закрытия */}
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  forceClose();
+                }}
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 hover:bg-destructive/10"
+                title="Закрыть модальное окно полностью"
+              >
+                <X className="w-4 h-4" />
+                <span className="sr-only">Закрыть модальное окно полностью</span>
+              </Button>
+            </div>
           </div>
           <AlertDialogDescription>
             Выберите плеер для просмотра{" "}

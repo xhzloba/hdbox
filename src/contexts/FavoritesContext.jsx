@@ -24,10 +24,13 @@ export const FavoritesProvider = ({ children }) => {
   const [animatingMovie, setAnimatingMovie] = useState(null);
   const [pendingMovie, setPendingMovie] = useState(null);
   const [pendingFavorites, setPendingFavorites] = useState(new Set());
+  const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
 
   // Загрузка избранного из localStorage при инициализации
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
     try {
       const savedFavorites = localStorage.getItem("hdbox-favorites");
       if (savedFavorites) {
@@ -35,17 +38,21 @@ export const FavoritesProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Error loading favorites from localStorage:", error);
+    } finally {
+      setIsInitialized(true);
     }
   }, []);
 
   // Сохранение в localStorage при изменении избранного
   useEffect(() => {
+    if (!isInitialized || typeof window === "undefined") return;
+    
     try {
       localStorage.setItem("hdbox-favorites", JSON.stringify(favorites));
     } catch (error) {
       console.error("Error saving favorites to localStorage:", error);
     }
-  }, [favorites]);
+  }, [favorites, isInitialized]);
 
   const addToFavorites = (movie, sourceElement) => {
     if (!isFavorite(movie.id) && !pendingFavorites.has(movie.id)) {
