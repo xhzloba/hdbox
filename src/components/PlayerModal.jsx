@@ -19,6 +19,53 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
   const defaultPlayer = settingsContext?.defaultPlayer || "renewall";
 
+  // Функция для форматирования времени из HH:MM в читаемый формат
+  const formatDuration = (duration) => {
+    if (!duration) return null;
+    
+    let totalMinutes = 0;
+    
+    // Если duration числовой формат
+    if (typeof duration === 'number') {
+      totalMinutes = duration;
+    } else if (typeof duration === 'string') {
+      // Если уже содержит "мин" или "ч", возвращаем как есть
+      if (duration.includes('мин') || duration.includes('ч')) {
+        return duration;
+      }
+      
+      // Если в формате HH:MM
+      if (duration.includes(':')) {
+        const [hours, minutes] = duration.split(':').map(num => parseInt(num, 10));
+        totalMinutes = hours * 60 + minutes;
+      } else {
+        // Если просто число в строке
+        const numDuration = parseInt(duration, 10);
+        if (!isNaN(numDuration)) {
+          totalMinutes = numDuration;
+        } else {
+          return duration;
+        }
+      }
+    } else {
+      return duration;
+    }
+    
+    // Форматируем в часы и минуты
+    if (totalMinutes < 60) {
+      return `${totalMinutes} мин`;
+    } else {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      
+      if (minutes === 0) {
+        return `${hours}ч`;
+      } else {
+        return `${hours}ч ${minutes} мин`;
+      }
+    }
+  };
+
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [kpId, setKpId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +163,14 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     try {
       console.log('Вызываем getMovieDetails с identifier:', identifier);
       const details = await VokinoAPI.getMovieDetails(identifier);
-      console.log('Ответ от getMovieDetails:', details);
+      console.log('=== ПОЛНЫЙ ОТВЕТ ОТ getMovieDetails ===');
+      console.log('Весь объект details:', JSON.stringify(details, null, 2));
+      console.log('details.details:', details?.details);
+      console.log('Все поля в details.details:', Object.keys(details?.details || {}));
+      console.log('duration поле:', details?.details?.duration);
+      console.log('runtime поле:', details?.details?.runtime);
+      console.log('length поле:', details?.details?.length);
+      console.log('time поле:', details?.details?.time);
       console.log('bg_poster:', details?.details?.bg_poster);
       const rawBackdrop = details?.details?.bg_poster?.backdrop;
       console.log('rawBackdrop:', rawBackdrop);
@@ -150,8 +204,11 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       // Обновляем фильм с backdrop из детального API или fallback
       const updatedMovie = {
         ...movie,
-        backdrop: validBackdrop || movie?.backdrop || movie?.poster
+        backdrop: validBackdrop || movie?.backdrop || movie?.poster,
+        duration: details?.details?.duration || details?.details?.runtime || details?.details?.length || details?.details?.time || movie?.duration
       };
+      console.log('=== ОБНОВЛЕННЫЙ ОБЪЕКТ ФИЛЬМА ===');
+      console.log('updatedMovie.duration:', updatedMovie.duration);
       console.log('Финальный updatedMovie:', updatedMovie);
       setMovieWithBackdrop(updatedMovie);
       setIsBackdropLoading(false);
@@ -438,17 +495,12 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           </div>
         </div>
         
-        {/* Информация о плеере */}
+        {/* Информация о фильме */}
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col items-start">
-              <h3 className="text-white font-semibold text-lg">{movieWithBackdrop?.title}</h3>
-              <p className="text-white/80 text-sm capitalize">{playerType} плеер</p>
-            </div>
-            {franchiseDetails?.quality && (
-              <span className="bg-black/60 text-white px-3 py-1 rounded text-sm">
-                {franchiseDetails.quality}
-              </span>
+          <div className="flex flex-col items-start">
+            <h3 className="text-white font-semibold text-lg">{movieWithBackdrop?.title}</h3>
+            {movieWithBackdrop?.duration && (
+              <p className="text-white/80 text-sm">{formatDuration(movieWithBackdrop.duration)}</p>
             )}
           </div>
         </div>
