@@ -27,6 +27,16 @@ import { useFavorites } from "../contexts/FavoritesContext";
 import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
 import PlayerModal from "./PlayerModal";
+import PositionIcon1 from "./ui/PositionIcon1";
+import PositionIcon2 from "./ui/PositionIcon2";
+import PositionIcon3 from "./ui/PositionIcon3";
+import PositionIcon4 from "./ui/PositionIcon4";
+import PositionIcon5 from "./ui/PositionIcon5";
+import PositionIcon6 from "./ui/PositionIcon6";
+import PositionIcon7 from "./ui/PositionIcon7";
+import PositionIcon8 from "./ui/PositionIcon8";
+import PositionIcon9 from "./ui/PositionIcon9";
+import PositionIcon10 from "./ui/PositionIcon10";
 
 // Функция для определения иконки и цвета на основе рейтинга
 const getRatingIcon = (rating) => {
@@ -358,6 +368,8 @@ const MovieCard = ({
           }}
         />
 
+
+
   
         {/* Tags Display - современные стильные бейджики */}
         {movie.tags && movie.tags.length > 0 && isInFavoritesPage !== true && showTags && (
@@ -393,7 +405,7 @@ const MovieCard = ({
           <div
             className={`absolute bottom-2 z-20 ${
               // Если есть теги, размещаем возрастной рейтинг справа, иначе слева
-              movie.tags && movie.tags.length > 0 
+              movie.tags && movie.tags.length > 0 && isInFavoritesPage !== true && showTags
                 ? "right-2" 
                 : showPosition && position && position <= 10 
                   ? "right-2" 
@@ -690,19 +702,43 @@ const MovieCard = ({
           {/* Основной блок с позицией и информацией */}
           <div className="grid grid-cols-[auto_1fr] gap-2 mb-1">
             {/* Позиция слева, занимает высоту всего блока */}
-            {showPosition && position && position <= 10 && (
-              <div
-                className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent self-center"
-                style={{
-                  fontFamily:
-                    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-                  textShadow:
-                    "0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)",
-                  letterSpacing: "0.02em",
-                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-                }}
-              >
-                {position}
+            {showPosition && position && (
+              <div className="self-center">
+                {position === 1 ? (
+                  <PositionIcon1 />
+                ) : position === 2 ? (
+                  <PositionIcon2 />
+                ) : position === 3 ? (
+                  <PositionIcon3 />
+                ) : position === 4 ? (
+                  <PositionIcon4 />
+                ) : position === 5 ? (
+                  <PositionIcon5 />
+                ) : position === 6 ? (
+                  <PositionIcon6 />
+                ) : position === 7 ? (
+                  <PositionIcon7 />
+                ) : position === 8 ? (
+                  <PositionIcon8 />
+                ) : position === 9 ? (
+                  <PositionIcon9 />
+                ) : position === 10 ? (
+                  <PositionIcon10 />
+                ) : (
+                  <div
+                    className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent"
+                    style={{
+                      fontFamily:
+                        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                      textShadow:
+                        "0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)",
+                      letterSpacing: "0.02em",
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                    }}
+                  >
+                    {position}
+                  </div>
+                )}
               </div>
             )}
 
