@@ -134,8 +134,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         style={{
           userSelect: "none",
           ...(shadowsEnabled && {
-            borderBottomRightRadius: "50px",
-            borderTopRightRadius: "50px",
             background: "linear-gradient(145deg, #151515, #191919)",
             boxShadow: "18px 18px 13px #101010, -18px -18px 13px #1e1e1e",
           }),
