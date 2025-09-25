@@ -700,9 +700,13 @@ const MovieCard = ({
       {showDetails && (
         <div className="p-2 md:p-3 hidden md:block">
           {/* Основной блок с позицией и информацией */}
-          <div className="grid grid-cols-[auto_1fr] gap-2 mb-1">
+          <div className={`grid gap-2 mb-1 ${
+            showPosition && position && position <= 10
+              ? "grid-cols-[auto_1fr]"
+              : "grid-cols-1"
+          }`}>
             {/* Позиция слева, занимает высоту всего блока */}
-            {showPosition && position && (
+            {showPosition && position && position <= 10 && (
               <div className="self-center">
                 {position === 1 ? (
                   <PositionIcon1 />
@@ -722,22 +726,8 @@ const MovieCard = ({
                   <PositionIcon8 />
                 ) : position === 9 ? (
                   <PositionIcon9 />
-                ) : position === 10 ? (
-                  <PositionIcon10 />
                 ) : (
-                  <div
-                    className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent"
-                    style={{
-                      fontFamily:
-                        'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-                      textShadow:
-                        "0 2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2), 0 1px 0px rgba(255,255,255,0.8)",
-                      letterSpacing: "0.02em",
-                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-                    }}
-                  >
-                    {position}
-                  </div>
+                  <PositionIcon10 />
                 )}
               </div>
             )}
