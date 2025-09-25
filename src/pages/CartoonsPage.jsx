@@ -360,7 +360,7 @@ const CartoonsPage = () => {
       rating: ratingData.rating,
       age: apiCartoon.details.age,
       showRating: ratingData.showRating,
-      type: "cartoon", // Добавляем тип для правильной фильтрации в избранном
+      type: "multfilm", // Добавляем тип для правильной фильтрации в избранном
       country: apiCartoon.details.country, // Добавляем страну для фильтрации по странам в избранном
       description: apiCartoon.details.about, // Добавляем описание для модалки плеера
       tags: apiCartoon.details.tags || [], // Добавляем теги для отображения качества
