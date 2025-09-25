@@ -356,15 +356,7 @@ const MovieCard = ({
           }}
         />
 
-        {/* NEW Badge - убран по запросу пользователя */}
-        {/* {isNew && (
-          <div className="absolute top-2 left-2 z-30">
-            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
-              NEW
-            </div>
-          </div>
-        )} */}
-
+  
         {/* Tags Display - современные стильные бейджики */}
         {movie.tags && movie.tags.length > 0 && isInFavoritesPage !== true && showTags && (
           <div className="absolute bottom-2 left-2 z-30 flex flex-col gap-1">
@@ -432,7 +424,7 @@ const MovieCard = ({
               background: (() => {
                 // Если цветное затемнение отключено, используем бледно-бирюзовое затемнение на всю карточку
                 if (!coloredHoverEnabled) {
-                  return "rgba(201, 200, 201, 0.276)";
+                  return "rgba(75, 147, 255, 0.56)";
                 }
 
                 if (!movie.rating)
