@@ -12,6 +12,12 @@ import {
   Unlock,
   ChevronLeft,
   ChevronRight,
+  ArrowUpDown,
+  Calendar,
+  Type,
+  ChevronDown,
+  Star,
+  Clock,
 } from "lucide-react";
 import {
   DndContext,
@@ -52,6 +58,8 @@ const FavoritesPage = () => {
   const [isTabsLocked, setIsTabsLocked] = useState(true);
   const [tabsOrder, setTabsOrder] = useState([]);
   const [isTabsCollapsed, setIsTabsCollapsed] = useState(false);
+  const [sortBy, setSortBy] = useState("default");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Sensors для drag & drop
   const sensors = useSensors(
@@ -117,6 +125,53 @@ const FavoritesPage = () => {
       .map((genre) => genre.trim());
 
     return [...new Set(genres)].sort();
+  };
+
+  // Получение отсортированного списка избранного
+  const getSortedFavorites = (favorites) => {
+    if (sortBy === "default") {
+      return favorites;
+    }
+
+    if (sortBy === "recent") {
+      return [...favorites].reverse();
+    }
+
+    const sorted = [...favorites].sort((a, b) => {
+      switch (sortBy) {
+        case "year-new":
+          return (b.year || 0) - (a.year || 0);
+        case "year-old":
+          return (a.year || 0) - (b.year || 0);
+        case "name-az":
+          return (a.title || a.name || "").localeCompare(b.title || b.name || "", 'ru');
+        case "name-za":
+          return (b.title || b.name || "").localeCompare(a.title || a.name || "", 'ru');
+        case "rating-high":
+          return (b.rating || b.imdb_rating || 0) - (a.rating || a.imdb_rating || 0);
+        case "rating-low":
+          return (a.rating || a.imdb_rating || 0) - (b.rating || b.imdb_rating || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  };
+
+  // Получение текста выбранной сортировки
+  const getSortLabel = () => {
+    const sortOptions = {
+      "default": "По умолчанию",
+      "recent": "По последним добавленным",
+      "year-new": "По году (новые)",
+      "year-old": "По году (старые)",
+      "name-az": "По названию (А-Я)",
+      "name-za": "По названию (Я-А)",
+      "rating-high": "По рейтингу (высокий)",
+      "rating-low": "По рейтингу (низкий)"
+    };
+    return sortOptions[sortBy] || "По умолчанию";
   };
 
   // Фильтрация контента по типу и стране
@@ -196,7 +251,7 @@ const FavoritesPage = () => {
     return filtered;
   };
 
-  const filteredFavorites = getFilteredFavorites();
+  const filteredFavorites = getSortedFavorites(getFilteredFavorites());
 
   // Базовые табы
   const baseTabs = [
@@ -258,7 +313,27 @@ const FavoritesPage = () => {
         baseTabs.filter((tab) => tab.id !== "all").map((tab) => tab.id)
       );
     }
+
+    // Загрузка сохраненной сортировки
+    const savedSort = localStorage.getItem("favoritesSortBy");
+    if (savedSort) {
+      setSortBy(savedSort);
+    }
   }, []);
+
+  // Закрытие dropdown при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSortDropdown && !event.target.closest('.relative')) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSortDropdown]);
 
   // Получение табов в правильном порядке
   const getOrderedTabs = () => {
@@ -329,6 +404,13 @@ const FavoritesPage = () => {
   // Переключение сворачивания табов
   const toggleTabsCollapse = () => {
     setIsTabsCollapsed(!isTabsCollapsed);
+  };
+
+  // Обработчик изменения сортировки
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setShowSortDropdown(false);
+    localStorage.setItem("favoritesSortBy", newSortBy);
   };
 
   if (favorites.length === 0) {
@@ -499,6 +581,66 @@ const FavoritesPage = () => {
               )}
             </button>
 
+            {/* Кнопка сортировки */}
+            <div className="relative ml-2">
+              <button
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex items-center justify-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:scale-105 active:scale-95 whitespace-nowrap"
+                style={{
+                  background: "linear-gradient(131deg, #191919, #242323)",
+                  boxShadow: "7px 5px 8px #000000, inset 2px 2px 20px #303132",
+                }}
+                title="Сортировка"
+              >
+                <span className="text-xs">{getSortLabel()}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
+                  showSortDropdown ? 'rotate-180' : ''
+                }`} />
+              </button>
+
+              {/* Dropdown меню сортировки */}
+              {showSortDropdown && (
+                <div
+                  className="absolute right-0 top-full mt-2 w-56 rounded-lg shadow-lg z-50"
+                  style={{
+                    background: "linear-gradient(131deg, #191919, #242323)",
+                    boxShadow: "7px 5px 8px #000000, inset 2px 2px 20px #303132",
+                    border: "1px solid #444",
+                  }}
+                >
+                  <div className="py-2">
+                    {[
+                      { value: "default", label: "По умолчанию", icon: null },
+                      { value: "recent", label: "По последним добавленным", icon: Clock },
+                      { value: "year-new", label: "По году (новые)", icon: Calendar },
+                      { value: "year-old", label: "По году (старые)", icon: Calendar },
+                      { value: "name-az", label: "По названию (А-Я)", icon: Type },
+                      { value: "name-za", label: "По названию (Я-А)", icon: Type },
+                      { value: "rating-high", label: "По рейтингу (высокий)", icon: Star },
+                      { value: "rating-low", label: "По рейтингу (низкий)", icon: Star },
+                    ].map((option) => {
+                      const IconComponent = option.icon;
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => handleSortChange(option.value)}
+                          className={`w-full px-4 py-2 text-left text-sm transition-colors duration-200 flex items-center gap-2 ${
+                            sortBy === option.value
+                              ? "text-primary bg-primary/10"
+                              : "text-muted-foreground hover:text-foreground hover:bg-background/10"
+                          }`}
+                        >
+                          {IconComponent && <IconComponent className="w-4 h-4" />}
+                          {!IconComponent && <div className="w-4 h-4" />}
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Кнопка "Очистить все" */}
             {favorites.length > 0 && (
               <AlertDialog
@@ -507,7 +649,7 @@ const FavoritesPage = () => {
               >
                 <AlertDialogTrigger asChild>
                   <button
-                    className="flex items-center justify-center w-8 h-8 rounded-md text-sm font-medium text-destructive transition-all duration-200 hover:scale-105 active:scale-95"
+                    className="flex items-center justify-center w-8 h-8 rounded-md text-sm font-medium text-destructive transition-all duration-200 hover:scale-105 active:scale-95 ml-2"
                     style={{
                       background: "linear-gradient(131deg, #191919, #242323)",
                       boxShadow:

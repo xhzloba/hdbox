@@ -76,8 +76,8 @@ export const FavoritesProvider = ({ children }) => {
 
         // Анимация будет сброшена через onAnimationComplete
       } else {
-        // Если нет анимации, добавляем сразу
-        setFavorites((prev) => [...prev, movie]);
+        // Если нет анимации, добавляем сразу в начало списка
+        setFavorites((prev) => [movie, ...prev]);
         setPendingFavorites((prev) => {
           const newSet = new Set(prev);
           newSet.delete(movie.id);
@@ -134,7 +134,8 @@ export const FavoritesProvider = ({ children }) => {
   const onAnimationComplete = useCallback(() => {
     console.log("onAnimationComplete called, pendingMovie:", pendingMovie);
     if (pendingMovie) {
-      setFavorites((prev) => [...prev, pendingMovie]);
+      // Добавляем в начало списка
+      setFavorites((prev) => [pendingMovie, ...prev]);
       // Убираем из pending после добавления в favorites
       setPendingFavorites((prev) => {
         const newSet = new Set(prev);
