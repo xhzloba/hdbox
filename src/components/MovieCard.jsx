@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useContext, memo } from "react";
+import { usePathname } from "next/navigation";
 import {
   Play,
   Plus,
@@ -179,6 +180,7 @@ const MovieCard = ({
   showPosition = false,
   isInFavoritesPage = false,
 }) => {
+  const pathname = usePathname();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
@@ -422,8 +424,13 @@ const MovieCard = ({
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center"
             style={{
               background: (() => {
-                // Если цветное затемнение отключено, используем бледно-бирюзовое затемнение на всю карточку
+                // Если цветное затемнение отключено, используем разные цвета в зависимости от страницы
                 if (!coloredHoverEnabled) {
+                  // Розовый цвет для страницы мультфильмов
+                  if (pathname && pathname.includes('cartoons')) {
+                    return "rgba(255, 32, 143, 0.486)";
+                  }
+                  // Синий цвет для остальных страниц
                   return "rgba(75, 147, 255, 0.56)";
                 }
 
