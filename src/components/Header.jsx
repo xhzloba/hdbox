@@ -837,15 +837,7 @@ const Header = ({
       <header
         className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
         style={{
-          borderBottomLeftRadius: '100px',
-          borderTopLeftRadius: '100px',
-          borderBottomRightRadius: '100px',
-          borderTopRightRadius: '100px',
-          marginLeft: '37px',
-          marginRight: '37px',
-          boxShadow: 'inset 0px 5px 20px 0px #000000',
-          marginTop: '25px',
-          marginBottom: '20px',
+          marginBottom: '25px',
           height: '64px' // Фиксированная высота хедера
         }}
       >
