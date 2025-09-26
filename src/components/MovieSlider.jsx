@@ -245,28 +245,42 @@ const MovieSlider = memo(({ movies, title = "Популярное сейчас",
         </div>
         <div className="flex items-center gap-2">
           <button
-            className={`p-2 rounded-full border border-border transition-all duration-200 ${
+            className={`p-2 rounded-full border border-border ${
               prevBtnDisabled
-                ? "opacity-50 cursor-not-allowed bg-muted"
-                : "hover:bg-accent hover:text-accent-foreground bg-background"
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:opacity-80"
             }`}
             onClick={scrollPrev}
             disabled={prevBtnDisabled}
             aria-label="Предыдущий слайд"
-            style={{ userSelect: 'none' }}
+            style={{
+              userSelect: 'none',
+              background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+              boxShadow: prevBtnDisabled 
+                ? 'rgb(0, 0, 0) 7px 5px 8px inset, rgb(48, 49, 50) 2px 2px 20px'
+                : 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+              transition: '0.3s ease-in-out, width 0.3s ease-in-out'
+            }}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            className={`p-2 rounded-full border border-border transition-all duration-200 ${
+            className={`p-2 rounded-full border border-border ${
               nextBtnDisabled
-                ? "opacity-50 cursor-not-allowed bg-muted"
-                : "hover:bg-accent hover:text-accent-foreground bg-background"
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:opacity-80"
             }`}
             onClick={scrollNext}
             disabled={nextBtnDisabled}
             aria-label="Следующий слайд"
-            style={{ userSelect: 'none' }}
+            style={{
+              userSelect: 'none',
+              background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+              boxShadow: nextBtnDisabled 
+                ? 'rgb(0, 0, 0) 7px 5px 8px inset, rgb(48, 49, 50) 2px 2px 20px'
+                : 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+              transition: '0.3s ease-in-out, width 0.3s ease-in-out'
+            }}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
