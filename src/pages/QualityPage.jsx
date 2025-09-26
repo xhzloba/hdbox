@@ -9,6 +9,7 @@ import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 import { TextShimmer } from "../../components/ui/text-shimmer";
+import useScrollDetection from "../hooks/useScrollDetection";
 
 import SettingsContext from "../contexts/SettingsContext";
 
@@ -38,6 +39,7 @@ const QUALITY_TABS = [
 const QualityPage = () => {
   const settings = useContext(SettingsContext);
   const pageStylesEnabled = settings?.pageStylesEnabled ?? false;
+  const isScrolling = useScrollDetection();
   
   const [activeTab, setActiveTab] = useState("4k-hdr");
   const [content, setContent] = useState([]);
@@ -385,6 +387,7 @@ const QualityPage = () => {
           items={content}
           transformItem={transformContentData}
           onAdultContentClick={handleAdultContentClick}
+          isScrolling={isScrolling}
         />
       )}
 
@@ -432,7 +435,7 @@ const QualityPage = () => {
 export default QualityPage;
 
 // Виртуализированный грид по строкам
-function VirtualizedContentGrid({ items, transformItem, onAdultContentClick }) {
+function VirtualizedContentGrid({ items, transformItem, onAdultContentClick, isScrolling }) {
   const containerRef = React.useRef(null);
   const [containerWidth, setContainerWidth] = React.useState(1024);
 
@@ -523,6 +526,7 @@ function VirtualizedContentGrid({ items, transformItem, onAdultContentClick }) {
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
                     isInFavoritesPage={false}
+                    isScrolling={isScrolling}
                   />
                 </div>
               ))}
