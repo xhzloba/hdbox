@@ -837,12 +837,17 @@ const MovieCard = memo(({
 
             {/* Колонка с информацией справа */}
             <div className="flex flex-col justify-center">
-              <h3 className="text-sm font-medium line-clamp-1 mb-1" style={{
-                color: '#FFFFFF', // Fallback цвет
+              <h3 className="text-sm font-medium line-clamp-1 mb-1 text-white group-hover:text-transparent" style={{
+                // Перламутровый градиент только при hover на карточку
                 backgroundImage: 'linear-gradient(135deg, #858CF0 -1.21%, #75C3F0 6.32%, #6EDBF0 11.63%, #7BACF0 18.09%, #848CF0 24.2%, #C28DF8 33.17%, #BAA5BE 39.59%, #C6BAC9 46.58%, #EBE7EC 54.28%, #FFFFFF 60.78%, #EAEAEA 66.37%, #BDB8BA 75.3%, #B9B2B5 79.29%, #F2DFF2 90.2%, #E6D6E4 95.95%, #D0C4C8 101.78%)',
                 WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
+              }} 
+              onMouseEnter={(e) => {
+                e.target.style.WebkitTextFillColor = 'transparent';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.WebkitTextFillColor = 'initial';
               }}>
                 {movie.title}
               </h3>
