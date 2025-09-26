@@ -9,7 +9,7 @@ import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 import { TextShimmer } from "../../components/ui/text-shimmer";
-
+import useScrollDetection from "../hooks/useScrollDetection";
 
 import SettingsContext from "../contexts/SettingsContext";
 
@@ -45,6 +45,7 @@ const ALL_TABS = [...MAIN_TABS, ...COMPILATION_TABS];
 const CartoonsPage = () => {
   const settings = useContext(SettingsContext);
   const pageStylesEnabled = settings?.pageStylesEnabled ?? false;
+  const isScrolling = useScrollDetection();
   
   const [activeTab, setActiveTab] = useState("updatings");
   const [cartoons, setCartoons] = useState([]);
@@ -492,6 +493,7 @@ const CartoonsPage = () => {
           items={cartoons}
           transformItem={transformCartoonData}
           onAdultContentClick={handleAdultContentClick}
+          isScrolling={isScrolling}
         />
       )}
 
@@ -539,7 +541,7 @@ const CartoonsPage = () => {
 export default CartoonsPage;
 
 // Виртуализированный грид по строкам (простая реализация, без ломки верстки)
-function VirtualizedCartoonsGrid({ items, transformItem, onAdultContentClick }) {
+function VirtualizedCartoonsGrid({ items, transformItem, onAdultContentClick, isScrolling }) {
   const containerRef = React.useRef(null);
   const [containerWidth, setContainerWidth] = React.useState(1024);
 
@@ -627,6 +629,7 @@ function VirtualizedCartoonsGrid({ items, transformItem, onAdultContentClick }) 
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
                     isInFavoritesPage={false}
+                    isScrolling={isScrolling}
                   />
                 </div>
               ))}
