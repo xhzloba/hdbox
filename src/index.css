@@ -204,20 +204,60 @@
     position: relative;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
-    contain: layout style;
+    contain: layout style paint;
     will-change: auto;
-    /* Оптимизация hover эффектов */
-    transition: transform 0.2s ease-out;
+    /* Оптимизация hover эффектов с GPU ускорением */
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Предотвращение layout thrashing */
+    isolation: isolate;
   }
   
-  /* Оптимизация hover эффектов для карточек */
+  /* Оптимизированные hover эффекты для карточек */
   [class*="MovieCard"]:hover,
   .movie-card:hover {
     will-change: transform;
+    /* Используем только transform для избежания repaint */
+    transform: translate3d(0, -2px, 0) scale(1.02);
   }
   
   [class*="MovieCard"]:not(:hover),
   .movie-card:not(:hover) {
+    will-change: auto;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  
+  /* Оптимизация изображений в карточках */
+  [class*="MovieCard"] img,
+  .movie-card img {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: auto;
+  }
+  
+  /* GPU-ускоренный scale для изображений */
+  [class*="MovieCard"]:hover img,
+  .movie-card:hover img {
+    will-change: transform;
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  
+  [class*="MovieCard"]:not(:hover) img,
+  .movie-card:not(:hover) img {
+    will-change: auto;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  
+  /* Отключение hover эффектов во время скролла */
+  .scrolling [class*="MovieCard"],
+  .scrolling .movie-card {
+    pointer-events: none;
+    transition: none;
+  }
+  
+  .scrolling [class*="MovieCard"] img,
+  .scrolling .movie-card img {
+    transition: none;
     will-change: auto;
   }
   

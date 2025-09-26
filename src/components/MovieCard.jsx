@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useContext, memo, useMemo, useCallback } from "react";
+import { useState, useContext, memo, useMemo, useCallback, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import useScrollDetection from "../hooks/useScrollDetection";
+import useIntersectionObserver from "../hooks/useIntersectionObserver";
 import {
   Play,
   Plus,
@@ -194,6 +196,26 @@ const MovieCard = memo(({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Хук для определения скролла
+  const { isScrolling, isFastScrolling } = useScrollDetection();
+  
+  // Intersection Observer для оптимизации видимости
+  const { ref: intersectionRef, shouldEnableHover } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '100px', // Начинаем подготовку hover эффектов заранее
+  });
+  
+  // Refs для debounce
+  const hoverTimeoutRef = useRef(null);
+  const cardRef = useRef(null);
+  
+  // Объединяем refs
+  const setRefs = useCallback((element) => {
+    cardRef.current = element;
+    intersectionRef.current = element;
+  }, [intersectionRef]);
   const {
     addToFavorites,
     removeFromFavorites,
@@ -269,6 +291,89 @@ const MovieCard = memo(({
     }
   }, [coloredHoverEnabled, isNew]);
 
+  // Оптимизированные hover обработчики с debounce и intersection observer
+  const handleMouseEnter = useCallback((e) => {
+    // Отключаем hover если элемент не видим или во время быстрого скролла
+    if (!shouldEnableHover || isFastScrolling) return;
+    
+    // Очищаем предыдущий таймер
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    // Debounce для hover эффекта
+    hoverTimeoutRef.current = setTimeout(() => {
+      if (!isScrolling && shouldEnableHover) {
+        setIsHovered(true);
+        
+        // Цветная обводка при hover
+        if (coloredHoverEnabled && !isNew && e.currentTarget) {
+          e.currentTarget.style.borderColor = getBorderColor(movie.rating);
+        }
+      }
+    }, isScrolling ? 100 : 0); // Больше задержка во время скролла
+  }, [shouldEnableHover, isFastScrolling, isScrolling, coloredHoverEnabled, isNew, movie.rating]);
+  
+  const handleMouseLeave = useCallback((e) => {
+    // Очищаем таймер
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    setIsHovered(false);
+    
+    // Сбрасываем цветную обводку
+    if (coloredHoverEnabled && !isNew && e.currentTarget) {
+      if (document.activeElement !== e.currentTarget) {
+        e.currentTarget.style.borderColor = "";
+      }
+    }
+  }, [coloredHoverEnabled, isNew]);
+  
+  // Динамическое управление will-change для оптимизации производительности
+  useEffect(() => {
+    const element = cardRef.current;
+    if (!element) return;
+    
+    if (isHovered && shouldEnableHover && !isScrolling) {
+      // Включаем will-change только при активном hover
+      element.style.willChange = 'transform';
+      
+      // Находим изображение внутри карточки
+      const img = element.querySelector('img');
+      if (img) {
+        img.style.willChange = 'transform';
+      }
+    } else {
+      // Отключаем will-change для экономии памяти GPU
+      element.style.willChange = 'auto';
+      
+      const img = element.querySelector('img');
+      if (img) {
+        img.style.willChange = 'auto';
+      }
+    }
+  }, [isHovered, shouldEnableHover, isScrolling]);
+  
+  // Cleanup на unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      
+      // Очищаем will-change при размонтировании
+      const element = cardRef.current;
+      if (element) {
+        element.style.willChange = 'auto';
+        const img = element.querySelector('img');
+        if (img) {
+          img.style.willChange = 'auto';
+        }
+      }
+    };
+  }, []);
+
   const handleCardClick = useCallback((e) => {
     // Убираем фокус и сбрасываем border при цветном затемнении
     if (e.currentTarget) {
@@ -309,8 +414,13 @@ const MovieCard = memo(({
 
   return (
     <div
+      ref={setRefs}
       onClick={handleCardClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`group relative overflow-hidden transition-all duration-300 cursor-pointer flex flex-col ${
+        isScrolling ? 'scrolling' : ''
+      } ${
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
@@ -330,19 +440,6 @@ const MovieCard = memo(({
               animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",
             }
           : {}),
-      }}
-      onMouseEnter={(e) => {
-        if (coloredHoverEnabled && !isNew) {
-          e.currentTarget.style.borderColor = getBorderColor(movie.rating);
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (coloredHoverEnabled && !isNew) {
-          // Сбрасываем borderColor только если элемент не в фокусе
-          if (document.activeElement !== e.currentTarget) {
-            e.currentTarget.style.borderColor = "";
-          }
-        }
       }}
     >
       <div
