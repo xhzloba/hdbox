@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Delete,
   Star,
+  Filter,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -892,6 +893,22 @@ const Header = ({
               title={showSearchInput && searchQuery.trim() ? "Выполнить поиск" : "Поиск фильмов"}
             >
               <Search className={`${showSearchInput ? "w-3 h-3" : "w-5 h-5"} text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]`} />
+            </button>
+
+            {/* Кнопка фильтра рядом с поиском */}
+            <button
+              onClick={() => {
+                console.log("Filter clicked");
+              }}
+              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
+              style={{
+                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
+                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
+                borderTop: '1px solid rgb(84, 84, 84)'
+              }}
+              title="Фильтры"
+            >
+              <Filter className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
             </button>
 
             {/* Логотип */}

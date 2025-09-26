@@ -191,6 +191,7 @@ const MovieCard = memo(({
   position = null,
   showPosition = false,
   isInFavoritesPage = false,
+  isScrolling = false,
 }) => {
   const pathname = usePathname();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -198,8 +199,8 @@ const MovieCard = memo(({
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  // Хук для определения скролла
-  const { isScrolling, isFastScrolling } = useScrollDetection();
+  // Хук для определения быстрого скролла (isScrolling передается как проп)
+  const { isFastScrolling } = useScrollDetection();
   
   // Intersection Observer для оптимизации видимости
   const { ref: intersectionRef, shouldEnableHover } = useIntersectionObserver({

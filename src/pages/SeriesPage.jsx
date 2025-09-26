@@ -9,6 +9,7 @@ import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 import { TextShimmer } from "../../components/ui/text-shimmer";
+import useScrollDetection from "../hooks/useScrollDetection";
 
 import SettingsContext from "../contexts/SettingsContext";
 
@@ -130,6 +131,7 @@ const SeriesPage = () => {
   // Получаем настройки из контекста
   const settingsContext = useContext(SettingsContext);
   const pageStylesEnabled = settingsContext?.pageStylesEnabled ?? false;
+  const isScrolling = useScrollDetection();
 
   // Функция для удаления дубликатов сериалов по ID
 
@@ -571,6 +573,7 @@ const SeriesPage = () => {
           items={series}
           transformItem={transformSeriesData}
           onAdultContentClick={handleAdultContentClick}
+          isScrolling={isScrolling}
         />
       )}
 
@@ -614,7 +617,7 @@ const SeriesPage = () => {
 
 export default SeriesPage;
 
-function VirtualizedSeriesGrid({ items, transformItem, onAdultContentClick }) {
+function VirtualizedSeriesGrid({ items, transformItem, onAdultContentClick, isScrolling }) {
   const containerRef = React.useRef(null);
   const [containerWidth, setContainerWidth] = React.useState(1024);
 
@@ -699,6 +702,7 @@ function VirtualizedSeriesGrid({ items, transformItem, onAdultContentClick }) {
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
                     isInFavoritesPage={false}
+                    isScrolling={isScrolling}
                   />
                 </div>
               ))}

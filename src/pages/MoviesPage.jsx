@@ -9,7 +9,7 @@ import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
 import { Popover, PopoverTrigger, PopoverContent } from "../../components/ui/popover";
 import { TextShimmer } from "../../components/ui/text-shimmer";
-
+import useScrollDetection from "../hooks/useScrollDetection";
 
 import SettingsContext from "../contexts/SettingsContext";
 
@@ -50,6 +50,7 @@ const ALL_TABS = [...MAIN_TABS, ...COMPILATION_TABS];
 const MoviesPage = () => {
   const settings = useContext(SettingsContext);
   const pageStylesEnabled = settings?.pageStylesEnabled ?? false;
+  const isScrolling = useScrollDetection();
   
   const [activeTab, setActiveTab] = useState("updatings");
   const [movies, setMovies] = useState([]);
@@ -495,6 +496,7 @@ const MoviesPage = () => {
           items={movies}
           transformItem={transformMovieData}
           onAdultContentClick={handleAdultContentClick}
+          isScrolling={isScrolling}
         />
       )}
 
@@ -542,7 +544,7 @@ const MoviesPage = () => {
 export default MoviesPage;
 
 // Виртуализированный грид по строкам (простая реализация, без ломки верстки)
-function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick }) {
+function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick, isScrolling }) {
   const containerRef = React.useRef(null);
   const [containerWidth, setContainerWidth] = React.useState(1024);
 
@@ -630,6 +632,7 @@ function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick }) {
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={true}
                     isInFavoritesPage={false}
+                    isScrolling={isScrolling}
                   />
                 </div>
               ))}
