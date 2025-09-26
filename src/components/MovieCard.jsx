@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, memo } from "react";
+import { useState, useContext, memo, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import {
   Play,
@@ -178,7 +178,7 @@ const getContentType = (type) => {
   return null;
 };
 
-const MovieCard = ({
+const MovieCard = memo(({
   movie,
   onAdultContentClick,
   onMovieClick,
@@ -227,11 +227,11 @@ const MovieCard = ({
   const isAdult = isAdultContent(movie.age);
   const isUnlocked = isMovieUnlocked(movie.id);
 
-  const handleImageLoad = () => {
+  const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
-  };
+  }, []);
 
-  const handleAddToFavorites = (e) => {
+  const handleAddToFavorites = useCallback((e) => {
     e.stopPropagation();
     // Проверяем реальное состояние favorites, а не pending
     if (isFavorite(movie.id)) {
@@ -250,14 +250,14 @@ const MovieCard = ({
     } else {
       addToFavorites(movie, e.currentTarget);
     }
-  };
+  }, [movie.id, isFavorite, isInFavoritesPage, coloredHoverEnabled, isNew, removeFromFavorites, addToFavorites]);
 
-  const handleConfirmRemove = () => {
+  const handleConfirmRemove = useCallback(() => {
     removeFromFavorites(movie.id);
     setShowRemoveDialog(false);
-  };
+  }, [removeFromFavorites, movie.id]);
 
-  const handleCancelRemove = (e) => {
+  const handleCancelRemove = useCallback((e) => {
     e.stopPropagation();
     setShowRemoveDialog(false);
     
@@ -267,9 +267,9 @@ const MovieCard = ({
     if (cardElement && coloredHoverEnabled && !isNew) {
       cardElement.style.borderColor = "";
     }
-  };
+  }, [coloredHoverEnabled, isNew]);
 
-  const handleCardClick = (e) => {
+  const handleCardClick = useCallback((e) => {
     // Убираем фокус и сбрасываем border при цветном затемнении
     if (e.currentTarget) {
       e.currentTarget.blur();
@@ -305,7 +305,7 @@ const MovieCard = ({
     }
     // Открываем модалку выбора плеера для обычного контента
     setIsPlayerModalOpen(true);
-  };
+  }, [coloredHoverEnabled, isNew, onMovieClick, movie, isAdult, isParentalControlEnabled, isUnlocked, canAccessAdultContent, onAdultContentClick]);
 
   return (
     <div
@@ -358,7 +358,9 @@ const MovieCard = ({
         <img
           src={movie.poster || "https://kinohost.web.app/no_poster.png"}
           alt={movie.title}
-          className={`w-full h-full object-cover group-hover:scale-110 transition-all duration-300 ${
+          loading="lazy"
+          decoding="async"
+          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 will-change-transform ${
             imageLoaded ? "opacity-100" : "opacity-0"
           }`}
           onLoad={handleImageLoad}
@@ -820,6 +822,8 @@ const MovieCard = ({
       </AlertDialog>
     </div>
   );
-};
+});
 
-export default memo(MovieCard);
+MovieCard.displayName = 'MovieCard';
+
+export default MovieCard;

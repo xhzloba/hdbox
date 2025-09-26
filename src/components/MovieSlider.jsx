@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, memo, useMemo } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import { ChevronLeft, ChevronRight, Eye, Star, Film, Tv } from "lucide-react"
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton"
@@ -9,19 +9,19 @@ import AdultContentDialog from "./AdultContentDialog"
 import { TextShimmer } from "../../components/ui/text-shimmer"
 
 
-const MovieSlider = ({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [], showContentTypeBadge = false }) => {
+const MovieSlider = memo(({ movies, title = "Популярное сейчас", tabs, activeTab, onTabChange, isLoading, tabsConfig, sectionTitle, newIndicators, sidebarOpen, newMovies = [], showContentTypeBadge = false }) => {
   const [selectedAdultMovie, setSelectedAdultMovie] = useState(null)
   const [isAdultDialogOpen, setIsAdultDialogOpen] = useState(false)
   
-  // Определяем нужно ли показывать бейджики типа контента
-  const shouldShowContentTypeBadge = () => {
+  // Мемоизируем функцию определения показа бейджиков типа контента
+  const shouldShowContentTypeBadge = useMemo(() => {
     // Если используется tabsConfig (второй слайдер с "Новинки" и "Обновления"), показываем всегда
     if (tabsConfig) {
       return showContentTypeBadge
     }
     // Для первого слайдера показываем только для табов "watching" и "popular"
     return showContentTypeBadge && (activeTab === 'watching' || activeTab === 'popular')
-  }
+  }, [tabsConfig, showContentTypeBadge, activeTab])
   // Кастомные табы без использования shadcn Tabs компонента
   const customTabs = tabs ? (
     <div className="bg-muted text-[#71717a] inline-flex w-fit items-center justify-center rounded-lg p-1 gap-1" style={{ userSelect: 'none', background: 'linear-gradient(131deg, #191919, #242323)', boxShadow: '7px 5px 8px #000000, inset 2px 2px 20px #303132' }}>
@@ -176,20 +176,20 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true)
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true)
 
-  const handleAdultContentClick = (movie) => {
+  const handleAdultContentClick = useCallback((movie) => {
     setSelectedAdultMovie(movie)
     setIsAdultDialogOpen(true)
-  }
+  }, [])
 
-  const handleAdultDialogClose = () => {
+  const handleAdultDialogClose = useCallback(() => {
     setIsAdultDialogOpen(false)
     setSelectedAdultMovie(null)
-  }
+  }, [])
 
-  const handleAccessGranted = (movie) => {
+  const handleAccessGranted = useCallback((movie) => {
     // Здесь будет логика для открытия фильма после успешной проверки PIN
     console.log('Доступ к контенту 18+ разрешен:', movie.title)
-  }
+  }, [])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -219,11 +219,15 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
     }
   }, [emblaApi, activeTab, movies])
 
-  // Создаем массив скелетонов для отображения во время загрузки
-  const skeletonArray = Array.from({ length: 18 }, (_, index) => ({ id: `skeleton-${index}` }))
+  // Мемоизируем массив скелетонов для отображения во время загрузки
+  const skeletonArray = useMemo(() => 
+    Array.from({ length: 18 }, (_, index) => ({ id: `skeleton-${index}` })), []
+  )
   
-  // Определяем что отображать: скелетоны или реальные данные
-  const displayItems = isLoading ? skeletonArray : (movies || [])
+  // Мемоизируем что отображать: скелетоны или реальные данные
+  const displayItems = useMemo(() => 
+    isLoading ? skeletonArray : (movies || []), [isLoading, skeletonArray, movies]
+  )
   
   if (!isLoading && (!movies || movies.length === 0)) {
     return null
@@ -292,7 +296,7 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
                   movie={item} 
                   onAdultContentClick={handleAdultContentClick} 
                   isNew={newMovies.includes(item.id)}
-                  showContentTypeBadge={shouldShowContentTypeBadge()}
+                  showContentTypeBadge={shouldShowContentTypeBadge}
                   position={index + 1}
                   showPosition={activeTab === "watching"}
                 />
@@ -310,6 +314,8 @@ const MovieSlider = ({ movies, title = "Популярное сейчас", tabs
       />
     </section>
   )
-}
+})
+
+MovieSlider.displayName = 'MovieSlider'
 
 export default MovieSlider
