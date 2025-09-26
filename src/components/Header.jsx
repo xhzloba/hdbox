@@ -28,6 +28,7 @@ import AdultContentDialog from "./AdultContentDialog";
 import SettingsModal from "./SettingsModal";
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton";
 import PlayerModal from "./PlayerModal";
+import FilterModal from "./FilterModal";
 import useEmblaCarousel from "embla-carousel-react";
 import {
   AlertDialog,
@@ -286,6 +287,8 @@ const Header = ({
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
   const [showSearchInput, setShowSearchInput] = useState(false); // состояние для показа поля поиска в хедере
   const [currentTime, setCurrentTime] = useState(new Date()); // состояние для текущего времени
+  const [showFilterModal, setShowFilterModal] = useState(false); // состояние для модального окна фильтров
+  const [currentFilters, setCurrentFilters] = useState({}); // текущие примененные фильтры
   // Состояния для пагинации поиска
   const [currentSearchPage, setCurrentSearchPage] = useState(1);
   const [hasMoreSearchResults, setHasMoreSearchResults] = useState(false);
@@ -293,6 +296,14 @@ const Header = ({
   const searchInputRef = useRef(null);
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
+  // Обработчик применения фильтров
+  const handleApplyFilters = (filters) => {
+    setCurrentFilters(filters);
+    console.log('Применены фильтры:', filters);
+    // Здесь можно добавить логику применения фильтров к результатам поиска
+    // Например, обновить searchResults с учетом фильтров
+  };
+
   // Безопасное использование useParentalControl с проверкой контекста
   let isParentalControlEnabled = false;
   let hasPin = false;
@@ -897,9 +908,7 @@ const Header = ({
 
             {/* Кнопка фильтра рядом с поиском */}
             <button
-              onClick={() => {
-                console.log("Filter clicked");
-              }}
+              onClick={() => setShowFilterModal(true)}
               className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
               style={{
                 background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
@@ -1248,6 +1257,14 @@ const Header = ({
         movie={selectedMovieForPlayer}
         isOpen={isPlayerModalOpen}
         onClose={handlePlayerModalClose}
+      />
+
+      {/* FilterModal для фильтрации контента */}
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={currentFilters}
       />
     </>
   );
