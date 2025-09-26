@@ -476,7 +476,7 @@ const MovieCard = memo(({
             {movie.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-block px-2 py-1 rounded-full text-[9px] font-semibold transition-all duration-300 hover:scale-105 cursor-default"
+                className="inline-block px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105 cursor-default"
                 style={{
                   width: "fit-content",
                   minWidth: "auto",
