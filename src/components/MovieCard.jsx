@@ -476,7 +476,7 @@ const MovieCard = memo(({
             {movie.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-block px-2 py-1 rounded-full text-[9px] font-semibold text-white transition-all duration-300 hover:scale-105 cursor-default"
+                className="inline-block px-2 py-1 rounded-full text-[9px] font-semibold transition-all duration-300 hover:scale-105 cursor-default"
                 style={{
                   width: "fit-content",
                   minWidth: "auto",
@@ -495,7 +495,18 @@ const MovieCard = memo(({
                   e.target.style.boxShadow = 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset';
                 }}
               >
-                {tag}
+                <span
+                  style={{
+                    // Перламутровый градиент для текста из PositionIcon1
+                    color: '#FFFFFF', // Fallback цвет
+                    backgroundImage: 'linear-gradient(135deg, #858CF0 -1.21%, #75C3F0 6.32%, #6EDBF0 11.63%, #7BACF0 18.09%, #848CF0 24.2%, #C28DF8 33.17%, #BAA5BE 39.59%, #C6BAC9 46.58%, #EBE7EC 54.28%, #FFFFFF 60.78%, #EAEAEA 66.37%, #BDB8BA 75.3%, #B9B2B5 79.29%, #F2DFF2 90.2%, #E6D6E4 95.95%, #D0C4C8 101.78%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  {tag}
+                </span>
               </span>
             ))}
           </div>
