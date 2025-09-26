@@ -476,7 +476,7 @@ const MovieCard = memo(({
             {movie.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-block px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105 cursor-default"
+                className="inline-block px-2 py-1 rounded-full text-xs font-semibold"
                 style={{
                   width: "fit-content",
                   minWidth: "auto",
@@ -484,15 +484,6 @@ const MovieCard = memo(({
                   boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
                   borderTop: "1px solid rgb(84, 84, 84)",
                   letterSpacing: '0.025em',
-                  transform: 'translateZ(0)', // Для лучшей производительности анимаций
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'scale(1.05) translateY(-1px)';
-                  e.target.style.boxShadow = 'rgb(0, 0, 0) 9px 7px 12px, rgb(48, 49, 50) 3px 3px 25px inset';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'scale(1) translateY(0)';
-                  e.target.style.boxShadow = 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset';
                 }}
               >
                 <span
