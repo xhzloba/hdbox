@@ -262,7 +262,7 @@ const MovieCard = memo(({
       if (isInFavoritesPage) {
         // Сбрасываем borderColor при открытии диалога
         const cardElement = e.currentTarget.closest('.group');
-        if (cardElement && coloredHoverEnabled && !isNew) {
+        if (cardElement && coloredHoverEnabled) {
           cardElement.style.borderColor = "";
         }
         setShowRemoveDialog(true);
@@ -273,7 +273,7 @@ const MovieCard = memo(({
     } else {
       addToFavorites(movie, e.currentTarget);
     }
-  }, [movie.id, isFavorite, isInFavoritesPage, coloredHoverEnabled, isNew, removeFromFavorites, addToFavorites]);
+  }, [movie.id, isFavorite, isInFavoritesPage, coloredHoverEnabled, removeFromFavorites, addToFavorites]);
 
   const handleConfirmRemove = useCallback(() => {
     removeFromFavorites(movie.id);
@@ -287,10 +287,10 @@ const MovieCard = memo(({
     // Сбрасываем borderColor если включено цветное затемнение
     // Находим родительский элемент карточки и сбрасываем его borderColor
     const cardElement = e.target.closest('.group');
-    if (cardElement && coloredHoverEnabled && !isNew) {
+    if (cardElement && coloredHoverEnabled) {
       cardElement.style.borderColor = "";
     }
-  }, [coloredHoverEnabled, isNew]);
+  }, [coloredHoverEnabled]);
 
   // Оптимизированные hover обработчики с debounce и intersection observer
   const handleMouseEnter = useCallback((e) => {
@@ -308,7 +308,7 @@ const MovieCard = memo(({
         setIsHovered(true);
         
         // Цветная обводка при hover
-        if (coloredHoverEnabled && !isNew && e.currentTarget) {
+        if (coloredHoverEnabled && e.currentTarget) {
           e.currentTarget.style.borderColor = getBorderColor(movie.rating);
         }
       }
@@ -324,7 +324,7 @@ const MovieCard = memo(({
     setIsHovered(false);
     
     // Сбрасываем цветную обводку
-    if (coloredHoverEnabled && !isNew && e.currentTarget) {
+    if (coloredHoverEnabled && e.currentTarget) {
       if (document.activeElement !== e.currentTarget) {
         e.currentTarget.style.borderColor = "";
       }
@@ -380,7 +380,7 @@ const MovieCard = memo(({
     if (e.currentTarget) {
       e.currentTarget.blur();
       // Сбрасываем borderColor если включено цветное затемнение
-      if (coloredHoverEnabled && !isNew) {
+      if (coloredHoverEnabled) {
         e.currentTarget.style.borderColor = "";
       }
     }
@@ -411,7 +411,7 @@ const MovieCard = memo(({
     }
     // Открываем модалку выбора плеера для обычного контента
     setIsPlayerModalOpen(true);
-  }, [coloredHoverEnabled, isNew, onMovieClick, movie, isAdult, isParentalControlEnabled, isUnlocked, canAccessAdultContent, onAdultContentClick]);
+  }, [coloredHoverEnabled, onMovieClick, movie, isAdult, isParentalControlEnabled, isUnlocked, canAccessAdultContent, onAdultContentClick]);
 
   return (
     <div
@@ -425,22 +425,9 @@ const MovieCard = memo(({
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
-      } ${
-        isNew
-          ? `border-2 border-yellow-400 ${
-              cardShadowsEnabled ? "shadow-lg shadow-yellow-400/20" : ""
-            } animate-pulse hover:border-yellow-300 ${
-              cardShadowsEnabled ? "hover:shadow-yellow-300/30" : ""
-            } animate-[fadeInScale_0.6s_ease-out]`
-          : "border border-transparent hover:border-gray-600"
-      }`}
+      } border border-transparent hover:border-gray-600`}
       style={{
         ...(cardShadowsEnabled ? { boxShadow: "6px 5px 7px black" } : {}),
-        ...(isNew
-          ? {
-              animation: "fadeInScale 0.6s ease-out, pulse 2s infinite",
-            }
-          : {}),
       }}
     >
       <div
