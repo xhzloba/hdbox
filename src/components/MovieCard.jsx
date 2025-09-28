@@ -784,15 +784,9 @@ const MovieCard = memo(({
 
             {/* Колонка с информацией справа */}
             <div className="flex flex-col justify-center">
-              <h3 className="movie-title-gradient"
-              onMouseEnter={(e) => {
-                e.target.style.WebkitTextFillColor = 'transparent';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.WebkitTextFillColor = 'initial';
-              }}>
-                {movie.title}
-              </h3>
+              <h3 className="movie-title-gradient">
+                  {movie.title}
+                </h3>
               <div className="text-xs text-muted-foreground">
                 <div className="flex items-center gap-0.5 flex-wrap">
                   {movie.year && (
