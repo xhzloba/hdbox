@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useContext, memo, useMemo, useCallback, useRef, useEffect } from "react";
+import "./MovieCard.css";
 import { usePathname } from "next/navigation";
 import useScrollDetection from "../hooks/useScrollDetection";
 import useIntersectionObserver from "../hooks/useIntersectionObserver";
@@ -120,12 +121,10 @@ const CircularRating = ({ rating, size = 32 }) => {
 
   return (
     <div
-      className="relative flex items-center justify-center bg-black/70 rounded-full shadow-lg"
+      className="relative flex items-center justify-center bg-black/70 rounded-full shadow-lg circular-rating-container"
       style={{
         width: size,
         height: size,
-        boxShadow:
-          "0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4)",
       }}
     >
       <svg className="transform -rotate-90" width={size} height={size}>
@@ -425,10 +424,9 @@ const MovieCard = memo(({
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
-      } border border-transparent hover:border-gray-600`}
-      style={{
-        ...(cardShadowsEnabled ? { boxShadow: "6px 5px 7px black" } : {}),
-      }}
+      } border border-transparent hover:border-gray-600 ${
+        cardShadowsEnabled ? "movie-card-shadow" : ""
+      }`}
     >
       <div
         className={`relative overflow-hidden ${
@@ -464,26 +462,9 @@ const MovieCard = memo(({
             {movie.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="inline-block px-2 py-1 rounded-full text-xs font-semibold"
-                style={{
-                  width: "fit-content",
-                  minWidth: "auto",
-                  background: "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-                  boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-                  borderTop: "1px solid rgb(84, 84, 84)",
-                  letterSpacing: '0.025em',
-                }}
+                className="movie-tag"
               >
-                <span
-                  style={{
-                    // Перламутровый градиент для текста из PositionIcon1
-                    color: '#FFFFFF', // Fallback цвет
-                    backgroundImage: 'linear-gradient(135deg, #858CF0 -1.21%, #75C3F0 6.32%, #6EDBF0 11.63%, #7BACF0 18.09%, #848CF0 24.2%, #C28DF8 33.17%, #BAA5BE 39.59%, #C6BAC9 46.58%, #EBE7EC 54.28%, #FFFFFF 60.78%, #EAEAEA 66.37%, #BDB8BA 75.3%, #B9B2B5 79.29%, #F2DFF2 90.2%, #E6D6E4 95.95%, #D0C4C8 101.78%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
+                <span className="movie-tag-text">
                   {tag}
                 </span>
               </span>
@@ -524,41 +505,23 @@ const MovieCard = memo(({
         {/* Normal Hover Overlay - только кнопка плей */}
         {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
           <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center"
-            style={{
-              background: (() => {
-                // Если цветное затемнение отключено, используем разные цвета в зависимости от страницы
-                if (!coloredHoverEnabled) {
-                  // Розовый цвет для страницы мультфильмов
-                  if (pathname && pathname.includes('cartoons')) {
-                    return "rgba(255, 32, 143, 0.486)";
-                  }
-                  // Синий цвет для остальных страниц
-                  return "rgba(75, 147, 255, 0.56)";
-                }
-
-                if (!movie.rating)
-                  return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
-
-                const numRating = parseFloat(movie.rating);
-
-                if (numRating < 5.5) {
-                  // Красноватое для плохих фильмов
-                  return "linear-gradient(to top, rgba(139,0,0,0.7) 0%, rgba(139,0,0,0.4) 50%, transparent 100%)";
-                } else if (numRating >= 5.6 && numRating < 7.5) {
-                  // Серое для средних
-                  return "linear-gradient(to top, rgba(75,85,99,0.7) 0%, rgba(75,85,99,0.4) 50%, transparent 100%)";
-                } else if (numRating >= 7.5 && numRating < 8.3) {
-                  // Зеленоватое для хороших
-                  return "linear-gradient(to top, rgba(34,139,34,0.7) 0%, rgba(34,139,34,0.4) 50%, transparent 100%)";
-                } else if (numRating >= 8.3 && numRating <= 10) {
-                  // Яркое зеленое для шедевров
-                  return "linear-gradient(to top, rgba(50,205,50,0.7) 0%, rgba(50,205,50,0.4) 50%, transparent 100%)";
-                }
-
-                return "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)";
-              })(),
-            }}
+            className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center ${
+              !coloredHoverEnabled
+                ? pathname && pathname.includes('cartoons')
+                  ? "hover-overlay-cartoons"
+                  : "hover-overlay-default"
+                : !movie.rating
+                ? "hover-overlay-no-rating"
+                : parseFloat(movie.rating) < 5.5
+                ? "hover-overlay-poor"
+                : parseFloat(movie.rating) >= 5.6 && parseFloat(movie.rating) < 7.5
+                ? "hover-overlay-average"
+                : parseFloat(movie.rating) >= 7.5 && parseFloat(movie.rating) < 8.3
+                ? "hover-overlay-good"
+                : parseFloat(movie.rating) >= 8.3 && parseFloat(movie.rating) <= 10
+                ? "hover-overlay-excellent"
+                : "hover-overlay-no-rating"
+            }`}
           >
             <div className="transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
               <button
@@ -669,17 +632,8 @@ const MovieCard = memo(({
                     movie.rating
                   );
                   return (
-                    <div
-                      className="bg-black/70 rounded-full p-1.5 flex items-center justify-center"
-                      style={{
-                        background:
-                          "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-                        boxShadow:
-                          "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-                        borderTop: "1px solid rgb(84, 84, 84)",
-                      }}
-                    >
-                      <IconComponent className={`w-4 h-4 ${color}`} />
+                    <div className="rating-icon-container">
+                      <IconComponent className="rating-icon" />
                     </div>
                   );
                 })()
@@ -825,12 +779,7 @@ const MovieCard = memo(({
 
             {/* Колонка с информацией справа */}
             <div className="flex flex-col justify-center">
-              <h3 className="text-sm font-medium line-clamp-1 mb-1 text-white group-hover:text-transparent" style={{
-                // Перламутровый градиент только при hover на карточку
-                backgroundImage: 'linear-gradient(135deg, #858CF0 -1.21%, #75C3F0 6.32%, #6EDBF0 11.63%, #7BACF0 18.09%, #848CF0 24.2%, #C28DF8 33.17%, #BAA5BE 39.59%, #C6BAC9 46.58%, #EBE7EC 54.28%, #FFFFFF 60.78%, #EAEAEA 66.37%, #BDB8BA 75.3%, #B9B2B5 79.29%, #F2DFF2 90.2%, #E6D6E4 95.95%, #D0C4C8 101.78%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-              }} 
+              <h3 className="movie-title-gradient"
               onMouseEnter={(e) => {
                 e.target.style.WebkitTextFillColor = 'transparent';
               }}
