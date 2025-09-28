@@ -102,14 +102,29 @@
   border-top: 1px solid rgb(84, 84, 84);
 }
 
-.rating-icon {
+/* Rating Icon Color Classes */
+.rating-icon-red {
   width: 1rem;
   height: 1rem;
-  color: #FFFFFF;
-  background-image: linear-gradient(135deg, #858CF0 -1.21%, #75C3F0 6.32%, #6EDBF0 11.63%, #7BACF0 18.09%, #848CF0 24.2%, #C28DF8 33.17%, #BAA5BE 39.59%, #C6BAC9 46.58%, #EBE7EC 54.28%, #FFFFFF 60.78%, #EAEAEA 66.37%, #BDB8BA 75.3%, #B9B2B5 79.29%, #F2DFF2 90.2%, #E6D6E4 95.95%, #D0C4C8 101.78%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ef4444; /* red-500 */
+}
+
+.rating-icon-gray {
+  width: 1rem;
+  height: 1rem;
+  color: #e5e7eb; /* gray-200 */
+}
+
+.rating-icon-green {
+  width: 1rem;
+  height: 1rem;
+  color: #22c55e; /* green-500 */
+}
+
+.rating-icon-green-light {
+  width: 1rem;
+  height: 1rem;
+  color: #4ade80; /* green-400 */
 }
 
 /* Performance Optimization */
@@ -122,6 +137,10 @@
 
 .movie-tag,
 .movie-title-gradient,
-.rating-icon-container {
+.rating-icon-container,
+.rating-icon-red,
+.rating-icon-gray,
+.rating-icon-green,
+.rating-icon-green-light {
   transition: all 0.2s ease-out;
 }

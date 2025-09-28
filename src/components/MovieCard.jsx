@@ -631,9 +631,16 @@ const MovieCard = memo(({
                   const { icon: IconComponent, color } = getRatingIcon(
                     movie.rating
                   );
+                  // Преобразуем Tailwind класс в наш CSS класс
+                  const iconColorClass = 
+                    color === 'text-red-500' ? 'rating-icon-red' :
+                    color === 'text-gray-200' ? 'rating-icon-gray' :
+                    color === 'text-green-500' ? 'rating-icon-green' :
+                    color === 'text-green-400' ? 'rating-icon-green-light' :
+                    'rating-icon-gray'; // fallback
                   return (
                     <div className="rating-icon-container">
-                      <IconComponent className="rating-icon" />
+                      <IconComponent className={iconColorClass} />
                     </div>
                   );
                 })()
