@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { createPortal } from "react-dom";
 import { X, Play, Loader2, Heart } from "lucide-react";
 import {
   AlertDialog,
@@ -24,6 +25,7 @@ import { useFavorites } from "../contexts/FavoritesContext";
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
   const defaultPlayer = settingsContext?.defaultPlayer || "renewall";
+  const backdropEnabled = settingsContext?.backdropEnabled || false;
   const {
     addToFavorites,
     removeFromFavorites,
@@ -599,255 +601,282 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={handleClose}>
-      <AlertDialogContent
-        className="player-modal max-w-6xl max-h-[90vh] overflow-y-auto border-2 border-gray-300/40"
-        style={{
-          background: "#202020",
-          boxShadow: "inset 0px 11px 20px 5px black",
-        }}
-        onPointerDownOutside={(e) => {
-          console.log("Клик вне модалки");
-          e.preventDefault();
-          forceClose();
-        }}
-        onEscapeKeyDown={(e) => {
-          console.log("Нажатие Escape");
-          e.preventDefault();
-          forceClose();
-        }}
-      >
-        <AlertDialogHeader>
-          <div className="flex items-center justify-between">
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Play className="w-5 h-5" />
-              <TextShimmer duration={3} spread={1.5}>
-                {movieWithBackdrop?.title || "Выбор плеера"}
-              </TextShimmer>
-            </AlertDialogTitle>
-            <div className="flex items-center gap-2">
-              {/* Кнопка добавления в избранное */}
-              <Button
-                onClick={handleFavoriteToggle}
-                variant="ghost"
-                size="sm"
-                className={`h-6 w-6 p-0 transition-colors ${
-                  isFavorite(movieWithBackdrop?.id) ||
-                  isInFavoritesOrPending(movieWithBackdrop?.id)
-                    ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                    : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-                }`}
-                title={
-                  isFavorite(movieWithBackdrop?.id)
-                    ? "Удалить из избранного"
-                    : "Добавить в избранное"
-                }
-              >
-                <Heart
-                  className={`w-4 h-4 transition-all ${
+    <>
+      {/* Backdrop фон только если включено в настройках и есть именно backdrop (не poster) у фильма - рендерим в body через портал */}
+      {isOpen &&
+        backdropEnabled &&
+        movieWithBackdrop?.backdrop &&
+        movieWithBackdrop.backdrop !== movieWithBackdrop?.poster &&
+        createPortal(
+          <div
+            className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${movieWithBackdrop.backdrop})`,
+              filter: "brightness(0.3) blur(1px)",
+              zIndex: 89,
+            }}
+          />,
+          document.body
+        )}
+
+      <AlertDialog open={isOpen} onOpenChange={handleClose}>
+        <AlertDialogContent
+          className="player-modal max-w-6xl max-h-[90vh] overflow-y-auto border-2 border-gray-300/40"
+          style={{
+            background: "#202020",
+            boxShadow: "inset 0px 11px 20px 5px black",
+          }}
+          onPointerDownOutside={(e) => {
+            console.log("Клик вне модалки");
+            e.preventDefault();
+            forceClose();
+          }}
+          onEscapeKeyDown={(e) => {
+            console.log("Нажатие Escape");
+            e.preventDefault();
+            forceClose();
+          }}
+        >
+          <AlertDialogHeader>
+            <div className="flex items-center justify-between">
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Play className="w-5 h-5" />
+                <TextShimmer duration={3} spread={1.5}>
+                  {movieWithBackdrop?.title || "Выбор плеера"}
+                </TextShimmer>
+              </AlertDialogTitle>
+              <div className="flex items-center gap-2">
+                {/* Кнопка добавления в избранное */}
+                <Button
+                  onClick={handleFavoriteToggle}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-6 w-6 p-0 transition-colors ${
                     isFavorite(movieWithBackdrop?.id) ||
                     isInFavoritesOrPending(movieWithBackdrop?.id)
-                      ? "fill-current"
-                      : ""
+                      ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                      : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
                   }`}
-                />
-                <span className="sr-only">
-                  {isFavorite(movieWithBackdrop?.id)
-                    ? "Удалить из избранного"
-                    : "Добавить в избранное"}
-                </span>
-              </Button>
-              {/* Кнопка закрытия */}
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  forceClose();
-                }}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 hover:bg-destructive/10"
-                title="Закрыть модальное окно полностью"
-              >
-                <X className="w-4 h-4" />
-                <span className="sr-only">
-                  Закрыть модальное окно полностью
-                </span>
-              </Button>
-            </div>
-          </div>
-          <AlertDialogDescription>
-            Выберите плеер для просмотра{" "}
-            {movieWithBackdrop?.title
-              ? `"${movieWithBackdrop.title}"`
-              : "фильма"}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        {/* Отображение ошибки */}
-        {error && (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-            <p className="text-destructive text-sm">{error}</p>
-          </div>
-        )}
-
-        {/* Информация о фильме */}
-        {movieWithBackdrop && (
-          <div
-            className="flex gap-4 p-4 bg-muted/50 rounded-lg"
-            style={{
-              background:
-                "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-              boxShadow:
-                "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-              borderTop: "1px solid rgb(84, 84, 84)",
-            }}
-          >
-            <img
-              src={
-                movieWithBackdrop.poster ||
-                "https://kinohost.web.app/no_poster.png"
-              }
-              alt={movieWithBackdrop.title}
-              className="w-20 h-30 md:w-24 md:h-36 object-cover rounded"
-            />
-            <div className="flex-1">
-              {movieWithBackdrop.description ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {truncateText(
-                      movieWithBackdrop.description,
-                      MAX_DESCRIPTION_LENGTH
-                    )}
-                  </p>
-                  {shouldShowMoreLink(movieWithBackdrop.description) && (
-                    <Link
-                      onClick={() => setIsDescriptionModalOpen(true)}
-                      className="text-sm text-white hover:text-gray-300"
-                    >
-                      Подробнее
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  Описания нет
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Плеер или выбор плеера */}
-        <div className="space-y-4">
-          <Tabs
-            value={activeTab}
-            onValueChange={handleTabChange}
-            className="w-full"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm text-muted-foreground">Выберите плеер:</h3>
-              <TabsList className="w-fit">
-                <TabsTrigger
-                  value="renewall"
-                  className="flex items-center gap-2"
+                  title={
+                    isFavorite(movieWithBackdrop?.id)
+                      ? "Удалить из избранного"
+                      : "Добавить в избранное"
+                  }
                 >
-                  Плеер 1
-                  {activeTab === "renewall" &&
-                  isTabLoading &&
-                  !loadedPlayers.renewall ? (
-                    <Loader2 className="w-3 h-3 animate-spin ml-2" />
-                  ) : franchiseDetails?.quality ? (
-                    <span className="text-xs bg-black text-white px-2 py-1 rounded ml-2">
-                      {franchiseDetails.quality}
-                    </span>
-                  ) : null}
-                </TabsTrigger>
-                <TabsTrigger value="turbo" className="flex items-center gap-2">
-                  Плеер 2
-                </TabsTrigger>
-                <TabsTrigger value="alloha" className="flex items-center gap-2">
-                  Плеер 3
-                </TabsTrigger>
-              </TabsList>
+                  <Heart
+                    className={`w-4 h-4 transition-all ${
+                      isFavorite(movieWithBackdrop?.id) ||
+                      isInFavoritesOrPending(movieWithBackdrop?.id)
+                        ? "fill-current"
+                        : ""
+                    }`}
+                  />
+                  <span className="sr-only">
+                    {isFavorite(movieWithBackdrop?.id)
+                      ? "Удалить из избранного"
+                      : "Добавить в избранное"}
+                  </span>
+                </Button>
+                {/* Кнопка закрытия */}
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    forceClose();
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-destructive/10"
+                  title="Закрыть модальное окно полностью"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="sr-only">
+                    Закрыть модальное окно полностью
+                  </span>
+                </Button>
+              </div>
             </div>
+            <AlertDialogDescription>
+              Выберите плеер для просмотра{" "}
+              {movieWithBackdrop?.title
+                ? `"${movieWithBackdrop.title}"`
+                : "фильма"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-            {!activeTab && (
-              <div
-                className="flex items-center justify-center p-8"
-                style={{ aspectRatio: "16/9" }}
-              ></div>
-            )}
+          {/* Отображение ошибки */}
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <p className="text-destructive text-sm">{error}</p>
+            </div>
+          )}
 
-            {activeTab === "renewall" && (
-              <TabsContent value="renewall" className="mt-0">
-                {isTabLoading ? (
-                  <div
-                    className="flex items-center justify-center p-8"
-                    style={{ aspectRatio: "16/9" }}
-                  >
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          {/* Информация о фильме */}
+          {movieWithBackdrop && (
+            <div
+              className="flex gap-4 p-4 bg-muted/50 rounded-lg"
+              style={{
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
+              }}
+            >
+              <img
+                src={
+                  movieWithBackdrop.poster ||
+                  "https://kinohost.web.app/no_poster.png"
+                }
+                alt={movieWithBackdrop.title}
+                className="w-20 h-30 md:w-24 md:h-36 object-cover rounded"
+              />
+              <div className="flex-1">
+                {movieWithBackdrop.description ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {truncateText(
+                        movieWithBackdrop.description,
+                        MAX_DESCRIPTION_LENGTH
+                      )}
+                    </p>
+                    {shouldShowMoreLink(movieWithBackdrop.description) && (
+                      <Link
+                        onClick={() => setIsDescriptionModalOpen(true)}
+                        className="text-sm text-white hover:text-gray-300"
+                      >
+                        Подробнее
+                      </Link>
+                    )}
                   </div>
-                ) : isPlayerVisible && selectedPlayer === "renewall" ? (
-                  renderPlayer()
                 ) : (
-                  <PlayerPreview
-                    playerType="renewall"
-                    onPlay={() => handlePlayClick("renewall")}
-                  />
+                  <p className="text-sm text-muted-foreground italic">
+                    Описания нет
+                  </p>
                 )}
-              </TabsContent>
-            )}
+              </div>
+            </div>
+          )}
 
-            {activeTab === "turbo" && (
-              <TabsContent value="turbo" className="mt-0">
-                {isTabLoading ? (
-                  <div
-                    className="flex items-center justify-center p-8"
-                    style={{ aspectRatio: "16/9" }}
+          {/* Плеер или выбор плеера */}
+          <div className="space-y-4">
+            <Tabs
+              value={activeTab}
+              onValueChange={handleTabChange}
+              className="w-full"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm text-muted-foreground">
+                  Выберите плеер:
+                </h3>
+                <TabsList className="w-fit">
+                  <TabsTrigger
+                    value="renewall"
+                    className="flex items-center gap-2"
                   >
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : isPlayerVisible && selectedPlayer === "turbo" ? (
-                  renderPlayer()
-                ) : (
-                  <PlayerPreview
-                    playerType="turbo"
-                    onPlay={() => handlePlayClick("turbo")}
-                  />
-                )}
-              </TabsContent>
-            )}
-
-            {activeTab === "alloha" && (
-              <TabsContent value="alloha" className="mt-0">
-                {isTabLoading ? (
-                  <div
-                    className="flex items-center justify-center p-8"
-                    style={{ aspectRatio: "16/9" }}
+                    Плеер 1
+                    {activeTab === "renewall" &&
+                    isTabLoading &&
+                    !loadedPlayers.renewall ? (
+                      <Loader2 className="w-3 h-3 animate-spin ml-2" />
+                    ) : franchiseDetails?.quality ? (
+                      <span className="text-xs bg-black text-white px-2 py-1 rounded ml-2">
+                        {franchiseDetails.quality}
+                      </span>
+                    ) : null}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="turbo"
+                    className="flex items-center gap-2"
                   >
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                  </div>
-                ) : isPlayerVisible && selectedPlayer === "alloha" ? (
-                  renderPlayer()
-                ) : (
-                  <PlayerPreview
-                    playerType="alloha"
-                    onPlay={() => handlePlayClick("alloha")}
-                  />
-                )}
-              </TabsContent>
-            )}
-          </Tabs>
-        </div>
-      </AlertDialogContent>
+                    Плеер 2
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="alloha"
+                    className="flex items-center gap-2"
+                  >
+                    Плеер 3
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-      {/* Модалка с полным описанием */}
-      <FullDescriptionModal
-        movie={movieWithBackdrop}
-        isOpen={isDescriptionModalOpen}
-        onClose={() => setIsDescriptionModalOpen(false)}
-      />
-    </AlertDialog>
+              {!activeTab && (
+                <div
+                  className="flex items-center justify-center p-8"
+                  style={{ aspectRatio: "16/9" }}
+                ></div>
+              )}
+
+              {activeTab === "renewall" && (
+                <TabsContent value="renewall" className="mt-0">
+                  {isTabLoading ? (
+                    <div
+                      className="flex items-center justify-center p-8"
+                      style={{ aspectRatio: "16/9" }}
+                    >
+                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : isPlayerVisible && selectedPlayer === "renewall" ? (
+                    renderPlayer()
+                  ) : (
+                    <PlayerPreview
+                      playerType="renewall"
+                      onPlay={() => handlePlayClick("renewall")}
+                    />
+                  )}
+                </TabsContent>
+              )}
+
+              {activeTab === "turbo" && (
+                <TabsContent value="turbo" className="mt-0">
+                  {isTabLoading ? (
+                    <div
+                      className="flex items-center justify-center p-8"
+                      style={{ aspectRatio: "16/9" }}
+                    >
+                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : isPlayerVisible && selectedPlayer === "turbo" ? (
+                    renderPlayer()
+                  ) : (
+                    <PlayerPreview
+                      playerType="turbo"
+                      onPlay={() => handlePlayClick("turbo")}
+                    />
+                  )}
+                </TabsContent>
+              )}
+
+              {activeTab === "alloha" && (
+                <TabsContent value="alloha" className="mt-0">
+                  {isTabLoading ? (
+                    <div
+                      className="flex items-center justify-center p-8"
+                      style={{ aspectRatio: "16/9" }}
+                    >
+                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : isPlayerVisible && selectedPlayer === "alloha" ? (
+                    renderPlayer()
+                  ) : (
+                    <PlayerPreview
+                      playerType="alloha"
+                      onPlay={() => handlePlayClick("alloha")}
+                    />
+                  )}
+                </TabsContent>
+              )}
+            </Tabs>
+          </div>
+        </AlertDialogContent>
+
+        {/* Модалка с полным описанием */}
+        <FullDescriptionModal
+          movie={movieWithBackdrop}
+          isOpen={isDescriptionModalOpen}
+          onClose={() => setIsDescriptionModalOpen(false)}
+        />
+      </AlertDialog>
+    </>
   );
 };
 

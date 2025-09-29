@@ -37,6 +37,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
     togglePageStyles,
     showTags,
     toggleShowTags,
+    backdropEnabled,
+    toggleBackdrop,
     defaultPlayer,
     setDefaultPlayer,
   } = settingsContext;
@@ -53,6 +55,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
   const [tempPageStylesEnabled, setTempPageStylesEnabled] =
     useState(pageStylesEnabled);
   const [tempShowTags, setTempShowTags] = useState(showTags);
+  const [tempBackdropEnabled, setTempBackdropEnabled] =
+    useState(backdropEnabled);
   const [tempDefaultPlayer, setTempDefaultPlayer] = useState(defaultPlayer);
   const [activeTab, setActiveTab] = useState("display");
 
@@ -66,6 +70,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
       setTempColoredHoverEnabled(coloredHoverEnabled);
       setTempPageStylesEnabled(pageStylesEnabled);
       setTempShowTags(showTags);
+      setTempBackdropEnabled(backdropEnabled);
       setTempDefaultPlayer(defaultPlayer);
     }
   }, [
@@ -77,6 +82,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     coloredHoverEnabled,
     pageStylesEnabled,
     showTags,
+    backdropEnabled,
     defaultPlayer,
   ]);
 
@@ -103,6 +109,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (tempShowTags !== showTags) {
       toggleShowTags();
     }
+    if (tempBackdropEnabled !== backdropEnabled) {
+      toggleBackdrop();
+    }
     if (tempDefaultPlayer !== defaultPlayer) {
       setDefaultPlayer(tempDefaultPlayer);
     }
@@ -118,6 +127,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     setTempColoredHoverEnabled(coloredHoverEnabled);
     setTempPageStylesEnabled(pageStylesEnabled);
     setTempShowTags(showTags);
+    setTempBackdropEnabled(backdropEnabled);
     setTempDefaultPlayer(defaultPlayer);
     onClose();
   };
@@ -148,6 +158,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const handleToggleShowTagsTemp = () => {
     setTempShowTags(!tempShowTags);
+  };
+
+  const handleToggleBackdropTemp = () => {
+    setTempBackdropEnabled(!tempBackdropEnabled);
   };
 
   return (
@@ -520,6 +534,53 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
                       tempShowTags
+                        ? "translate-x-6 bg-sidebar-primary-foreground"
+                        : "translate-x-1 bg-white"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Backdrop Background Toggle */}
+              <div
+                onClick={handleToggleBackdropTemp}
+                className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer mt-3 ${
+                  tempBackdropEnabled
+                    ? "bg-sidebar-primary border-sidebar-primary text-sidebar-primary-foreground"
+                    : "bg-muted/30"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <label
+                    className={`text-sm font-medium mb-1 ${
+                      tempBackdropEnabled
+                        ? "text-sidebar-primary-foreground"
+                        : ""
+                    }`}
+                  >
+                    Backdrop фон плеера
+                  </label>
+                  <p
+                    className={`text-xs ${
+                      tempBackdropEnabled
+                        ? "text-sidebar-primary-foreground/80"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    Показывать backdrop фон под модальным окном плеера
+                  </p>
+                </div>
+
+                <button
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-primary focus:ring-offset-2 ${
+                    tempBackdropEnabled
+                      ? "bg-sidebar-primary"
+                      : "bg-muted-foreground/30"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-sm ${
+                      tempBackdropEnabled
                         ? "translate-x-6 bg-sidebar-primary-foreground"
                         : "translate-x-1 bg-white"
                     }`}
