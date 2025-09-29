@@ -494,9 +494,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 <div className="flex flex-col">
                   <label
                     className={`text-sm font-medium mb-1 ${
-                      tempShowTags
-                        ? "text-sidebar-primary-foreground"
-                        : ""
+                      tempShowTags ? "text-sidebar-primary-foreground" : ""
                     }`}
                   >
                     Показывать теги качества
@@ -566,7 +564,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             : ""
                         }`}
                       >
-                        Renewall
+                        Плеер 1
                       </label>
                       <p
                         className={`text-xs ${
@@ -610,7 +608,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             : ""
                         }`}
                       >
-                        Turbo
+                        Плеер 2
                       </label>
                       <p
                         className={`text-xs ${
@@ -654,7 +652,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             : ""
                         }`}
                       >
-                        Alloha
+                        Плеер 3
                       </label>
                       <p
                         className={`text-xs ${

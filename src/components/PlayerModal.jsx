@@ -8,7 +8,12 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import { Link } from "../../components/ui/link";
 import { TextShimmer } from "../../components/ui/text-shimmer";
 import VokinoAPI from "../services/api";
@@ -19,26 +24,33 @@ import { useFavorites } from "../contexts/FavoritesContext";
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
   const defaultPlayer = settingsContext?.defaultPlayer || "renewall";
-  const { addToFavorites, removeFromFavorites, isFavorite, isInFavoritesOrPending } = useFavorites();
+  const {
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite,
+    isInFavoritesOrPending,
+  } = useFavorites();
 
   // Функция для форматирования времени из HH:MM в читаемый формат
   const formatDuration = (duration) => {
     if (!duration) return null;
-    
+
     let totalMinutes = 0;
-    
+
     // Если duration числовой формат
-    if (typeof duration === 'number') {
+    if (typeof duration === "number") {
       totalMinutes = duration;
-    } else if (typeof duration === 'string') {
+    } else if (typeof duration === "string") {
       // Если уже содержит "мин" или "ч", возвращаем как есть
-      if (duration.includes('мин') || duration.includes('ч')) {
+      if (duration.includes("мин") || duration.includes("ч")) {
         return duration;
       }
-      
+
       // Если в формате HH:MM
-      if (duration.includes(':')) {
-        const [hours, minutes] = duration.split(':').map(num => parseInt(num, 10));
+      if (duration.includes(":")) {
+        const [hours, minutes] = duration
+          .split(":")
+          .map((num) => parseInt(num, 10));
         totalMinutes = hours * 60 + minutes;
       } else {
         // Если просто число в строке
@@ -52,14 +64,14 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     } else {
       return duration;
     }
-    
+
     // Форматируем в часы и минуты
     if (totalMinutes < 60) {
       return `${totalMinutes} мин`;
     } else {
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      
+
       if (minutes === 0) {
         return `${hours}ч`;
       } else {
@@ -144,18 +156,18 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
   // Загружаем детальную информацию фильма с backdrop
   const loadMovieDetails = async () => {
-    console.log('=== loadMovieDetails ВЫЗВАНА ===');
-    console.log('movie объект:', movie);
-    console.log('movie.ident:', movie?.ident);
-    console.log('movie.id:', movie?.id);
-    
+    console.log("=== loadMovieDetails ВЫЗВАНА ===");
+    console.log("movie объект:", movie);
+    console.log("movie.ident:", movie?.ident);
+    console.log("movie.id:", movie?.id);
+
     // Проверяем наличие ident или id для детального API
     const identifier = movie?.ident || movie?.id;
     if (!identifier) {
-      console.log('Нет ни ident, ни id, используем исходный movie объект');
+      console.log("Нет ни ident, ни id, используем исходный movie объект");
       const updatedMovie = {
         ...movie,
-        backdrop: movie?.backdrop || movie?.poster
+        backdrop: movie?.backdrop || movie?.poster,
       };
       setMovieWithBackdrop(updatedMovie);
       setIsBackdropLoading(false);
@@ -163,55 +175,68 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     }
 
     try {
-      console.log('Вызываем getMovieDetails с identifier:', identifier);
+      console.log("Вызываем getMovieDetails с identifier:", identifier);
       const details = await VokinoAPI.getMovieDetails(identifier);
-      console.log('=== ПОЛНЫЙ ОТВЕТ ОТ getMovieDetails ===');
-      console.log('Весь объект details:', JSON.stringify(details, null, 2));
-      console.log('details.details:', details?.details);
-      console.log('Все поля в details.details:', Object.keys(details?.details || {}));
-      console.log('duration поле:', details?.details?.duration);
-      console.log('runtime поле:', details?.details?.runtime);
-      console.log('length поле:', details?.details?.length);
-      console.log('time поле:', details?.details?.time);
-      console.log('bg_poster:', details?.details?.bg_poster);
+      console.log("=== ПОЛНЫЙ ОТВЕТ ОТ getMovieDetails ===");
+      console.log("Весь объект details:", JSON.stringify(details, null, 2));
+      console.log("details.details:", details?.details);
+      console.log(
+        "Все поля в details.details:",
+        Object.keys(details?.details || {})
+      );
+      console.log("duration поле:", details?.details?.duration);
+      console.log("runtime поле:", details?.details?.runtime);
+      console.log("length поле:", details?.details?.length);
+      console.log("time поле:", details?.details?.time);
+      console.log("bg_poster:", details?.details?.bg_poster);
       const rawBackdrop = details?.details?.bg_poster?.backdrop;
-      console.log('rawBackdrop:', rawBackdrop);
-      
+      console.log("rawBackdrop:", rawBackdrop);
+
       // Валидируем backdrop URL - проверяем что это корректный URL
       let validBackdrop = null;
-      if (rawBackdrop && 
-          typeof rawBackdrop === 'string' && 
-          rawBackdrop.startsWith('http') && 
-          !rawBackdrop.includes('undefined') && 
-          !rawBackdrop.includes('null') &&
-          !rawBackdrop.includes('httpsnull') &&
-          rawBackdrop.length > 10) { // Минимальная длина валидного URL
+      if (
+        rawBackdrop &&
+        typeof rawBackdrop === "string" &&
+        rawBackdrop.startsWith("http") &&
+        !rawBackdrop.includes("undefined") &&
+        !rawBackdrop.includes("null") &&
+        !rawBackdrop.includes("httpsnull") &&
+        rawBackdrop.length > 10
+      ) {
+        // Минимальная длина валидного URL
         validBackdrop = rawBackdrop;
       } else {
         // Пробуем использовать wide_poster как альтернативу
         const wideBackdrop = details?.details?.wide_poster;
-        if (wideBackdrop && 
-            typeof wideBackdrop === 'string' && 
-            wideBackdrop.startsWith('http') && 
-            !wideBackdrop.includes('undefined') && 
-            !wideBackdrop.includes('null') &&
-            !wideBackdrop.includes('httpsnull') &&
-            wideBackdrop.length > 10) {
+        if (
+          wideBackdrop &&
+          typeof wideBackdrop === "string" &&
+          wideBackdrop.startsWith("http") &&
+          !wideBackdrop.includes("undefined") &&
+          !wideBackdrop.includes("null") &&
+          !wideBackdrop.includes("httpsnull") &&
+          wideBackdrop.length > 10
+        ) {
           validBackdrop = wideBackdrop;
         }
       }
-      
-      console.log('validBackdrop после валидации:', validBackdrop);
-      
+
+      console.log("validBackdrop после валидации:", validBackdrop);
+
       // Обновляем фильм с backdrop из детального API или fallback
       const updatedMovie = {
         ...movie,
         backdrop: validBackdrop || movie?.backdrop || movie?.poster,
-        duration: details?.details?.duration || details?.details?.runtime || details?.details?.length || details?.details?.time || movie?.duration
+        duration:
+          details?.details?.duration ||
+          details?.details?.runtime ||
+          details?.details?.length ||
+          details?.details?.time ||
+          movie?.duration,
       };
-      console.log('=== ОБНОВЛЕННЫЙ ОБЪЕКТ ФИЛЬМА ===');
-      console.log('updatedMovie.duration:', updatedMovie.duration);
-      console.log('Финальный updatedMovie:', updatedMovie);
+      console.log("=== ОБНОВЛЕННЫЙ ОБЪЕКТ ФИЛЬМА ===");
+      console.log("updatedMovie.duration:", updatedMovie.duration);
+      console.log("Финальный updatedMovie:", updatedMovie);
       setMovieWithBackdrop(updatedMovie);
       setIsBackdropLoading(false);
     } catch (error) {
@@ -219,7 +244,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       // В случае ошибки используем исходный объект с fallback логикой
       const updatedMovie = {
         ...movie,
-        backdrop: movie?.backdrop || movie?.poster
+        backdrop: movie?.backdrop || movie?.poster,
       };
       setMovieWithBackdrop(updatedMovie);
       setIsBackdropLoading(false);
@@ -233,10 +258,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         try {
           // Для фильмов и сериалов не показываем постер сразу, ждем backdrop
           setIsBackdropLoading(true);
-          
+
           // Загружаем детальную информацию фильма с backdrop
           await loadMovieDetails();
-          
+
           // Получаем kp_id если еще не загружен
           if (!kpId) {
             const movieKpId = await fetchKpId();
@@ -327,7 +352,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     // Проверяем наличие ident сначала, затем id как запасной вариант
     let identifier = null;
     let identifierType = null;
-    
+
     if (movie?.ident && movie.ident !== undefined && movie.ident !== null) {
       identifier = movie.ident;
       identifierType = "ident";
@@ -458,9 +483,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   // Обработчик добавления/удаления из избранного
   const handleFavoriteToggle = (e) => {
     e.stopPropagation();
-    
+
     if (!movieWithBackdrop) return;
-    
+
     if (isFavorite(movieWithBackdrop.id)) {
       removeFromFavorites(movieWithBackdrop.id);
     } else {
@@ -474,7 +499,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     // Если backdrop загружается, показываем лоадер вместо постера
     if (isBackdropLoading) {
       return (
-        <div 
+        <div
           className="relative w-full flex items-center justify-center bg-muted/20 rounded-lg"
           style={{ aspectRatio: "16/9" }}
         >
@@ -482,45 +507,52 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
         </div>
       );
     }
-    
-    const backdropUrl = movieWithBackdrop?.backdrop || movieWithBackdrop?.poster || "https://kinohost.web.app/no_poster.png";
-    console.log('PlayerPreview - backdropUrl:', backdropUrl);
-    
+
+    const backdropUrl =
+      movieWithBackdrop?.backdrop ||
+      movieWithBackdrop?.poster ||
+      "https://kinohost.web.app/no_poster.png";
+    console.log("PlayerPreview - backdropUrl:", backdropUrl);
+
     return (
-      <div 
+      <div
         className="relative w-full cursor-pointer group overflow-hidden rounded-lg"
         style={{ aspectRatio: "16/9" }}
         onClick={onPlay}
       >
         {/* Backdrop изображение */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
+          style={{
             backgroundImage: `url(${backdropUrl})`,
-            filter: 'brightness(0.7)'
+            filter: "brightness(0.7)",
           }}
         />
-        
+
         {/* Градиент оверлей */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
+
         {/* Кнопка Play */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 group-hover:bg-white/30 transition-all duration-300 group-hover:scale-110">
             <Play className="w-8 h-8 text-white fill-white" />
           </div>
         </div>
-        
+
         {/* Информация о фильме */}
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex flex-col items-start">
-            <h3 className="text-white font-semibold text-lg">{movieWithBackdrop?.title}</h3>
+            <h3 className="text-white font-semibold text-lg">
+              {movieWithBackdrop?.title}
+            </h3>
             {movieWithBackdrop?.duration && (
-              <p className="text-white/80 text-sm">{formatDuration(movieWithBackdrop.duration)}</p>
+              <p className="text-white/80 text-sm">
+                {formatDuration(movieWithBackdrop.duration)}
+              </p>
             )}
           </div>
         </div>
-        
+
         {/* Hover эффект */}
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
       </div>
@@ -600,21 +632,29 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 variant="ghost"
                 size="sm"
                 className={`h-6 w-6 p-0 transition-colors ${
-                  isFavorite(movieWithBackdrop?.id) || isInFavoritesOrPending(movieWithBackdrop?.id)
+                  isFavorite(movieWithBackdrop?.id) ||
+                  isInFavoritesOrPending(movieWithBackdrop?.id)
                     ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
                     : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
                 }`}
-                title={isFavorite(movieWithBackdrop?.id) ? "Удалить из избранного" : "Добавить в избранное"}
+                title={
+                  isFavorite(movieWithBackdrop?.id)
+                    ? "Удалить из избранного"
+                    : "Добавить в избранное"
+                }
               >
-                <Heart 
+                <Heart
                   className={`w-4 h-4 transition-all ${
-                    isFavorite(movieWithBackdrop?.id) || isInFavoritesOrPending(movieWithBackdrop?.id)
+                    isFavorite(movieWithBackdrop?.id) ||
+                    isInFavoritesOrPending(movieWithBackdrop?.id)
                       ? "fill-current"
                       : ""
-                  }`} 
+                  }`}
                 />
                 <span className="sr-only">
-                  {isFavorite(movieWithBackdrop?.id) ? "Удалить из избранного" : "Добавить в избранное"}
+                  {isFavorite(movieWithBackdrop?.id)
+                    ? "Удалить из избранного"
+                    : "Добавить в избранное"}
                 </span>
               </Button>
               {/* Кнопка закрытия */}
@@ -629,13 +669,17 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 title="Закрыть модальное окно полностью"
               >
                 <X className="w-4 h-4" />
-                <span className="sr-only">Закрыть модальное окно полностью</span>
+                <span className="sr-only">
+                  Закрыть модальное окно полностью
+                </span>
               </Button>
             </div>
           </div>
           <AlertDialogDescription>
             Выберите плеер для просмотра{" "}
-            {movieWithBackdrop?.title ? `"${movieWithBackdrop.title}"` : "фильма"}
+            {movieWithBackdrop?.title
+              ? `"${movieWithBackdrop.title}"`
+              : "фильма"}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -659,7 +703,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
             }}
           >
             <img
-              src={movieWithBackdrop.poster || "https://kinohost.web.app/no_poster.png"}
+              src={
+                movieWithBackdrop.poster ||
+                "https://kinohost.web.app/no_poster.png"
+              }
               alt={movieWithBackdrop.title}
               className="w-20 h-30 md:w-24 md:h-36 object-cover rounded"
             />
@@ -667,7 +714,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
               {movieWithBackdrop.description ? (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {truncateText(movieWithBackdrop.description, MAX_DESCRIPTION_LENGTH)}
+                    {truncateText(
+                      movieWithBackdrop.description,
+                      MAX_DESCRIPTION_LENGTH
+                    )}
                   </p>
                   {shouldShowMoreLink(movieWithBackdrop.description) && (
                     <Link
@@ -701,7 +751,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                   value="renewall"
                   className="flex items-center gap-2"
                 >
-                  Renewall
+                  Плеер 1
                   {activeTab === "renewall" &&
                   isTabLoading &&
                   !loadedPlayers.renewall ? (
@@ -713,10 +763,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                   ) : null}
                 </TabsTrigger>
                 <TabsTrigger value="turbo" className="flex items-center gap-2">
-                  Turbo
+                  Плеер 2
                 </TabsTrigger>
                 <TabsTrigger value="alloha" className="flex items-center gap-2">
-                  Alloha
+                  Плеер 3
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -725,8 +775,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
               <div
                 className="flex items-center justify-center p-8"
                 style={{ aspectRatio: "16/9" }}
-              >
-              </div>
+              ></div>
             )}
 
             {activeTab === "renewall" && (
@@ -741,9 +790,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "renewall" ? (
                   renderPlayer()
                 ) : (
-                  <PlayerPreview 
-                    playerType="renewall" 
-                    onPlay={() => handlePlayClick("renewall")} 
+                  <PlayerPreview
+                    playerType="renewall"
+                    onPlay={() => handlePlayClick("renewall")}
                   />
                 )}
               </TabsContent>
@@ -761,9 +810,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "turbo" ? (
                   renderPlayer()
                 ) : (
-                  <PlayerPreview 
-                    playerType="turbo" 
-                    onPlay={() => handlePlayClick("turbo")} 
+                  <PlayerPreview
+                    playerType="turbo"
+                    onPlay={() => handlePlayClick("turbo")}
                   />
                 )}
               </TabsContent>
@@ -781,9 +830,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                 ) : isPlayerVisible && selectedPlayer === "alloha" ? (
                   renderPlayer()
                 ) : (
-                  <PlayerPreview 
-                    playerType="alloha" 
-                    onPlay={() => handlePlayClick("alloha")} 
+                  <PlayerPreview
+                    playerType="alloha"
+                    onPlay={() => handlePlayClick("alloha")}
                   />
                 )}
               </TabsContent>
