@@ -88,7 +88,12 @@ const SearchResultsSlider = ({
         apiMovie.rating ||
         "0.0",
       age: apiMovie.details?.age_rating || apiMovie.age || "0",
-      description: apiMovie.details?.about || apiMovie.about || apiMovie.details?.description || apiMovie.description || "",
+      description:
+        apiMovie.details?.about ||
+        apiMovie.about ||
+        apiMovie.details?.description ||
+        apiMovie.description ||
+        "",
       // Дополнительные поля для совместимости
       details: apiMovie.details || {},
     };
@@ -223,7 +228,7 @@ const SearchResultsSlider = ({
               )}
             </div>
           ))}
-          
+
           {/* Кнопка "Загрузить еще" */}
           {!isLoading && hasMoreResults && (
             <div className="w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] flex-shrink-0 flex items-center justify-center">
@@ -235,12 +240,16 @@ const SearchResultsSlider = ({
                 {isLoadingMore ? (
                   <>
                     <Loader className="w-6 h-6 animate-spin" />
-                    <span className="text-xs text-center px-2">Загрузка...</span>
+                    <span className="text-xs text-center px-2">
+                      Загрузка...
+                    </span>
                   </>
                 ) : (
                   <>
                     <ChevronRight className="w-6 h-6" />
-                    <span className="text-xs text-center px-2">Загрузить еще</span>
+                    <span className="text-xs text-center px-2">
+                      Загрузить еще
+                    </span>
                   </>
                 )}
               </button>
@@ -299,7 +308,7 @@ const Header = ({
   // Обработчик применения фильтров
   const handleApplyFilters = (filters) => {
     setCurrentFilters(filters);
-    console.log('Применены фильтры:', filters);
+    console.log("Применены фильтры:", filters);
     // Здесь можно добавить логику применения фильтров к результатам поиска
     // Например, обновить searchResults с учетом фильтров
   };
@@ -309,7 +318,7 @@ const Header = ({
   let hasPin = false;
   let enableParentalControl = () => {};
   let disableParentalControl = () => {};
-  
+
   try {
     const parentalControl = useParentalControl();
     isParentalControlEnabled = parentalControl.isParentalControlEnabled;
@@ -318,7 +327,7 @@ const Header = ({
     disableParentalControl = parentalControl.disableParentalControl;
   } catch (error) {
     // Контекст недоступен, используем значения по умолчанию
-    console.warn('ParentalControlContext not available, using defaults');
+    console.warn("ParentalControlContext not available, using defaults");
   }
 
   // Для предотвращения гидратации используем состояние mounted
@@ -345,15 +354,23 @@ const Header = ({
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showSearchInput && searchInputRef.current) {
-        const searchContainer = searchInputRef.current.closest('.relative');
-        
+        const searchContainer = searchInputRef.current.closest(".relative");
+
         // Проверяем, что клик не по области результатов поиска или табам фильтрации
-        const isClickOnSearchResults = event.target.closest('[data-search-results]');
-        const isClickOnFilterTabs = event.target.closest('[data-filter-tabs]');
-        const isClickOnSearchDropdown = event.target.closest('.absolute.top-full');
-        
-        if (searchContainer && !searchContainer.contains(event.target) && 
-            !isClickOnSearchResults && !isClickOnFilterTabs && !isClickOnSearchDropdown) {
+        const isClickOnSearchResults = event.target.closest(
+          "[data-search-results]"
+        );
+        const isClickOnFilterTabs = event.target.closest("[data-filter-tabs]");
+        const isClickOnSearchDropdown =
+          event.target.closest(".absolute.top-full");
+
+        if (
+          searchContainer &&
+          !searchContainer.contains(event.target) &&
+          !isClickOnSearchResults &&
+          !isClickOnFilterTabs &&
+          !isClickOnSearchDropdown
+        ) {
           setShowSearchInput(false);
           setShowSearchResults(false);
           setIsSearchFocused(false);
@@ -364,28 +381,38 @@ const Header = ({
     };
 
     if (showSearchInput) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showSearchInput, onSearchFocus]);
 
   // Функция для форматирования времени
   const formatDateTime = (date) => {
-    const days = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+    const days = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
     const months = [
-      'янв', 'фев', 'мар', 'апр', 'май', 'июн',
-      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'
+      "янв",
+      "фев",
+      "мар",
+      "апр",
+      "май",
+      "июн",
+      "июл",
+      "авг",
+      "сен",
+      "окт",
+      "ноя",
+      "дек",
     ];
 
     const dayOfWeek = days[date.getDay()];
     const day = date.getDate();
     const month = months[date.getMonth()];
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
 
     return `${dayOfWeek}, ${day} ${month}. ${hours}:${minutes}`;
   };
-
 
   // Конфигурация табов фильтрации для модалки поиска
   const filterTabs = [
@@ -446,7 +473,7 @@ const Header = ({
   // Обработчик клика по фильму в результатах поиска
   const handleMovieClick = (movie) => {
     // Очищаем поисковый запрос
-    setSearchQuery('');
+    setSearchQuery("");
     // Сначала закрываем результаты поиска и поле поиска
     setShowSearchResults(false);
     setShowSearchInput(false);
@@ -474,7 +501,12 @@ const Header = ({
         movie.rating ||
         "0.0",
       age: movie.details?.age_rating || movie.age || "0",
-      description: movie.details?.about || movie.about || movie.details?.description || movie.description || "",
+      description:
+        movie.details?.about ||
+        movie.about ||
+        movie.details?.description ||
+        movie.description ||
+        "",
       details: movie.details || {},
     };
 
@@ -489,8 +521,6 @@ const Header = ({
     setSelectedMovieForPlayer(null);
   };
 
-
-
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -500,8 +530,6 @@ const Header = ({
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
-
-
 
   const toggleFullscreen = async () => {
     try {
@@ -635,17 +663,18 @@ const Header = ({
 
       // Используем data.channels согласно структуре API
       if (data && data.channels && Array.isArray(data.channels)) {
-        
         if (page === 1) {
           // Первая страница - заменяем результаты
           setSearchResults(data.channels);
         } else {
           // Следующие страницы - добавляем к существующим результатам
-          setSearchResults(prev => [...prev, ...data.channels]);
+          setSearchResults((prev) => [...prev, ...data.channels]);
         }
-        
+
         // Проверяем, есть ли еще результаты (если получили меньше чем обычно или пустой массив)
-        setHasMoreSearchResults(data.channels.length > 0 && data.channels.length >= 10);
+        setHasMoreSearchResults(
+          data.channels.length > 0 && data.channels.length >= 10
+        );
         setCurrentSearchPage(page);
         setShowSearchResults(true);
 
@@ -840,17 +869,13 @@ const Header = ({
     }
   };
 
-
-
-
-
   return (
     <>
       <header
         className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
         style={{
-          marginBottom: '25px',
-          height: '64px' // Фиксированная высота хедера
+          marginBottom: "25px",
+          height: "64px", // Фиксированная высота хедера
         }}
       >
         <div className="flex items-center justify-between px-6 py-3 h-full relative">
@@ -859,27 +884,37 @@ const Header = ({
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 group hover:animate-pulse hover:bg-blue-500"
-              style={sidebarOpen ? {
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
-              } : {
-                background: 'linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset',
-                borderTop: '1px solid transparent'
-              }}
+              style={
+                sidebarOpen
+                  ? {
+                      background:
+                        "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                      boxShadow:
+                        "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                      borderTop: "1px solid rgb(84, 84, 84)",
+                    }
+                  : {
+                      background:
+                        "linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))",
+                      boxShadow:
+                        "rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset",
+                      borderTop: "1px solid transparent",
+                    }
+              }
               aria-label="Переключить меню"
             >
               <div className="relative w-5 h-5">
-                <Menu 
+                <Menu
                   className={`absolute inset-0 w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
-                    sidebarOpen ? 'rotate-0 opacity-100' : 'rotate-90 opacity-0'
-                  }`} 
+                    sidebarOpen ? "rotate-0 opacity-100" : "rotate-90 opacity-0"
+                  }`}
                 />
-                <X 
-                  className={`absolute inset-0 w-5 h-5 ${sidebarOpen ? "text-gray-400" : "text-white"} group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
-                    sidebarOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-                  }`} 
+                <X
+                  className={`absolute inset-0 w-5 h-5 ${
+                    sidebarOpen ? "text-gray-400" : "text-white"
+                  } group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] transform ${
+                    sidebarOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+                  }`}
                 />
               </div>
             </button>
@@ -897,33 +932,27 @@ const Header = ({
               }}
               className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
               style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
               }}
-              title={showSearchInput && searchQuery.trim() ? "Выполнить поиск" : "Поиск фильмов"}
+              title={
+                showSearchInput && searchQuery.trim()
+                  ? "Выполнить поиск"
+                  : "Поиск фильмов"
+              }
             >
-              <Search className={`${showSearchInput ? "w-3 h-3" : "w-5 h-5"} text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]`} />
-            </button>
-
-            {/* Кнопка фильтра рядом с поиском */}
-            <button
-              onClick={() => setShowFilterModal(true)}
-              className="p-2 rounded-lg transition-all duration-300 flex-shrink-0 relative z-[10000] group hover:animate-pulse"
-              style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
-              }}
-              title="Фильтры"
-            >
-              <Filter className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+              <Search
+                className={`${
+                  showSearchInput ? "w-3 h-3" : "w-5 h-5"
+                } text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]`}
+              />
             </button>
 
             {/* Логотип */}
-            <div className="flex-shrink-0">
-              {/* Логотип удален */}
-            </div>
+            <div className="flex-shrink-0">{/* Логотип удален */}</div>
           </div>
 
           {/* Поле поиска - абсолютное позиционирование слева от иконки поиска */}
@@ -944,41 +973,50 @@ const Header = ({
                   onKeyPress={handleSearchKeyPress}
                 />
                 {/* Кнопка закрытия поиска */}
-              <button
-                onClick={toggleSearchInput}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
-                style={{
-                  background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                  boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                  borderTop: '1px solid rgb(84, 84, 84)'
-                }}
-                title="Закрыть поиск"
-              >
-                <X className="w-4 h-4 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-              </button>
-              
+                <button
+                  onClick={toggleSearchInput}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
+                  style={{
+                    background:
+                      "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                    boxShadow:
+                      "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                    borderTop: "1px solid rgb(84, 84, 84)",
+                  }}
+                  title="Закрыть поиск"
+                >
+                  <X className="w-4 h-4 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                </button>
 
-              {searchQuery && (
-                 <button
-                   onMouseDown={(e) => e.preventDefault()}
-                   onClick={handleClearSearch}
-                   className="absolute right-12 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
-                   style={{
-                     background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                     boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                     borderTop: '1px solid rgb(84, 84, 84)'
-                   }}
-                   title="Очистить поиск"
-                 >
-                   <Delete className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-                 </button>
-               )}
-                
+                {searchQuery && (
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClearSearch}
+                    className="absolute right-12 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-[9999] group hover:animate-pulse"
+                    style={{
+                      background:
+                        "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                      boxShadow:
+                        "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                      borderTop: "1px solid rgb(84, 84, 84)",
+                    }}
+                    title="Очистить поиск"
+                  >
+                    <Delete className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                  </button>
+                )}
+
                 {/* Выпадающий список результатов поиска */}
                 {showSearchResults && searchResults.length > 0 && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl max-h-96 overflow-y-auto z-[9999]" data-search-results>
+                  <div
+                    className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl max-h-96 overflow-y-auto z-[9999]"
+                    data-search-results
+                  >
                     {/* Табы фильтрации */}
-                    <div className="p-4 border-b border-border" data-filter-tabs>
+                    <div
+                      className="p-4 border-b border-border"
+                      data-filter-tabs
+                    >
                       <div className="bg-muted text-muted-foreground rounded-lg p-1 flex items-center gap-1">
                         {filterTabs.map((tab) => (
                           <button
@@ -996,22 +1034,39 @@ const Header = ({
                         ))}
                       </div>
                     </div>
-                    
+
                     {/* Список фильмов */}
                     <div className="p-2">
                       {getSortedSearchResults().map((movie) => {
                         const transformedMovie = {
-                          id: movie.id || movie.details?.id || Math.random().toString(36),
-                          title: movie.details?.name || movie.title || movie.name || "Неизвестное название",
-                          poster: movie.details?.poster || movie.poster || "https://kinohost.web.app/no_poster.png",
+                          id:
+                            movie.id ||
+                            movie.details?.id ||
+                            Math.random().toString(36),
+                          title:
+                            movie.details?.name ||
+                            movie.title ||
+                            movie.name ||
+                            "Неизвестное название",
+                          poster:
+                            movie.details?.poster ||
+                            movie.poster ||
+                            "https://kinohost.web.app/no_poster.png",
                           year: movie.details?.released || movie.year || "",
                           genre: movie.details?.genre || movie.genre || [],
-                          rating: movie.details?.rating_kp || movie.details?.rating_imdb || movie.rating || "0.0",
+                          rating:
+                            movie.details?.rating_kp ||
+                            movie.details?.rating_imdb ||
+                            movie.rating ||
+                            "0.0",
                           age: movie.details?.age_rating || movie.age || "0",
-                          description: movie.details?.description || movie.description || "",
+                          description:
+                            movie.details?.description ||
+                            movie.description ||
+                            "",
                           details: movie.details || {},
                         };
-                        
+
                         return (
                           <div
                             key={transformedMovie.id}
@@ -1023,7 +1078,8 @@ const Header = ({
                               alt={transformedMovie.title}
                               className="w-12 h-16 object-cover rounded flex-shrink-0"
                               onError={(e) => {
-                                e.target.src = "https://kinohost.web.app/no_poster.png";
+                                e.target.src =
+                                  "https://kinohost.web.app/no_poster.png";
                               }}
                             />
                             <div className="flex-1 min-w-0">
@@ -1034,26 +1090,30 @@ const Header = ({
                                 {transformedMovie.year && (
                                   <span>{transformedMovie.year}</span>
                                 )}
-                                {transformedMovie.rating && transformedMovie.rating !== "0.0" && (
-                                  <>
-                                    <span>•</span>
-                                    <div className="flex items-center gap-1">
-                                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                      <span>{transformedMovie.rating}</span>
-                                    </div>
-                                  </>
-                                )}
+                                {transformedMovie.rating &&
+                                  transformedMovie.rating !== "0.0" && (
+                                    <>
+                                      <span>•</span>
+                                      <div className="flex items-center gap-1">
+                                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                        <span>{transformedMovie.rating}</span>
+                                      </div>
+                                    </>
+                                  )}
                               </div>
-                              {Array.isArray(transformedMovie.genre) && transformedMovie.genre.length > 0 && (
-                                <p className="text-xs text-muted-foreground truncate mt-1">
-                                  {transformedMovie.genre.slice(0, 3).join(", ")}
-                                </p>
-                              )}
+                              {Array.isArray(transformedMovie.genre) &&
+                                transformedMovie.genre.length > 0 && (
+                                  <p className="text-xs text-muted-foreground truncate mt-1">
+                                    {transformedMovie.genre
+                                      .slice(0, 3)
+                                      .join(", ")}
+                                  </p>
+                                )}
                             </div>
                           </div>
                         );
                       })}
-                      
+
                       {/* Кнопка "Загрузить еще" */}
                       {hasMoreSearchResults && (
                         <div className="p-2 border-t border-border">
@@ -1076,20 +1136,30 @@ const Header = ({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Сообщение о том, что ничего не найдено */}
-                {showSearchResults && searchResults.length === 0 && !isSearching && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]" data-search-results>
-                    <div className="text-center text-muted-foreground">
-                      <p>Ничего не найдено</p>
-                      <p className="text-sm mt-1">Попробуйте изменить запрос</p>
+                {showSearchResults &&
+                  searchResults.length === 0 &&
+                  !isSearching && (
+                    <div
+                      className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]"
+                      data-search-results
+                    >
+                      <div className="text-center text-muted-foreground">
+                        <p>Ничего не найдено</p>
+                        <p className="text-sm mt-1">
+                          Попробуйте изменить запрос
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                
+                  )}
+
                 {/* Индикатор загрузки */}
                 {isSearching && (
-                  <div className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]" data-search-results>
+                  <div
+                    className="absolute top-full left-0 w-[500px] mt-2 bg-background border border-border rounded-lg shadow-2xl p-4 z-[9999]"
+                    data-search-results
+                  >
                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
                       <Loader className="w-4 h-4 animate-spin" />
                       <span>Поиск...</span>
@@ -1102,6 +1172,22 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
+            {/* Кнопка фильтра рядом с микрофоном */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
+              style={{
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
+              }}
+              title="Фильтры"
+            >
+              <Filter className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+            </button>
+
             {/* Иконка голосового поиска (всегда видна) */}
             {speechSupported && (
               <button
@@ -1112,14 +1198,15 @@ const Header = ({
                   handleVoiceSearch();
                 }}
                 className={`p-2 rounded-lg transition-all duration-300 group ${
-                  isListening
-                    ? "animate-pulse"
-                    : "hover:animate-pulse"
+                  isListening ? "animate-pulse" : "hover:animate-pulse"
                 }`}
                 style={{
-                  background: isListening ? 'rgb(239, 68, 68)' : 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                  boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                  borderTop: '1px solid rgb(84, 84, 84)'
+                  background: isListening
+                    ? "rgb(239, 68, 68)"
+                    : "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                  boxShadow:
+                    "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                  borderTop: "1px solid rgb(84, 84, 84)",
                 }}
                 title={isListening ? "Остановить запись" : "Голосовой поиск"}
                 disabled={!speechSupported}
@@ -1136,9 +1223,11 @@ const Header = ({
               onClick={handleParentalControlClick}
               className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
               style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
               }}
               title="Родительский контроль"
             >
@@ -1158,17 +1247,15 @@ const Header = ({
               onPinDisable={handlePinDisable}
             />
 
-
-
-
-
             <button
               onClick={() => setShowSettingsModal(true)}
               className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
               style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
               }}
               title="Настройки"
             >
@@ -1176,12 +1263,14 @@ const Header = ({
             </button>
 
             {/* Отображение времени и даты */}
-            <div 
+            <div
               className="px-3 py-2 text-sm text-foreground font-medium rounded-lg"
               style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
               }}
             >
               {formatDateTime(currentTime)}
@@ -1191,9 +1280,11 @@ const Header = ({
               onClick={toggleFullscreen}
               className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
               style={{
-                background: 'linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))',
-                boxShadow: 'rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset',
-                borderTop: '1px solid rgb(84, 84, 84)'
+                background:
+                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                boxShadow:
+                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                borderTop: "1px solid rgb(84, 84, 84)",
               }}
               title={
                 isFullscreen
@@ -1208,14 +1299,10 @@ const Header = ({
               )}
             </button>
 
-
-
             <SettingsModal
               isOpen={showSettingsModal}
               onClose={() => setShowSettingsModal(false)}
             />
-
-
           </div>
 
           {/* Оверлей затемнения в хедере удален. Затемнение теперь глобальное. */}
@@ -1247,10 +1334,6 @@ const Header = ({
           </div>
         </div>
       )}
-
-
-
-
 
       {/* PlayerModal для фильмов из поиска */}
       <PlayerModal
