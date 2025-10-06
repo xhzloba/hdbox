@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Delete,
   Star,
-  Filter,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -28,7 +27,6 @@ import AdultContentDialog from "./AdultContentDialog";
 import SettingsModal from "./SettingsModal";
 import MovieCardWithSkeleton from "./MovieCardWithSkeleton";
 import PlayerModal from "./PlayerModal";
-import FilterModal from "./FilterModal";
 import useEmblaCarousel from "embla-carousel-react";
 import {
   AlertDialog,
@@ -296,8 +294,9 @@ const Header = ({
   const [showVoiceSearchEffect, setShowVoiceSearchEffect] = useState(false); // новое состояние для эффекта голосового поиска
   const [showSearchInput, setShowSearchInput] = useState(false); // состояние для показа поля поиска в хедере
   const [currentTime, setCurrentTime] = useState(new Date()); // состояние для текущего времени
-  const [showFilterModal, setShowFilterModal] = useState(false); // состояние для модального окна фильтров
-  const [currentFilters, setCurrentFilters] = useState({}); // текущие примененные фильтры
+  // Удаляем состояния для модального окна фильтров
+  // const [showFilterModal, setShowFilterModal] = useState(false); // состояние для модального окна фильтров
+  // const [currentFilters, setCurrentFilters] = useState({}); // текущие примененные фильтры
   // Состояния для пагинации поиска
   const [currentSearchPage, setCurrentSearchPage] = useState(1);
   const [hasMoreSearchResults, setHasMoreSearchResults] = useState(false);
@@ -306,12 +305,10 @@ const Header = ({
   const recognitionRef = useRef(null); // Реф для хранения объекта распознавания
   const { toast } = useToast();
   // Обработчик применения фильтров
-  const handleApplyFilters = (filters) => {
-    setCurrentFilters(filters);
-    console.log("Применены фильтры:", filters);
-    // Здесь можно добавить логику применения фильтров к результатам поиска
-    // Например, обновить searchResults с учетом фильтров
-  };
+  // const handleApplyFilters = (filters) => {
+  //   setCurrentFilters(filters);
+  //   console.log("Применены фильтры:", filters);
+  // };
 
   // Безопасное использование useParentalControl с проверкой контекста
   let isParentalControlEnabled = false;
@@ -1172,21 +1169,6 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
-            {/* Кнопка фильтра рядом с микрофоном */}
-            <button
-              onClick={() => setShowFilterModal(true)}
-              className="p-2 rounded-lg transition-all duration-300 group hover:animate-pulse"
-              style={{
-                background:
-                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-                boxShadow:
-                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-                borderTop: "1px solid rgb(84, 84, 84)",
-              }}
-              title="Фильтры"
-            >
-              <Filter className="w-5 h-5 text-gray-400 group-hover:text-white transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-            </button>
 
             {/* Иконка голосового поиска (всегда видна) */}
             {speechSupported && (
@@ -1342,13 +1324,6 @@ const Header = ({
         onClose={handlePlayerModalClose}
       />
 
-      {/* FilterModal для фильтрации контента */}
-      <FilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        onApplyFilters={handleApplyFilters}
-        initialFilters={currentFilters}
-      />
     </>
   );
 };
