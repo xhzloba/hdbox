@@ -207,6 +207,9 @@ const WatchingNowPage = () => {
 
           let currentPage = 1;
           let hasMorePages = true;
+          const desiredCount = 100;
+          const seenIds = new Set();
+          let collected = [];
 
           while (hasMorePages) {
             try {
@@ -222,9 +225,21 @@ const WatchingNowPage = () => {
               );
 
               if (data.channels && data.channels.length > 0) {
-                allContent = [...allContent, ...data.channels];
+                // собираем уникальные элементы
+                for (const item of data.channels) {
+                  const id = item?.details?.id;
+                  if (!id) continue;
+                  if (!seenIds.has(id)) {
+                    seenIds.add(id);
+                    collected.push(item);
+                    if (collected.length >= desiredCount) {
+                      hasMorePages = false;
+                      break;
+                    }
+                  }
+                }
 
-                // Если на странице меньше 15 элементов, значит это последняя страница
+                // Если на странице меньше 15 элементов и мы не набрали 100 — это последняя страница
                 if (data.channels.length < 15) {
                   hasMorePages = false;
                 }
@@ -248,13 +263,13 @@ const WatchingNowPage = () => {
           }
 
           console.log(
-            `Загружено всего ${allContent.length} элементов из ${
+            `Загружено всего ${collected.length} уникальных элементов из ${
               currentPage - 1
             } страниц`
           );
 
-          if (allContent.length > 0) {
-            const uniqueContent = removeDuplicates([], allContent);
+          if (collected.length > 0) {
+            const uniqueContent = collected.slice(0, desiredCount);
 
             // Загружаем предыдущие позиции из localStorage
             const previousPositions = loadPreviousPositions();
@@ -477,7 +492,7 @@ const WatchingNowPage = () => {
       {/* Контейнер с контентом (виртуализированный по строкам) */}
       {loading && content.length === 0 ? (
         <div
-          className="flex flex-wrap gap-4 justify-start content-grid"
+          className="flex flex-wrap gap-6 gap-y-6 justify-start content-grid"
           style={{ contain: "layout paint" }}
         >
           {Array.from({ length: 20 }, (_, index) => (
@@ -570,7 +585,7 @@ function VirtualizedContentGrid({ items, transformItem, onAdultContentClick }) {
   const showDetails = settings?.showDetails ?? true;
 
   const cardWidth = containerWidth >= 768 ? 200 : 120; // соответствует классам w-[120px]/md:w-[200px]
-  const gap = 16; // gap-4
+  const gap = 24; // gap-6
   const cardsPerRow = Math.max(
     1,
     Math.floor((containerWidth + gap) / (cardWidth + gap))
@@ -610,8 +625,9 @@ function VirtualizedContentGrid({ items, transformItem, onAdultContentClick }) {
             <div
               key={row.key}
               data-index={row.index}
-              style={{ height: row.size, width: "100%" }}
-              className="flex flex-nowrap gap-4 justify-start px-0 w-full"
+              ref={virtualizer.measureElement}
+              style={{ width: "100%" }}
+              className="flex flex-nowrap gap-6 justify-start px-0 w-full pb-6"
             >
               {rowItems.map((contentItem, idx) => (
                 <div

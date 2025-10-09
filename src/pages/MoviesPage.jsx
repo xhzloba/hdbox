@@ -479,7 +479,7 @@ const MoviesPage = () => {
       {/* Контейнер с фильмами (виртуализированный по строкам) */}
       {loading && movies.length === 0 ? (
         <div
-          className="flex flex-wrap gap-4 justify-start movie-grid"
+          className="flex flex-wrap gap-6 gap-y-6 justify-start movie-grid"
           style={{ contain: "layout paint" }}
         >
           {Array.from({ length: 20 }, (_, index) => (
@@ -579,7 +579,7 @@ function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick, isSc
   const showDetails = settings?.showDetails ?? true;
 
   const cardWidth = containerWidth >= 768 ? 200 : 120; // соответствует классам w-[120px]/md:w-[200px]
-  const gap = 16; // gap-4
+  const gap = 24; // gap-6
   const cardsPerRow = Math.max(
     1,
     Math.floor((containerWidth + gap) / (cardWidth + gap))
@@ -619,8 +619,9 @@ function VirtualizedMoviesGrid({ items, transformItem, onAdultContentClick, isSc
             <div
               key={row.key}
               data-index={row.index}
-              style={{ height: row.size, width: "100%" }}
-              className="flex flex-nowrap gap-4 justify-start px-0 w-full"
+              ref={virtualizer.measureElement}
+              style={{ width: "100%" }}
+              className="flex flex-nowrap gap-6 justify-start px-0 w-full pb-6"
             >
               {rowItems.map((movie, idx) => (
                 <div
