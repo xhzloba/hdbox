@@ -247,47 +247,25 @@
     will-change: auto;
     transform: translate3d(0, 0, 0) scale(1);
   }
-  
-  /* Отключение hover эффектов во время скролла */
-  .scrolling [class*="MovieCard"],
-  .scrolling .movie-card {
-    pointer-events: none;
-    transition: none;
+}
+
+@layer utilities {
+  /* Плавное появление контента */
+  @keyframes fade-in-keyframes {
+    from { opacity: 0; transform: translate3d(0, 2px, 0) scale(0.98); }
+    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
   }
-  
-  .scrolling [class*="MovieCard"] img,
-  .scrolling .movie-card img {
-    transition: none;
-    will-change: auto;
+  .animate-fade-in {
+    animation: fade-in-keyframes 220ms ease-out both;
   }
-  
-  /* Инпуты и текстовые поля */
-  input,
-  textarea,
-  select,
-  [contenteditable="true"],
-  [role="textbox"] {
-    user-select: text;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
+
+  /* Плавное исчезновение скелетона */
+  @keyframes fade-out-keyframes {
+    from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    to { opacity: 0; transform: translate3d(0, -2px, 0) scale(0.98); }
   }
-  
-  /* Запрет выделения изображений */
-  img {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    pointer-events: none;
-  }
-  
-  /* Исключения для изображений в интерактивных элементах */
-  button img,
-  a img,
-  [role="button"] img,
-  .clickable img {
-    pointer-events: auto;
+  .animate-fade-out {
+    animation: fade-out-keyframes 200ms ease-in both;
   }
 }
 

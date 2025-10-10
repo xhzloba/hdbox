@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MovieCard from "./MovieCard";
 import MovieCardSkeleton from "./MovieCardSkeleton";
 
@@ -13,6 +13,16 @@ const MovieCardWithSkeleton = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isReady, setIsReady] = useState(false); // когда true — показываем контент
+
+  useEffect(() => {
+    if (imageLoaded && !isReady) {
+      const timer = setTimeout(() => {
+        setIsReady(true);
+      }, 220); // длительность fade-out скелетона
+      return () => clearTimeout(timer);
+    }
+  }, [imageLoaded, isReady]);
 
   const handleImageLoad = () => {
     setImageLoaded(true);
@@ -23,7 +33,7 @@ const MovieCardWithSkeleton = ({
     setImageLoaded(true); // Показываем карточку даже если изображение не загрузилось
   };
 
-  // Если изображение еще не загрузилось, показываем скелетон
+  // Если изображение еще не загрузилось, показываем скелетон + предзагрузку
   if (!imageLoaded && !imageError) {
     return (
       <>
@@ -40,17 +50,26 @@ const MovieCardWithSkeleton = ({
     );
   }
 
-  // Когда изображение загрузилось, показываем настоящую карточку
+  // Переходный этап: мягко скрываем скелетон (fade-out)
+  if (!isReady) {
+    return (
+      <MovieCardSkeleton className="animate-fade-out" />
+    );
+  }
+
+  // Когда изображение загрузилось и переход завершен — показываем карточку (fade-in)
   return (
-    <MovieCard
-          movie={movie}
-          onAdultContentClick={onAdultContentClick}
-          onMovieClick={onMovieClick}
-          isNew={isNew}
-          showContentTypeBadge={showContentTypeBadge}
-          position={position}
-          showPosition={showPosition}
-        />
+    <div className="animate-fade-in">
+      <MovieCard
+        movie={movie}
+        onAdultContentClick={onAdultContentClick}
+        onMovieClick={onMovieClick}
+        isNew={isNew}
+        showContentTypeBadge={showContentTypeBadge}
+        position={position}
+        showPosition={showPosition}
+      />
+    </div>
   );
 };
 

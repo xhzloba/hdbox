@@ -29,7 +29,7 @@ const FilmSpinner = ({ className = "" }) => (
   </svg>
 );
 
-const MovieCardSkeleton = () => {
+const MovieCardSkeleton = ({ className = "" }) => {
   const settingsContext = useContext(SettingsContext);
   const showDetails = settingsContext?.showDetails ?? true; // По умолчанию показываем детали
 
@@ -39,7 +39,7 @@ const MovieCardSkeleton = () => {
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/4] rounded-lg"
-      }`}
+      } ${className}`}
     >
       {/* Постер скелетон */}
       <div
