@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import MovieCard from "../components/MovieCard";
+import MovieCardWithSkeleton from "../components/MovieCardWithSkeleton";
 import MovieCardSkeleton from "../components/MovieCardSkeleton";
 import AdultContentDialog from "../components/AdultContentDialog";
 import BackToTopButton from "../components/BackToTopButton";
@@ -634,7 +634,7 @@ function VirtualizedContentGrid({ items, transformItem, onAdultContentClick }) {
                   key={`${contentItem.details.id}-${startIndex + idx}`}
                   className="w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
                 >
-                  <MovieCard
+                  <MovieCardWithSkeleton
                     movie={transformItem(contentItem)}
                     onAdultContentClick={onAdultContentClick}
                     showAllGenres={false}

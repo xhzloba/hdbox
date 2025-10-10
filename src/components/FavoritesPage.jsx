@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useFavorites } from "../contexts/FavoritesContext";
 import { useSettings } from "../contexts/SettingsContext";
-import MovieCard from "../components/MovieCard";
+import MovieCardWithSkeleton from "../components/MovieCardWithSkeleton";
 import DraggableTab from "../components/DraggableTab";
 import {
   Heart,
@@ -833,7 +833,7 @@ const FavoritesPage = () => {
           `}</style>
           {filteredFavorites.map((movie) => (
             <div key={movie.id} className="relative group">
-              <MovieCard movie={movie} showAllGenres={false} isInFavoritesPage={true} />
+              <MovieCardWithSkeleton movie={movie} showAllGenres={false} isInFavoritesPage={true} />
             </div>
           ))}
         </div>

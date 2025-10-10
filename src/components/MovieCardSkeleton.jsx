@@ -35,7 +35,7 @@ const MovieCardSkeleton = ({ className = "" }) => {
 
   return (
     <div
-      className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border border-transparent flex flex-col ${
+      className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border border-transparent hover:border-gray-600 flex flex-col ${
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
           : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/4] rounded-lg"
@@ -48,10 +48,10 @@ const MovieCardSkeleton = ({ className = "" }) => {
         }`}
       >
         <SkeletonElement className="w-full h-full" />
-      </div>
-      {/* Глобальный спиннер, центрированный по всей карточке */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <FilmSpinner className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground/50" />
+        {/* Спиннер центра постера (фиксируем позицию относительно постера) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <FilmSpinner className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground/50" />
+        </div>
       </div>
 
       {/* Текстовый блок с информацией о фильме - показывается только если включены детали */}

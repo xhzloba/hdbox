@@ -10,6 +10,10 @@ const MovieCardWithSkeleton = ({
   showContentTypeBadge = false,
   position = null,
   showPosition = false,
+  showAllGenres = false,
+  isInFavoritesPage = false,
+  isScrolling = false,
+  className = "",
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -37,7 +41,7 @@ const MovieCardWithSkeleton = ({
   if (!imageLoaded && !imageError) {
     return (
       <>
-        <MovieCardSkeleton />
+        <MovieCardSkeleton className={className} />
         {/* Предзагружаем изображение в фоне */}
         <img
           src={movie.poster || "https://kinohost.web.app/no_poster.png"}
@@ -53,7 +57,7 @@ const MovieCardWithSkeleton = ({
   // Переходный этап: мягко скрываем скелетон (fade-out)
   if (!isReady) {
     return (
-      <MovieCardSkeleton className="animate-fade-out" />
+      <MovieCardSkeleton className={`animate-fade-out ${className}`} />
     );
   }
 
@@ -68,6 +72,10 @@ const MovieCardWithSkeleton = ({
         showContentTypeBadge={showContentTypeBadge}
         position={position}
         showPosition={showPosition}
+        showAllGenres={showAllGenres}
+        isInFavoritesPage={isInFavoritesPage}
+        isScrolling={isScrolling}
+        className={className}
       />
     </div>
   );
