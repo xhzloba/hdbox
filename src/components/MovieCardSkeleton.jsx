@@ -20,7 +20,7 @@ const MovieCardSkeleton = () => {
       className={`group relative overflow-hidden transition-all duration-300 cursor-pointer border border-transparent flex flex-col ${
         showDetails
           ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
-          : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
+          : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/4] rounded-lg"
       }`}
     >
       {/* Постер скелетон */}

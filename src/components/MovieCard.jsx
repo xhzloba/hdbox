@@ -494,7 +494,7 @@ const MovieCard = memo(
         } ${
           showDetails
             ? "bg-card rounded-lg h-[200px] md:h-[390px] w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px]"
-            : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/3] rounded-lg"
+            : "w-[120px] md:w-[200px] min-w-[120px] md:min-w-[200px] max-w-[120px] md:max-w-[200px] aspect-[2/4] rounded-lg"
         } border border-transparent hover:border-gray-600 ${
           cardShadowsEnabled ? "movie-card-shadow" : ""
         }`}
@@ -514,7 +514,9 @@ const MovieCard = memo(
             alt={movie.title}
             loading="lazy"
             decoding="async"
-            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform ${
+            className={`w-full h-full ${
+              showDetails ? "object-cover" : "object-cover object-[center_top]"
+            } group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform ${
               imageLoaded ? "opacity-100" : "opacity-0"
             }`}
             onLoad={handleImageLoad}
