@@ -69,14 +69,31 @@ const MoviesPage = () => {
 
   // Функция для удаления дубликатов фильмов по ID
   const removeDuplicates = useCallback((existingMovies, newMovies) => {
-    const existingIds = new Set(
-      existingMovies.map((movie) => movie.details.id)
-    );
-    const uniqueNewMovies = newMovies.filter(
-      (movie) => !existingIds.has(movie.details.id)
-    );
+    const getId = (m) => m?.details?.id;
 
-    const duplicatesCount = newMovies.length - uniqueNewMovies.length;
+    // Собираем ID уже существующих фильмов
+    const existingIds = new Set((existingMovies || []).map(getId).filter(Boolean));
+
+    // Удаляем дубликаты внутри самой новой пачки и относительно уже существующих
+    const batchIds = new Set();
+    const uniqueNewMovies = [];
+
+    for (const m of newMovies || []) {
+      const id = getId(m);
+      // Если нет ID — оставляем элемент, чтобы не терять контент
+      if (!id) {
+        uniqueNewMovies.push(m);
+        continue;
+      }
+      // Пропускаем, если уже есть в существующих или уже встречался в текущей пачке
+      if (existingIds.has(id) || batchIds.has(id)) {
+        continue;
+      }
+      batchIds.add(id);
+      uniqueNewMovies.push(m);
+    }
+
+    const duplicatesCount = (newMovies?.length || 0) - uniqueNewMovies.length;
     if (duplicatesCount > 0) {
       console.log(`Удалено ${duplicatesCount} дубликатов фильмов`);
     }

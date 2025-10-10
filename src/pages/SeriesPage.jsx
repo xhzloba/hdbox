@@ -134,17 +134,28 @@ const SeriesPage = () => {
   const isScrolling = useScrollDetection();
 
   // Функция для удаления дубликатов сериалов по ID
-
-
   const removeDuplicates = useCallback((existingSeries, newSeries) => {
-    const existingIds = new Set(
-      existingSeries.map((series) => series.details.id)
-    );
-    const uniqueNewSeries = newSeries.filter(
-      (series) => !existingIds.has(series.details.id)
-    );
+    const getId = (s) => s?.details?.id;
 
-    const duplicatesCount = newSeries.length - uniqueNewSeries.length;
+    const existingIds = new Set((existingSeries || []).map(getId).filter(Boolean));
+
+    const batchIds = new Set();
+    const uniqueNewSeries = [];
+
+    for (const s of newSeries || []) {
+      const id = getId(s);
+      if (!id) {
+        uniqueNewSeries.push(s);
+        continue;
+      }
+      if (existingIds.has(id) || batchIds.has(id)) {
+        continue;
+      }
+      batchIds.add(id);
+      uniqueNewSeries.push(s);
+    }
+
+    const duplicatesCount = (newSeries?.length || 0) - uniqueNewSeries.length;
     if (duplicatesCount > 0) {
       console.log(`Удалено ${duplicatesCount} дубликатов сериалов`);
     }

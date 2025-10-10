@@ -64,14 +64,27 @@ const CartoonsPage = () => {
 
   // Функция для удаления дубликатов мультфильмов по ID
   const removeDuplicates = useCallback((existingCartoons, newCartoons) => {
-    const existingIds = new Set(
-      existingCartoons.map((cartoon) => cartoon.details.id)
-    );
-    const uniqueNewCartoons = newCartoons.filter(
-      (cartoon) => !existingIds.has(cartoon.details.id)
-    );
+    const getId = (c) => c?.details?.id;
 
-    const duplicatesCount = newCartoons.length - uniqueNewCartoons.length;
+    const existingIds = new Set((existingCartoons || []).map(getId).filter(Boolean));
+
+    const batchIds = new Set();
+    const uniqueNewCartoons = [];
+
+    for (const c of newCartoons || []) {
+      const id = getId(c);
+      if (!id) {
+        uniqueNewCartoons.push(c);
+        continue;
+      }
+      if (existingIds.has(id) || batchIds.has(id)) {
+        continue;
+      }
+      batchIds.add(id);
+      uniqueNewCartoons.push(c);
+    }
+
+    const duplicatesCount = (newCartoons?.length || 0) - uniqueNewCartoons.length;
     if (duplicatesCount > 0) {
       console.log(`Удалено ${duplicatesCount} дубликатов мультфильмов`);
     }
