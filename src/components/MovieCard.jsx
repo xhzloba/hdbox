@@ -24,6 +24,7 @@ import {
   Lock,
   Unlock,
 } from "lucide-react";
+import MasterpieceIcon from "./ui/MasterpieceIcon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,7 +81,7 @@ const getRatingIcon = (rating) => {
     };
   } else if (numRating >= 8.3 && numRating <= 10) {
     return {
-      icon: Zap,
+      icon: MasterpieceIcon,
       color: "text-green-400",
     };
   }
