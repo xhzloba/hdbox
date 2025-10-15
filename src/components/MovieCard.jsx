@@ -24,6 +24,7 @@ import {
   Lock,
   Unlock,
   Eye,
+  EyeOff,
 } from "lucide-react";
 import MasterpieceIcon from "./ui/MasterpieceIcon";
 import {
@@ -904,7 +905,7 @@ const MovieCard = memo(
           {/* Иконка внутри ленточки */}
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
             {isInWatched ? (
-              <Check className="w-3.5 h-3.5 text-white" />
+              <EyeOff className="w-3.5 h-3.5 text-white" />
             ) : (
               <Eye className="w-3.5 h-3.5 text-white" />
             )}
