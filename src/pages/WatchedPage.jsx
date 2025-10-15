@@ -56,26 +56,82 @@ const WatchedPage = () => {
   const [filterBy, setFilterBy] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [tabs, setTabs] = useState([
     { id: "all", label: "Все", count: 0 },
     { id: "movies", label: "Фильмы", count: 0 },
     { id: "series", label: "Сериалы", count: 0 },
     { id: "cartoons", label: "Мультфильмы", count: 0 },
+    { id: "cartoon-series", label: "Мультсериалы", count: 0 },
+    { id: "countries", label: "По странам", count: 0 },
+    { id: "genres", label: "По жанрам", count: 0 },
   ]);
+
+  // Утилиты для получения списков стран и жанров
+  const getUniqueCountries = () => {
+    const countries = new Set();
+    watched.forEach((item) => {
+      const c = item.country;
+      if (!c) return;
+      if (Array.isArray(c)) {
+        c.forEach((x) => countries.add(String(x).trim()));
+      } else {
+        String(c)
+          .split(",")
+          .map((s) => s.trim())
+          .forEach((x) => countries.add(x));
+      }
+    });
+    return Array.from(countries).filter(Boolean).sort((a, b) => a.localeCompare(b, "ru"));
+  };
+
+  const getUniqueGenres = () => {
+    const genres = new Set();
+    watched.forEach((item) => {
+      const g = item.genre;
+      if (!g) return;
+      if (Array.isArray(g)) {
+        g.forEach((x) => genres.add(String(x).trim()));
+      } else {
+        String(g)
+          .split(",")
+          .map((s) => s.trim())
+          .forEach((x) => genres.add(x));
+      }
+    });
+    return Array.from(genres).filter(Boolean).sort((a, b) => a.localeCompare(b, "ru"));
+  };
 
   // Обновляем счетчики в табах
   useEffect(() => {
     const movieCount = watched.filter((item) => item.type === "movie").length;
-    const seriesCount = watched.filter((item) => item.type === "series").length;
-    const cartoonCount = watched.filter(
-      (item) => item.type === "cartoon"
+    const seriesCount = watched.filter(
+      (item) => item.type === "tv" || item.type === "serial"
     ).length;
+    const cartoonCount = watched.filter((item) => item.type === "multfilm").length;
+    const cartoonSeriesCount = watched.filter((item) => {
+      const isMultserial = item.type === "multserial";
+      const isMultfilmSerial =
+        item.type === "multfilm" && item.genre && (
+          Array.isArray(item.genre)
+            ? item.genre.some((g) => String(g).toLowerCase().includes("сериал"))
+            : String(item.genre).toLowerCase().includes("сериал")
+        );
+      return isMultserial || isMultfilmSerial;
+    }).length;
+
+    const countriesCount = getUniqueCountries().length;
+    const genresCount = getUniqueGenres().length;
 
     setTabs([
       { id: "all", label: "Все", count: watched.length },
       { id: "movies", label: "Фильмы", count: movieCount },
       { id: "series", label: "Сериалы", count: seriesCount },
       { id: "cartoons", label: "Мультфильмы", count: cartoonCount },
+      { id: "cartoon-series", label: "Мультсериалы", count: cartoonSeriesCount },
+      { id: "countries", label: "По странам", count: countriesCount },
+      { id: "genres", label: "По жанрам", count: genresCount },
     ]);
   }, [watched]);
 
@@ -83,8 +139,44 @@ const WatchedPage = () => {
   const filteredWatched = watched.filter((movie) => {
     if (filterBy === "all") return true;
     if (filterBy === "movies") return movie.type === "movie";
-    if (filterBy === "series") return movie.type === "series";
-    if (filterBy === "cartoons") return movie.type === "cartoon";
+    if (filterBy === "series") return movie.type === "tv" || movie.type === "serial";
+    if (filterBy === "cartoons") return movie.type === "multfilm";
+    if (filterBy === "cartoon-series") {
+      const isMultserial = movie.type === "multserial";
+      const isMultfilmSerial =
+        movie.type === "multfilm" && movie.genre && (
+          Array.isArray(movie.genre)
+            ? movie.genre.some((g) => String(g).toLowerCase().includes("сериал"))
+            : String(movie.genre).toLowerCase().includes("сериал")
+        );
+      return isMultserial || isMultfilmSerial;
+    }
+    if (filterBy === "countries") {
+      if (!selectedCountry) return true; // показываем все, пока не выбрана страна
+      const c = movie.country;
+      if (!c) return false;
+      const target = selectedCountry.toLowerCase();
+      if (Array.isArray(c)) {
+        return c.some((x) => String(x).toLowerCase() === target);
+      }
+      return String(c)
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .includes(target);
+    }
+    if (filterBy === "genres") {
+      if (!selectedGenre) return true; // показываем все, пока не выбран жанр
+      const g = movie.genre;
+      if (!g) return false;
+      const target = selectedGenre.toLowerCase();
+      if (Array.isArray(g)) {
+        return g.some((x) => String(x).toLowerCase() === target);
+      }
+      return String(g)
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .includes(target);
+    }
     return true;
   });
 
@@ -212,9 +304,8 @@ const WatchedPage = () => {
           <div className="flex items-center gap-3">
             <Eye className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold">Просмотренные</h1>
-            <span className="text-muted-foreground">
-              ({getWatchedCount()})
-            </span>
+            {/* Показываем количество элементов на текущей странице без дефисов */}
+            <span className="text-muted-foreground text-sm">Показано: {paginatedWatched.length}</span>
           </div>
           <div className="flex items-center gap-2" />
         </div>
@@ -224,21 +315,37 @@ const WatchedPage = () => {
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
+          autoScroll={false}
         >
           <SortableContext
             items={tabs.map((tab) => tab.id)}
             strategy={horizontalListSortingStrategy}
           >
-            <div className="flex gap-2 mb-6 overflow-x-auto items-center">
+            <div className="flex gap-2 mb-6 overflow-x-auto overflow-y-hidden items-center">
               {tabs.map((tab) => (
                 <DraggableTab
                   key={tab.id}
-                  id={tab.id}
-                  label={tab.label}
-                  count={tab.count}
-                  isActive={filterBy === tab.id}
-                  onClick={() => handleFilter(tab.id)}
-                />
+                  tab={tab}
+                  activeTab={filterBy}
+                  isLocked={false}
+                  onTabClick={() => handleFilter(tab.id)}
+                >
+                  <span>{tab.label}</span>
+                  {tab.count > 0 && (
+                    <span
+                      className={`
+                        text-xs px-1.5 py-0.5 rounded-full min-w-[18px] text-center
+                        ${
+                          filterBy === tab.id
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted-foreground/20 text-muted-foreground"
+                        }
+                      `}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
+                </DraggableTab>
               ))}
               {/* Кнопка "Очистить все" перенесена в панель табов */}
               {watched.length > 0 && (
@@ -272,6 +379,88 @@ const WatchedPage = () => {
             </div>
           </SortableContext>
         </DndContext>
+
+        {/* Чипсы стран */}
+        {filterBy === "countries" && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-foreground mb-3">Выберите страну:</h3>
+            <div className="flex flex-wrap gap-2">
+              {getUniqueCountries().map((country) => (
+                <button
+                  key={country}
+                  onClick={() => setSelectedCountry(selectedCountry === country ? "" : country)}
+                  className={`
+                    px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+                    ${selectedCountry === country ? "text-white" : "text-muted-foreground hover:text-foreground"}
+                  `}
+                  style={
+                    selectedCountry === country
+                      ? {
+                          background: "linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))",
+                          boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset",
+                          borderTop: "1px solid transparent",
+                          color: "#ffffff",
+                        }
+                      : {
+                          background: "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                          boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                          borderTop: "1px solid rgb(84, 84, 84)",
+                        }
+                  }
+                >
+                  {country}
+                </button>
+              ))}
+            </div>
+            {selectedCountry && (
+              <div className="mt-3 text-sm text-muted-foreground">
+                Показаны результаты для страны: {" "}
+                <span className="font-medium text-foreground">{selectedCountry}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Чипсы жанров */}
+        {filterBy === "genres" && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-foreground mb-3">Выберите жанр:</h3>
+            <div className="flex flex-wrap gap-2">
+              {getUniqueGenres().map((genre) => (
+                <button
+                  key={genre}
+                  onClick={() => setSelectedGenre(selectedGenre === genre ? "" : genre)}
+                  className={`
+                    px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200
+                    ${selectedGenre === genre ? "text-white" : "text-muted-foreground hover:text-foreground"}
+                  `}
+                  style={
+                    selectedGenre === genre
+                      ? {
+                          background: "linear-gradient(131deg, rgb(0, 49, 243), rgb(36, 8, 255))",
+                          boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(57, 92, 255) 2px 2px 20px inset",
+                          borderTop: "1px solid transparent",
+                          color: "#ffffff",
+                        }
+                      : {
+                          background: "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
+                          boxShadow: "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
+                          borderTop: "1px solid rgb(84, 84, 84)",
+                        }
+                  }
+                >
+                  {genre}
+                </button>
+              ))}
+            </div>
+            {selectedGenre && (
+              <div className="mt-3 text-sm text-muted-foreground">
+                Показаны результаты для жанра: {" "}
+                <span className="font-medium text-foreground">{selectedGenre}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Панель управления */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
@@ -344,6 +533,12 @@ const WatchedPage = () => {
                 <option value={50}>50</option>
                 <option value={100}>100</option>
               </select>
+            </div>
+
+            {/* Показано элементов на текущей странице */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Показано:</span>
+              <span className="text-sm">{paginatedWatched.length}</span>
             </div>
           </div>
         </div>

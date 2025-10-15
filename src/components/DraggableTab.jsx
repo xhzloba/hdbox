@@ -21,8 +21,11 @@ const DraggableTab = ({ tab, activeTab, onTabClick, isLocked, children }) => {
     isDragging,
   } = useSortable({ id: tab.id, disabled: isLocked })
 
+  // Ограничиваем перемещение по вертикали, оставляя только горизонталь
+  const restrictedTransform = transform ? { ...transform, y: 0 } : null
+
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString(restrictedTransform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
