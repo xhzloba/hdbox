@@ -353,18 +353,19 @@ const FavoritesPage = () => {
 
     // Добавляем остальные табы в сохраненном порядке
     tabsOrder.forEach((tabId) => {
-      const tab = otherTabs.find((t) => t.id === tabId);
-      if (tab) orderedTabs.push(tab);
+      const tab = otherTabs.find((t) => t && t.id === tabId);
+      if (tab && tab.id) orderedTabs.push(tab);
     });
 
     // Добавляем новые табы, которых нет в сохраненном порядке
     otherTabs.forEach((tab) => {
-      if (!tabsOrder.includes(tab.id)) {
+      if (tab && tab.id && !tabsOrder.includes(tab.id)) {
         orderedTabs.push(tab);
       }
     });
 
-    return orderedTabs;
+    // Фильтруем результат от undefined значений
+    return orderedTabs.filter(tab => tab && tab.id);
   };
 
   const tabs = getOrderedTabs();

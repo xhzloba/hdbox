@@ -6,6 +6,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
 
 const DraggableTab = ({ tab, activeTab, onTabClick, isLocked, children }) => {
+  // Защитная проверка на случай undefined tab
+  if (!tab || !tab.id) {
+    console.warn('DraggableTab: tab prop is undefined or missing id');
+    return null;
+  }
+
   const {
     attributes,
     listeners,

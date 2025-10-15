@@ -23,6 +23,7 @@ import {
   Zap,
   Lock,
   Unlock,
+  Eye,
 } from "lucide-react";
 import MasterpieceIcon from "./ui/MasterpieceIcon";
 import {
@@ -36,6 +37,7 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { useFavorites } from "../contexts/FavoritesContext";
+import { useWatched } from "../contexts/WatchedContext";
 import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
 import PlayerModal from "./PlayerModal";
@@ -251,6 +253,13 @@ const MovieCard = memo(
       isFavorite,
       isInFavoritesOrPending,
     } = useFavorites();
+    
+    const {
+      addToWatched,
+      removeFromWatched,
+      isWatched,
+      isInWatchedOrPending,
+    } = useWatched();
     // Безопасное использование useParentalControl с проверкой контекста
     let isParentalControlEnabled = false;
     let isAdultContent = () => false;
@@ -275,6 +284,7 @@ const MovieCard = memo(
     const coloredHoverEnabled = settingsContext?.coloredHoverEnabled ?? false; // По умолчанию отключено цветное затемнение
     const showTags = settingsContext?.showTags ?? false; // По умолчанию теги выключены
     const isInFavorites = isInFavoritesOrPending(movie.id);
+    const isInWatched = isInWatchedOrPending(movie.id);
     const isAdult = isAdultContent(movie.age);
     const isUnlocked = isMovieUnlocked(movie.id);
 
@@ -317,6 +327,24 @@ const MovieCard = memo(
       removeFromFavorites(movie.id);
       setShowRemoveDialog(false);
     }, [removeFromFavorites, movie.id]);
+
+    const handleAddToWatched = useCallback(
+      (e) => {
+        e.stopPropagation();
+        // Проверяем реальное состояние watched, а не pending
+        if (isWatched(movie.id)) {
+          removeFromWatched(movie.id);
+        } else {
+          addToWatched(movie, e.currentTarget);
+        }
+      },
+      [
+        movie.id,
+        isWatched,
+        removeFromWatched,
+        addToWatched,
+      ]
+    );
 
     const handleCancelRemove = useCallback(
       (e) => {
@@ -837,6 +865,48 @@ const MovieCard = memo(
               <Check className="w-3.5 h-3.5 text-white" />
             ) : (
               <Plus className="w-3.5 h-3.5 text-white" />
+            )}
+          </div>
+        </button>
+
+        {/* Ленточка просмотренных рядом с избранным */}
+        <button
+          onClick={handleAddToWatched}
+          className={`absolute top-2 left-10 z-30 group/watched-ribbon transition-all duration-200 hover:scale-105 ${
+            showFavoriteButton
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100"
+          }`}
+        >
+          <svg
+            className="w-7 h-10"
+            width="28"
+            height="40"
+            viewBox="0 0 28 40"
+            xmlns="http://www.w3.org/2000/svg"
+            role="presentation"
+          >
+            {/* Основной полигон ленточки */}
+            <polygon
+              className={`transition-colors duration-200 ${
+                isInWatched
+                  ? "fill-green-600 group-hover/watched-ribbon:fill-green-600/80"
+                  : "fill-gray-700 opacity-60 group-hover/watched-ribbon:opacity-80"
+              }`}
+              points="28 0 0 0 0 38 14.2843 30.4308 28 37.2353"
+            />
+            {/* Полигон для тени */}
+            <polygon
+              className="fill-black/20"
+              points="28 37.2353 28 39.2353 14.2843 32.4308 0 40 0 38 14.2843 30.4308"
+            />
+          </svg>
+          {/* Иконка внутри ленточки */}
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            {isInWatched ? (
+              <Check className="w-3.5 h-3.5 text-white" />
+            ) : (
+              <Eye className="w-3.5 h-3.5 text-white" />
             )}
           </div>
         </button>

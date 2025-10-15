@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { FavoritesProvider } from "../contexts/FavoritesContext";
+import { WatchedProvider } from "../contexts/WatchedContext";
 import { ParentalControlProvider } from "../contexts/ParentalControlContext";
 
 import { SettingsProvider } from "../contexts/SettingsContext";
 import FlyingPoster from "./FlyingPoster";
+import FlyingPosterWatched from "./FlyingPosterWatched";
 import { Toaster } from "@/components/ui/toaster";
 import DesktopOnlyWrapper from "./DesktopOnlyWrapper";
 
@@ -86,7 +88,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <SettingsProvider>
         <ParentalControlProvider>
           <FavoritesProvider>
-            <div className="min-h-screen bg-background">
+            <WatchedProvider>
+              <div className="min-h-screen bg-background">
               <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
               <div
@@ -105,6 +108,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
 
               <FlyingPoster />
+              <FlyingPosterWatched />
               <Toaster />
 
               {/* Глобальный оверлей для затемнения всей страницы при поиске */}
@@ -118,7 +122,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 />
               )}
             </div>
-          </FavoritesProvider>
+          </WatchedProvider>
+        </FavoritesProvider>
         </ParentalControlProvider>
     </SettingsProvider>
     </DesktopOnlyWrapper>

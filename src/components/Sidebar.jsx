@@ -1,8 +1,9 @@
 "use client";
-import { Home, Tv, Heart, X, Info, Baby } from "lucide-react";
+import { Home, Tv, Heart, X, Info, Baby, Eye } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFavorites } from "../contexts/FavoritesContext";
+import { useWatched } from "../contexts/WatchedContext";
 import { useSettings } from "../contexts/SettingsContext";
 import FuzzyText from "./ui/shadcn-io/fuzzy-text";
 
@@ -57,6 +58,7 @@ import { useState } from "react";
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();
   const { getFavoritesCount } = useFavorites();
+  const { getWatchedCount } = useWatched();
   const { sidebarShadowsEnabled } = useSettings();
 
 
@@ -107,6 +109,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       id: "favorites",
       path: "/favorites",
       count: getFavoritesCount(),
+    },
+    {
+      icon: Eye,
+      label: "Просмотренные",
+      id: "watched",
+      path: "/watched",
     },
   ];
 
