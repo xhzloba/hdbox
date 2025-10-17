@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
 import { VisuallyHidden } from "../../components/ui/visually-hidden";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import "./MovieCard.css";
 
 const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
   const details = detailedInfo?.details;
@@ -211,6 +212,20 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
                             <p className="text-base font-medium">
                               {details.age}+
                             </p>
+                          </div>
+                        )}
+                        {movie?.tags && movie.tags.length > 0 && (
+                          <div>
+                            <span className="text-sm text-muted-foreground">
+                              Качество:
+                            </span>
+                            <div className="flex gap-2 flex-wrap mt-1">
+                              {movie.tags.map((tag, index) => (
+                                <span key={index} className="movie-tag">
+                                  <span className="movie-tag-text">{tag}</span>
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
