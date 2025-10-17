@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
-import { X, Play, Loader2, Heart, Eye, EyeOff } from "lucide-react";
+import { X, Play, Loader2, Heart, Eye, EyeOff, Info } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,7 +9,6 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import { Link } from "../../components/ui/link";
 import { TextShimmer } from "../../components/ui/text-shimmer";
 import VokinoAPI from "../services/api";
 import SettingsContext from "../contexts/SettingsContext";
@@ -97,23 +96,11 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   });
   const [movieWithBackdrop, setMovieWithBackdrop] = useState(movie);
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
+  const [detailedInfo, setDetailedInfo] = useState(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const token = "windows_93e27bdd4ca8bfd43c106e8d96f09502_1164344";
   const franchiseToken = "eedefb541aeba871dcfc756e6b31c02e";
-
-  // Максимальное количество символов для краткого описания
-  const MAX_DESCRIPTION_LENGTH = 150;
-
-  // Функция для обрезки текста
-  const truncateText = (text, maxLength) => {
-    if (!text || text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + "...";
-  };
-
-  // Проверяем, нужно ли показывать ссылку "Подробнее"
-  const shouldShowMoreLink = (text) => {
-    return text && text.length > MAX_DESCRIPTION_LENGTH;
-  };
 
   // Очищаем состояние при закрытии модалки
   useEffect(() => {
@@ -131,6 +118,8 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setIsDescriptionModalOpen(false);
       setMovieWithBackdrop(movie);
       setIsBackdropLoading(false);
+      setDetailedInfo(null);
+      setIsLoadingDetails(false);
       setLoadedPlayers({
         renewall: false,
         turbo: false,
@@ -150,6 +139,33 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       console.log("Детали франшизы загружены:", details);
     } catch (error) {
       console.error("Ошибка загрузки деталей франшизы:", error);
+    }
+  };
+
+  // Загружаем детальную информацию с актёрами, жанрами и т.д.
+  const loadDetailedInfo = async () => {
+    const identifier = movie?.ident || movie?.id;
+    if (!identifier) {
+      console.log("Нет идентификатора для загрузки детальной информации");
+      return;
+    }
+
+    setIsLoadingDetails(true);
+    try {
+      const response = await fetch(
+        `https://api.vokino.pro/v2/view/${identifier}`
+      );
+      if (!response.ok) {
+        throw new Error("Ошибка загрузки детальной информации");
+      }
+      const data = await response.json();
+      console.log("Детальная информация загружена:", data);
+      setDetailedInfo(data);
+      setIsDescriptionModalOpen(true);
+    } catch (error) {
+      console.error("Ошибка загрузки детальной информации:", error);
+    } finally {
+      setIsLoadingDetails(false);
     }
   };
 
@@ -632,10 +648,12 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
       <AlertDialog open={isOpen} onOpenChange={handleClose}>
         <AlertDialogContent
-          className="player-modal max-w-6xl max-h-[90vh] overflow-y-auto border-2 border-gray-300/40"
+          className="player-modal max-h-[90vh] overflow-y-auto border-2 border-gray-300/40"
           style={{
             background: "#202020",
             boxShadow: "inset 0px 11px 20px 5px black",
+            width: "50vw",
+            maxWidth: "50vw",
           }}
           onPointerDownOutside={(e) => {
             console.log("Клик вне модалки");
@@ -717,6 +735,25 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                       : "Добавить в просмотренные"}
                   </span>
                 </Button>
+                {/* Кнопка детальной информации */}
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    loadDetailedInfo();
+                  }}
+                  disabled={isLoadingDetails}
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-colors"
+                  title="Подробная информация"
+                >
+                  {isLoadingDetails ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Info className="w-4 h-4" />
+                  )}
+                  <span className="sr-only">Подробная информация</span>
+                </Button>
                 {/* Кнопка закрытия */}
                 <Button
                   onClick={(e) => {
@@ -747,53 +784,6 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
               <p className="text-destructive text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Информация о фильме */}
-          {movieWithBackdrop && (
-            <div
-              className="flex gap-4 p-4 bg-muted/50 rounded-lg"
-              style={{
-                background:
-                  "linear-gradient(131deg, rgb(25, 25, 25), rgb(36, 35, 35))",
-                boxShadow:
-                  "rgb(0, 0, 0) 7px 5px 8px, rgb(48, 49, 50) 2px 2px 20px inset",
-                borderTop: "1px solid rgb(84, 84, 84)",
-              }}
-            >
-              <img
-                src={
-                  movieWithBackdrop.poster ||
-                  "https://kinohost.web.app/no_poster.png"
-                }
-                alt={movieWithBackdrop.title}
-                className="w-20 h-30 md:w-24 md:h-36 object-cover rounded"
-              />
-              <div className="flex-1">
-                {movieWithBackdrop.description ? (
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {truncateText(
-                        movieWithBackdrop.description,
-                        MAX_DESCRIPTION_LENGTH
-                      )}
-                    </p>
-                    {shouldShowMoreLink(movieWithBackdrop.description) && (
-                      <Link
-                        onClick={() => setIsDescriptionModalOpen(true)}
-                        className="text-sm text-white hover:text-gray-300"
-                      >
-                        Подробнее
-                      </Link>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    Описания нет
-                  </p>
-                )}
-              </div>
             </div>
           )}
 
@@ -913,9 +903,10 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           </div>
         </AlertDialogContent>
 
-        {/* Модалка с полным описанием */}
+        {/* Модалка с детальной информацией */}
         <FullDescriptionModal
           movie={movieWithBackdrop}
+          detailedInfo={detailedInfo}
           isOpen={isDescriptionModalOpen}
           onClose={() => setIsDescriptionModalOpen(false)}
         />
