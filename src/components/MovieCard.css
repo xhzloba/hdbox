@@ -237,3 +237,27 @@
 .rating-icon-green-light {
   transition: all 0.2s ease-out;
 }
+
+/* Modal Cards Scroll Container */
+.modal-cards-scroll {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+.modal-cards-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.modal-cards-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-cards-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 4px;
+}
+
+.modal-cards-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.7);
+}

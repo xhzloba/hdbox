@@ -213,6 +213,7 @@ const MovieCard = memo(
     movie,
     onAdultContentClick,
     onMovieClick,
+    onDetailsClick,
     className = "",
     isNew = false,
     showAllGenres = false,
@@ -231,6 +232,8 @@ const MovieCard = memo(
     const [detailedInfo, setDetailedInfo] = useState(null);
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [blockPlayerModal, setBlockPlayerModal] = useState(false);
+    const [selectedMovieForPlayer, setSelectedMovieForPlayer] = useState(null);
+    const [currentModalMovie, setCurrentModalMovie] = useState(null);
 
     // Ref для таймера разблокировки
     const unblockTimerRef = useRef(null);
@@ -392,6 +395,7 @@ const MovieCard = memo(
           const data = await response.json();
           console.log("Детальная информация загружена:", data);
           setDetailedInfo(data);
+          setCurrentModalMovie(movie); // Устанавливаем текущий фильм для модала
           setIsDescriptionModalOpen(true);
         } catch (error) {
           console.error("Ошибка загрузки детальной информации:", error);
@@ -416,6 +420,7 @@ const MovieCard = memo(
       // Сбрасываем данные ПОСЛЕ закрытия модалки (чтобы контент не исчезал раньше времени)
       setTimeout(() => {
         setDetailedInfo(null);
+        setCurrentModalMovie(null);
       }, 300);
 
       // Разблокируем открытие PlayerModal с задержкой
@@ -423,6 +428,62 @@ const MovieCard = memo(
         setBlockPlayerModal(false);
         unblockTimerRef.current = null;
       }, 400);
+    }, []);
+
+    // Обработчик клика по фильму из FullDescriptionModal (сиквелы/приквелы/похожие)
+    const handleMovieClickFromDescription = useCallback((movieData) => {
+      // Закрываем FullDescriptionModal
+      setIsDescriptionModalOpen(false);
+
+      // Сбрасываем данные модала описания
+      setTimeout(() => {
+        setDetailedInfo(null);
+      }, 300);
+
+      // Устанавливаем выбранный фильм и открываем PlayerModal
+      setSelectedMovieForPlayer(movieData);
+      setIsPlayerModalOpen(true);
+    }, []);
+
+    // Обработчик клика на кнопку "Детали" из FullDescriptionModal
+    const handleDetailsClickFromDescription = useCallback(async (movieData) => {
+      // Закрываем текущий FullDescriptionModal
+      setIsDescriptionModalOpen(false);
+
+      // Ждем завершения анимации закрытия
+      setTimeout(async () => {
+        setDetailedInfo(null);
+        setCurrentModalMovie(null);
+
+        // Загружаем детальную информацию для нового фильма
+        const identifier = movieData?.ident || movieData?.id;
+        if (!identifier) {
+          console.log("Нет идентификатора для загрузки детальной информации");
+          return;
+        }
+
+        setIsLoadingDetails(true);
+        try {
+          const response = await fetch(
+            `https://api.vokino.pro/v2/view/${identifier}`
+          );
+          if (!response.ok) {
+            throw new Error("Ошибка загрузки детальной информации");
+          }
+          const data = await response.json();
+          console.log(
+            "Детальная информация загружена для нового фильма:",
+            data
+          );
+          setDetailedInfo(data);
+          setCurrentModalMovie(movieData); // Обновляем текущий фильм для модала
+          setIsDescriptionModalOpen(true);
+        } catch (error) {
+          console.error("Ошибка загрузки детальной информации:", error);
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      }, 300);
     }, []);
 
     // Оптимизированные hover обработчики с debounce и intersection observer
@@ -815,7 +876,11 @@ const MovieCard = memo(
               </button>
               {/* Кнопка детальной информации рядом с кнопкой поделиться */}
               <button
-                onClick={loadDetailedInfo}
+                onClick={
+                  onDetailsClick
+                    ? () => onDetailsClick(movie)
+                    : loadDetailedInfo
+                }
                 disabled={isLoadingDetails}
                 className="absolute bottom-2 right-11 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100 disabled:opacity-50"
               >
@@ -1106,17 +1171,23 @@ const MovieCard = memo(
 
         {/* Модальное окно плеера */}
         <PlayerModal
-          movie={movie}
+          movie={selectedMovieForPlayer || movie}
           isOpen={isPlayerModalOpen}
-          onClose={() => setIsPlayerModalOpen(false)}
+          onClose={() => {
+            setIsPlayerModalOpen(false);
+            // Сбрасываем выбранный фильм при закрытии
+            setSelectedMovieForPlayer(null);
+          }}
         />
 
         {/* Модальное окно детальной информации */}
         <FullDescriptionModal
-          movie={movie}
+          movie={currentModalMovie || movie}
           detailedInfo={detailedInfo}
           isOpen={isDescriptionModalOpen}
           onClose={handleCloseDescriptionModal}
+          onMovieClick={handleMovieClickFromDescription}
+          onDetailsClick={handleDetailsClickFromDescription}
         />
 
         {/* Диалог подтверждения удаления из избранного */}

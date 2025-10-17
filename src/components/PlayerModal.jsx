@@ -98,6 +98,9 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
   const [isBackdropLoading, setIsBackdropLoading] = useState(false);
   const [detailedInfo, setDetailedInfo] = useState(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [selectedMovieFromDescription, setSelectedMovieFromDescription] =
+    useState(null);
+  const [currentModalMovie, setCurrentModalMovie] = useState(null);
 
   const token = "windows_93e27bdd4ca8bfd43c106e8d96f09502_1164344";
   const franchiseToken = "eedefb541aeba871dcfc756e6b31c02e";
@@ -120,6 +123,8 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setIsBackdropLoading(false);
       setDetailedInfo(null);
       setIsLoadingDetails(false);
+      setSelectedMovieFromDescription(null);
+      setCurrentModalMovie(null);
       setLoadedPlayers({
         renewall: false,
         turbo: false,
@@ -144,7 +149,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
   // Загружаем детальную информацию с актёрами, жанрами и т.д.
   const loadDetailedInfo = async () => {
-    const identifier = movie?.ident || movie?.id;
+    const identifier = movieWithBackdrop?.ident || movieWithBackdrop?.id;
     if (!identifier) {
       console.log("Нет идентификатора для загрузки детальной информации");
       return;
@@ -161,6 +166,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       const data = await response.json();
       console.log("Детальная информация загружена:", data);
       setDetailedInfo(data);
+      setCurrentModalMovie(movieWithBackdrop); // Устанавливаем текущий фильм для модала
       setIsDescriptionModalOpen(true);
     } catch (error) {
       console.error("Ошибка загрузки детальной информации:", error);
@@ -478,6 +484,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       setRenewallIframeUrl(null);
       setIsTabLoading(false);
       setIsDescriptionModalOpen(false);
+      setCurrentModalMovie(null);
       setLoadedPlayers({
         renewall: false,
         turbo: false,
@@ -521,6 +528,134 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
       // Передаем null как sourceElement, так как анимация не нужна в модальном окне
       addToWatched(movieWithBackdrop, null);
     }
+  };
+
+  // Обработчик клика по фильму из FullDescriptionModal (сиквелы/приквелы/похожие)
+  const handleMovieClickFromDescription = async (movieData) => {
+    // Закрываем FullDescriptionModal
+    setIsDescriptionModalOpen(false);
+
+    // Сбрасываем данные модала описания
+    setTimeout(() => {
+      setDetailedInfo(null);
+      setCurrentModalMovie(null); // Важно! Сбрасываем текущий фильм модала
+    }, 300);
+
+    // Сохраняем выбранный фильм
+    setSelectedMovieFromDescription(movieData);
+
+    // Сбрасываем все состояния для загрузки нового фильма
+    setSelectedPlayer(null);
+    setKpId(null);
+    setIsPlayerVisible(false);
+    setRenewallIframeUrl(null);
+    setFranchiseDetails(null);
+    setActiveTab(null);
+    setIsBackdropLoading(true);
+    setLoadedPlayers({
+      renewall: false,
+      turbo: false,
+      alloha: false,
+    });
+
+    // Обновляем movieWithBackdrop с новым фильмом
+    setMovieWithBackdrop(movieData);
+
+    // Загружаем данные нового фильма
+    try {
+      // Загружаем детальную информацию с backdrop
+      const identifier = movieData?.ident || movieData?.id;
+      if (identifier) {
+        const details = await VokinoAPI.getMovieDetails(identifier);
+        const rawBackdrop = details?.details?.bg_poster?.backdrop;
+        let validBackdrop = null;
+
+        if (
+          rawBackdrop &&
+          typeof rawBackdrop === "string" &&
+          rawBackdrop.startsWith("http") &&
+          !rawBackdrop.includes("undefined") &&
+          !rawBackdrop.includes("null") &&
+          rawBackdrop.length > 10
+        ) {
+          validBackdrop = rawBackdrop;
+        } else {
+          const wideBackdrop = details?.details?.wide_poster;
+          if (
+            wideBackdrop &&
+            typeof wideBackdrop === "string" &&
+            wideBackdrop.startsWith("http") &&
+            !wideBackdrop.includes("undefined") &&
+            !wideBackdrop.includes("null") &&
+            wideBackdrop.length > 10
+          ) {
+            validBackdrop = wideBackdrop;
+          }
+        }
+
+        const updatedMovie = {
+          ...movieData,
+          backdrop: validBackdrop || movieData?.backdrop || movieData?.poster,
+          duration:
+            details?.details?.duration ||
+            details?.details?.runtime ||
+            movieData?.duration,
+        };
+        setMovieWithBackdrop(updatedMovie);
+      }
+      setIsBackdropLoading(false);
+
+      // Получаем kp_id для нового фильма
+      const movieKpId = await VokinoAPI.getMovieKpId(identifier, token);
+      if (movieKpId.kp_id) {
+        setKpId(movieKpId.kp_id);
+        // Загружаем детали франшизы
+        await loadFranchiseDetails(movieKpId.kp_id);
+      }
+
+      // Автоматически выбираем плеер по умолчанию
+      setTimeout(() => {
+        handleTabChange(defaultPlayer);
+      }, 100);
+    } catch (error) {
+      console.error("Ошибка загрузки данных нового фильма:", error);
+      setIsBackdropLoading(false);
+    }
+  };
+
+  // Обработчик клика на кнопку "Детали" из FullDescriptionModal
+  const handleDetailsClickFromDescription = async (movieData) => {
+    // Закрываем текущий FullDescriptionModal
+    setIsDescriptionModalOpen(false);
+
+    // Ждем завершения анимации закрытия
+    setTimeout(async () => {
+      setDetailedInfo(null);
+      setCurrentModalMovie(null);
+
+      // Загружаем детальную информацию для нового фильма
+      const identifier = movieData?.ident || movieData?.id;
+      if (!identifier) {
+        console.log("Нет идентификатора для загрузки детальной информации");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.vokino.pro/v2/view/${identifier}`
+        );
+        if (!response.ok) {
+          throw new Error("Ошибка загрузки детальной информации");
+        }
+        const data = await response.json();
+        console.log("Детальная информация загружена для нового фильма:", data);
+        setDetailedInfo(data);
+        setCurrentModalMovie(movieData); // Обновляем текущий фильм для модала
+        setIsDescriptionModalOpen(true);
+      } catch (error) {
+        console.error("Ошибка загрузки детальной информации:", error);
+      }
+    }, 300);
   };
 
   // Компонент превью плеера с backdrop и кнопкой Play
@@ -905,7 +1040,7 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
         {/* Модалка с детальной информацией */}
         <FullDescriptionModal
-          movie={movieWithBackdrop}
+          movie={currentModalMovie || movieWithBackdrop}
           detailedInfo={detailedInfo}
           isOpen={isDescriptionModalOpen}
           onClose={() => {
@@ -914,8 +1049,11 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
             // Сбрасываем данные после закрытия (контент остается видимым во время анимации)
             setTimeout(() => {
               setDetailedInfo(null);
+              setCurrentModalMovie(null);
             }, 300);
           }}
+          onMovieClick={handleMovieClickFromDescription}
+          onDetailsClick={handleDetailsClickFromDescription}
         />
       </AlertDialog>
     </>
