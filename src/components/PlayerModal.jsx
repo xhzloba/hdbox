@@ -9,12 +9,6 @@ import {
   AlertDialogTitle,
 } from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
 import { Link } from "../../components/ui/link";
 import { TextShimmer } from "../../components/ui/text-shimmer";
 import VokinoAPI from "../services/api";
@@ -805,113 +799,117 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
 
           {/* Плеер или выбор плеера */}
           <div className="space-y-4">
-            <Tabs
-              value={activeTab}
-              onValueChange={handleTabChange}
-              className="w-full"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm text-muted-foreground">
-                  Выберите плеер:
-                </h3>
-                <TabsList className="w-fit">
-                  <TabsTrigger
-                    value="renewall"
-                    className="flex items-center gap-2"
-                  >
-                    Плеер 1
-                    {activeTab === "renewall" &&
-                    isTabLoading &&
-                    !loadedPlayers.renewall ? (
-                      <Loader2 className="w-3 h-3 animate-spin ml-2" />
-                    ) : franchiseDetails?.quality ? (
-                      <span className="text-xs bg-black text-white px-2 py-1 rounded ml-2">
-                        {franchiseDetails.quality}
-                      </span>
-                    ) : null}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="turbo"
-                    className="flex items-center gap-2"
-                  >
-                    Плеер 2
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="alloha"
-                    className="flex items-center gap-2"
-                  >
-                    Плеер 3
-                  </TabsTrigger>
-                </TabsList>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm text-muted-foreground">Выберите плеер:</h3>
+              <div className="bg-muted text-muted-foreground rounded-lg p-1 flex items-center gap-1">
+                <button
+                  onClick={() => handleTabChange("renewall")}
+                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                    activeTab === "renewall"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "hover:bg-background/50 hover:text-foreground"
+                  }`}
+                >
+                  Плеер 1
+                  {activeTab === "renewall" &&
+                  isTabLoading &&
+                  !loadedPlayers.renewall ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : franchiseDetails?.quality ? (
+                    <span className="text-xs bg-black text-white px-2 py-1 rounded">
+                      {franchiseDetails.quality}
+                    </span>
+                  ) : null}
+                </button>
+                <button
+                  onClick={() => handleTabChange("turbo")}
+                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                    activeTab === "turbo"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "hover:bg-background/50 hover:text-foreground"
+                  }`}
+                >
+                  Плеер 2
+                </button>
+                <button
+                  onClick={() => handleTabChange("alloha")}
+                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                    activeTab === "alloha"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "hover:bg-background/50 hover:text-foreground"
+                  }`}
+                >
+                  Плеер 3
+                </button>
               </div>
+            </div>
 
-              {!activeTab && (
-                <div
-                  className="flex items-center justify-center p-8"
-                  style={{ aspectRatio: "16/9" }}
-                ></div>
-              )}
+            {!activeTab && (
+              <div
+                className="flex items-center justify-center p-8"
+                style={{ aspectRatio: "16/9" }}
+              ></div>
+            )}
 
-              {activeTab === "renewall" && (
-                <TabsContent value="renewall" className="mt-0">
-                  {isTabLoading ? (
-                    <div
-                      className="flex items-center justify-center p-8"
-                      style={{ aspectRatio: "16/9" }}
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : isPlayerVisible && selectedPlayer === "renewall" ? (
-                    renderPlayer()
-                  ) : (
-                    <PlayerPreview
-                      playerType="renewall"
-                      onPlay={() => handlePlayClick("renewall")}
-                    />
-                  )}
-                </TabsContent>
-              )}
+            {activeTab === "renewall" && (
+              <div className="mt-0">
+                {isTabLoading ? (
+                  <div
+                    className="flex items-center justify-center p-8"
+                    style={{ aspectRatio: "16/9" }}
+                  >
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : isPlayerVisible && selectedPlayer === "renewall" ? (
+                  renderPlayer()
+                ) : (
+                  <PlayerPreview
+                    playerType="renewall"
+                    onPlay={() => handlePlayClick("renewall")}
+                  />
+                )}
+              </div>
+            )}
 
-              {activeTab === "turbo" && (
-                <TabsContent value="turbo" className="mt-0">
-                  {isTabLoading ? (
-                    <div
-                      className="flex items-center justify-center p-8"
-                      style={{ aspectRatio: "16/9" }}
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : isPlayerVisible && selectedPlayer === "turbo" ? (
-                    renderPlayer()
-                  ) : (
-                    <PlayerPreview
-                      playerType="turbo"
-                      onPlay={() => handlePlayClick("turbo")}
-                    />
-                  )}
-                </TabsContent>
-              )}
+            {activeTab === "turbo" && (
+              <div className="mt-0">
+                {isTabLoading ? (
+                  <div
+                    className="flex items-center justify-center p-8"
+                    style={{ aspectRatio: "16/9" }}
+                  >
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : isPlayerVisible && selectedPlayer === "turbo" ? (
+                  renderPlayer()
+                ) : (
+                  <PlayerPreview
+                    playerType="turbo"
+                    onPlay={() => handlePlayClick("turbo")}
+                  />
+                )}
+              </div>
+            )}
 
-              {activeTab === "alloha" && (
-                <TabsContent value="alloha" className="mt-0">
-                  {isTabLoading ? (
-                    <div
-                      className="flex items-center justify-center p-8"
-                      style={{ aspectRatio: "16/9" }}
-                    >
-                      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : isPlayerVisible && selectedPlayer === "alloha" ? (
-                    renderPlayer()
-                  ) : (
-                    <PlayerPreview
-                      playerType="alloha"
-                      onPlay={() => handlePlayClick("alloha")}
-                    />
-                  )}
-                </TabsContent>
-              )}
-            </Tabs>
+            {activeTab === "alloha" && (
+              <div className="mt-0">
+                {isTabLoading ? (
+                  <div
+                    className="flex items-center justify-center p-8"
+                    style={{ aspectRatio: "16/9" }}
+                  >
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : isPlayerVisible && selectedPlayer === "alloha" ? (
+                  renderPlayer()
+                ) : (
+                  <PlayerPreview
+                    playerType="alloha"
+                    onPlay={() => handlePlayClick("alloha")}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </AlertDialogContent>
 
