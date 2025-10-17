@@ -9,6 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  transpilePackages: ["@vercel/analytics"],
+};
 
-export default nextConfig
+export default nextConfig;

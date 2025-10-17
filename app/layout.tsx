@@ -4,11 +4,12 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { AppLayout } from "../src/components/AppLayout";
 import { ThemeProvider } from "../components/theme-provider";
-
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "HDBOX",
-  description: "Премиум стриминговый сервис с фильмами и сериалами в высоком качестве 4K HDR",
+  description:
+    "Премиум стриминговый сервис с фильмами и сериалами в высоком качестве 4K HDR",
   generator: "Next.js",
 };
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           <AppLayout>{children}</AppLayout>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
