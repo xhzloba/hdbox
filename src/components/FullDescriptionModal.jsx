@@ -57,12 +57,30 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent
         className="description-modal max-h-[90vh] overflow-hidden [&[data-slot=dialog-overlay]]:z-[120] [&[data-slot=dialog-content]]:z-[120]"
         style={{
           width: "65vw",
           maxWidth: "65vw",
+        }}
+        onPointerDownOutside={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onInteractOutside={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onEscapeKeyDown={(e) => {
+          e.stopPropagation();
         }}
       >
         {/* Скрытый заголовок для доступности */}

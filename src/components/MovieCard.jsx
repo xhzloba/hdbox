@@ -25,6 +25,8 @@ import {
   Unlock,
   Eye,
   EyeOff,
+  Info,
+  Loader2,
 } from "lucide-react";
 import MasterpieceIcon from "./ui/MasterpieceIcon";
 import {
@@ -42,6 +44,7 @@ import { useWatched } from "../contexts/WatchedContext";
 import { useParentalControl } from "../contexts/ParentalControlContext";
 import SettingsContext from "../contexts/SettingsContext";
 import PlayerModal from "./PlayerModal";
+import FullDescriptionModal from "./FullDescriptionModal";
 import PositionIcon1 from "./ui/PositionIcon1";
 import PositionIcon2 from "./ui/PositionIcon2";
 import PositionIcon3 from "./ui/PositionIcon3";
@@ -224,6 +227,13 @@ const MovieCard = memo(
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
     const [showRemoveDialog, setShowRemoveDialog] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+    const [detailedInfo, setDetailedInfo] = useState(null);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+    const [blockPlayerModal, setBlockPlayerModal] = useState(false);
+
+    // Ref для таймера разблокировки
+    const unblockTimerRef = useRef(null);
 
     // Хук для определения быстрого скролла (isScrolling передается как проп)
     const { isFastScrolling } = useScrollDetection();
@@ -254,13 +264,9 @@ const MovieCard = memo(
       isFavorite,
       isInFavoritesOrPending,
     } = useFavorites();
-    
-    const {
-      addToWatched,
-      removeFromWatched,
-      isWatched,
-      isInWatchedOrPending,
-    } = useWatched();
+
+    const { addToWatched, removeFromWatched, isWatched, isInWatchedOrPending } =
+      useWatched();
     // Безопасное использование useParentalControl с проверкой контекста
     let isParentalControlEnabled = false;
     let isAdultContent = () => false;
@@ -339,12 +345,7 @@ const MovieCard = memo(
           addToWatched(movie, e.currentTarget);
         }
       },
-      [
-        movie.id,
-        isWatched,
-        removeFromWatched,
-        addToWatched,
-      ]
+      [movie.id, isWatched, removeFromWatched, addToWatched]
     );
 
     const handleCancelRemove = useCallback(
@@ -361,6 +362,64 @@ const MovieCard = memo(
       },
       [coloredHoverEnabled]
     );
+
+    // Загружаем детальную информацию с актёрами, жанрами и т.д.
+    const loadDetailedInfo = useCallback(
+      async (e) => {
+        if (e) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+
+        // Блокируем открытие PlayerModal сразу
+        setBlockPlayerModal(true);
+
+        const identifier = movie?.ident || movie?.id;
+        if (!identifier) {
+          console.log("Нет идентификатора для загрузки детальной информации");
+          setBlockPlayerModal(false);
+          return;
+        }
+
+        setIsLoadingDetails(true);
+        try {
+          const response = await fetch(
+            `https://api.vokino.pro/v2/view/${identifier}`
+          );
+          if (!response.ok) {
+            throw new Error("Ошибка загрузки детальной информации");
+          }
+          const data = await response.json();
+          console.log("Детальная информация загружена:", data);
+          setDetailedInfo(data);
+          setIsDescriptionModalOpen(true);
+        } catch (error) {
+          console.error("Ошибка загрузки детальной информации:", error);
+          setBlockPlayerModal(false);
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      },
+      [movie]
+    );
+
+    // Обработчик закрытия модала детальной информации
+    const handleCloseDescriptionModal = useCallback(() => {
+      setIsDescriptionModalOpen(false);
+      // Сбрасываем данные
+      setDetailedInfo(null);
+
+      // Очищаем предыдущий таймер если есть
+      if (unblockTimerRef.current) {
+        clearTimeout(unblockTimerRef.current);
+      }
+
+      // Разблокируем открытие PlayerModal с задержкой
+      unblockTimerRef.current = setTimeout(() => {
+        setBlockPlayerModal(false);
+        unblockTimerRef.current = null;
+      }, 500);
+    }, []);
 
     // Оптимизированные hover обработчики с debounce и intersection observer
     const handleMouseEnter = useCallback(
@@ -451,6 +510,11 @@ const MovieCard = memo(
           clearTimeout(hoverTimeoutRef.current);
         }
 
+        // Очищаем таймер разблокировки
+        if (unblockTimerRef.current) {
+          clearTimeout(unblockTimerRef.current);
+        }
+
         // Очищаем will-change при размонтировании
         const element = cardRef.current;
         if (element) {
@@ -465,6 +529,11 @@ const MovieCard = memo(
 
     const handleCardClick = useCallback(
       (e) => {
+        // Если PlayerModal заблокирован (только что закрыли модал детальной информации)
+        if (blockPlayerModal) {
+          return;
+        }
+
         // Убираем фокус и сбрасываем border при цветном затемнении
         if (e.currentTarget) {
           e.currentTarget.blur();
@@ -502,6 +571,7 @@ const MovieCard = memo(
         setIsPlayerModalOpen(true);
       },
       [
+        blockPlayerModal,
         coloredHoverEnabled,
         onMovieClick,
         movie,
@@ -657,43 +727,57 @@ const MovieCard = memo(
 
           {/* Кнопка поделиться в нижнем правом углу */}
           {!(isAdult && isParentalControlEnabled && !isUnlocked) && (
-            <button
-              onClick={async (e) => {
-                e.stopPropagation();
+            <>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
 
-                // Формируем данные для sharing
-                const titleWithYear = movie.year
-                  ? `${movie.title} (${movie.year})`
-                  : movie.title;
-                const shareText = movie.year
-                  ? `Посмотри ${movie.title} (${movie.year}) - отличный ${
-                      movie.type === "series" ? "сериал" : "фильм"
-                    }!`
-                  : `Посмотри ${movie.title} - отличный ${
-                      movie.type === "series" ? "сериал" : "фильм"
-                    }!`;
+                  // Формируем данные для sharing
+                  const titleWithYear = movie.year
+                    ? `${movie.title} (${movie.year})`
+                    : movie.title;
+                  const shareText = movie.year
+                    ? `Посмотри ${movie.title} (${movie.year}) - отличный ${
+                        movie.type === "series" ? "сериал" : "фильм"
+                      }!`
+                    : `Посмотри ${movie.title} - отличный ${
+                        movie.type === "series" ? "сериал" : "фильм"
+                      }!`;
 
-                const shareData = {
-                  title: titleWithYear,
-                  text: shareText,
-                  url: window.location.href,
-                };
+                  const shareData = {
+                    title: titleWithYear,
+                    text: shareText,
+                    url: window.location.href,
+                  };
 
-                // Приоритет Web Share API - используем если доступен, независимо от протокола
-                if (navigator.share) {
-                  try {
-                    await navigator.share(shareData);
-                    // НЕ показываем alert - нативный UI уже показал результат
-                  } catch (error) {
-                    // Игнорируем ошибку отмены пользователем
-                    if (
-                      error.name === "AbortError" ||
-                      error.message.includes("canceled") ||
-                      error.message.includes("cancelled")
-                    ) {
-                      return;
+                  // Приоритет Web Share API - используем если доступен, независимо от протокола
+                  if (navigator.share) {
+                    try {
+                      await navigator.share(shareData);
+                      // НЕ показываем alert - нативный UI уже показал результат
+                    } catch (error) {
+                      // Игнорируем ошибку отмены пользователем
+                      if (
+                        error.name === "AbortError" ||
+                        error.message.includes("canceled") ||
+                        error.message.includes("cancelled")
+                      ) {
+                        return;
+                      }
+                      // Для других ошибок используем fallback
+                      const fallbackText = movie.year
+                        ? `${movie.title} (${movie.year}) - ${window.location.href}`
+                        : `${movie.title} - ${window.location.href}`;
+                      try {
+                        await navigator.clipboard.writeText(fallbackText);
+                        alert("📋 Ссылка скопирована в буфер обмена!");
+                      } catch (clipboardError) {
+                        console.error("Clipboard error:", clipboardError);
+                        alert("❌ Ошибка при копировании в буфер обмена");
+                      }
                     }
-                    // Для других ошибок используем fallback
+                  } else {
+                    // Fallback - копирование в буфер обмена
                     const fallbackText = movie.year
                       ? `${movie.title} (${movie.year}) - ${window.location.href}`
                       : `${movie.title} - ${window.location.href}`;
@@ -702,42 +786,42 @@ const MovieCard = memo(
                       alert("📋 Ссылка скопирована в буфер обмена!");
                     } catch (clipboardError) {
                       console.error("Clipboard error:", clipboardError);
-                      alert("❌ Ошибка при копировании в буфер обмена");
+                      // Последний fallback - показываем текст для ручного копирования
+                      prompt("Скопируйте ссылку вручную:", fallbackText);
                     }
                   }
-                } else {
-                  // Fallback - копирование в буфер обмена
-                  const fallbackText = movie.year
-                    ? `${movie.title} (${movie.year}) - ${window.location.href}`
-                    : `${movie.title} - ${window.location.href}`;
-                  try {
-                    await navigator.clipboard.writeText(fallbackText);
-                    alert("📋 Ссылка скопирована в буфер обмена!");
-                  } catch (clipboardError) {
-                    console.error("Clipboard error:", clipboardError);
-                    // Последний fallback - показываем текст для ручного копирования
-                    prompt("Скопируйте ссылку вручную:", fallbackText);
-                  }
-                }
-              }}
-              className="absolute bottom-2 right-2 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100"
-            >
-              <svg
-                className="w-4 h-4 text-primary-foreground"
-                fill="currentColor"
-                viewBox="0 0 48 48"
-                xmlns="http://www.w3.org/2000/svg"
+                }}
+                className="absolute bottom-2 right-2 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100"
               >
-                <path
-                  d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z"
+                <svg
+                  className="w-4 h-4 text-primary-foreground"
                   fill="currentColor"
-                ></path>
-                <path
-                  d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z"
-                  fill="currentColor"
-                ></path>
-              </svg>
-            </button>
+                  viewBox="0 0 48 48"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M25.5 5.745L30.885 11.115L33 9L24 0L15 9L17.115 11.115L22.5 5.745V27H25.5V5.745Z"
+                    fill="currentColor"
+                  ></path>
+                  <path
+                    d="M5 17V40C5 40.7956 5.31607 41.5587 5.87868 42.1213C6.44129 42.6839 7.20435 43 8 43H40C40.7956 43 41.5587 42.6839 42.1213 42.1213C42.6839 41.5587 43 40.7957 43 40V17C43 16.2043 42.6839 15.4413 42.1213 14.8787C41.5587 14.3161 40.7957 14 40 14H35.5V17H40V40H8L8 17H12.5V14L8 14C7.20435 14 6.44129 14.3161 5.87868 14.8787C5.31607 15.4413 5 16.2043 5 17Z"
+                    fill="currentColor"
+                  ></path>
+                </svg>
+              </button>
+              {/* Кнопка детальной информации рядом с кнопкой поделиться */}
+              <button
+                onClick={loadDetailedInfo}
+                disabled={isLoadingDetails}
+                className="absolute bottom-2 right-14 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              >
+                {isLoadingDetails ? (
+                  <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
+                ) : (
+                  <Info className="w-4 h-4 text-primary-foreground" />
+                )}
+              </button>
+            </>
           )}
 
           {/* Rating Display */}
@@ -1012,6 +1096,14 @@ const MovieCard = memo(
           movie={movie}
           isOpen={isPlayerModalOpen}
           onClose={() => setIsPlayerModalOpen(false)}
+        />
+
+        {/* Модальное окно детальной информации */}
+        <FullDescriptionModal
+          movie={movie}
+          detailedInfo={detailedInfo}
+          isOpen={isDescriptionModalOpen}
+          onClose={handleCloseDescriptionModal}
         />
 
         {/* Диалог подтверждения удаления из избранного */}
