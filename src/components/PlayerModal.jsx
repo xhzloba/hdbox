@@ -908,7 +908,14 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
           movie={movieWithBackdrop}
           detailedInfo={detailedInfo}
           isOpen={isDescriptionModalOpen}
-          onClose={() => setIsDescriptionModalOpen(false)}
+          onClose={() => {
+            // Сначала закрываем модалку (запускается анимация)
+            setIsDescriptionModalOpen(false);
+            // Сбрасываем данные после закрытия (контент остается видимым во время анимации)
+            setTimeout(() => {
+              setDetailedInfo(null);
+            }, 300);
+          }}
         />
       </AlertDialog>
     </>

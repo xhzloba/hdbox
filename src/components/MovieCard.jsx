@@ -405,20 +405,24 @@ const MovieCard = memo(
 
     // Обработчик закрытия модала детальной информации
     const handleCloseDescriptionModal = useCallback(() => {
+      // Сначала закрываем модалку (запускается анимация закрытия)
       setIsDescriptionModalOpen(false);
-      // Сбрасываем данные
-      setDetailedInfo(null);
 
       // Очищаем предыдущий таймер если есть
       if (unblockTimerRef.current) {
         clearTimeout(unblockTimerRef.current);
       }
 
+      // Сбрасываем данные ПОСЛЕ закрытия модалки (чтобы контент не исчезал раньше времени)
+      setTimeout(() => {
+        setDetailedInfo(null);
+      }, 300);
+
       // Разблокируем открытие PlayerModal с задержкой
       unblockTimerRef.current = setTimeout(() => {
         setBlockPlayerModal(false);
         unblockTimerRef.current = null;
-      }, 500);
+      }, 400);
     }, []);
 
     // Оптимизированные hover обработчики с debounce и intersection observer
