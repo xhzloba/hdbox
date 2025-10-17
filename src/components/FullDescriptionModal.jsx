@@ -26,8 +26,9 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
 
         return () => {
           if (header) {
-            // Восстанавливаем значения из Tailwind классов (без блюра)
-            header.style.backdropFilter = "none";
+            // Сбрасываем инлайн-стили, чтобы вернулись классы Tailwind
+            header.style.backdropFilter = "";
+            header.style.backgroundColor = "";
             header.style.borderBottomColor = "";
           }
         };
