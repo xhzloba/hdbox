@@ -7,15 +7,70 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
   const details = detailedInfo?.details;
 
+  // Функция для форматирования времени из HH:MM в читаемый формат
+  const formatDuration = (duration) => {
+    if (!duration) return null;
+
+    let totalMinutes = 0;
+
+    // Если duration числовой формат
+    if (typeof duration === "number") {
+      totalMinutes = duration;
+    } else if (typeof duration === "string") {
+      // Если уже содержит "мин" или "ч", возвращаем как есть
+      if (duration.includes("мин") || duration.includes("ч")) {
+        return duration;
+      }
+
+      // Если в формате HH:MM или HH:MM:SS
+      if (duration.includes(":")) {
+        const parts = duration.split(":").map((num) => parseInt(num, 10));
+        const hours = parts[0] || 0;
+        const minutes = parts[1] || 0;
+        totalMinutes = hours * 60 + minutes;
+      } else {
+        // Если просто число в строке
+        const numDuration = parseInt(duration, 10);
+        if (!isNaN(numDuration)) {
+          totalMinutes = numDuration;
+        } else {
+          return duration;
+        }
+      }
+    } else {
+      return duration;
+    }
+
+    // Форматируем в часы и минуты
+    if (totalMinutes < 60) {
+      return `${totalMinutes} мин`;
+    } else {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
+      if (minutes === 0) {
+        return `${hours}ч`;
+      } else {
+        return `${hours}ч ${minutes} мин`;
+      }
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="description-modal max-w-5xl max-h-[85vh] overflow-hidden [&[data-slot=dialog-overlay]]:z-[120] [&[data-slot=dialog-content]]:z-[120]">
+      <DialogContent
+        className="description-modal max-h-[90vh] overflow-hidden [&[data-slot=dialog-overlay]]:z-[120] [&[data-slot=dialog-content]]:z-[120]"
+        style={{
+          width: "65vw",
+          maxWidth: "65vw",
+        }}
+      >
         {/* Скрытый заголовок для доступности */}
         <VisuallyHidden>
           <DialogTitle>Детальная информация о фильме</DialogTitle>
         </VisuallyHidden>
 
-        <ScrollArea className="h-full max-h-[75vh]">
+        <ScrollArea className="h-full max-h-[80vh]">
           <div className="p-6 space-y-6">
             {/* Основная информация */}
             {details && (
@@ -45,7 +100,7 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
                 )}
 
                 {/* Информация о фильме в сетке */}
-                <div className="grid grid-cols-2 gap-4 py-4 border-y border-border">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-y border-border">
                   {details.released && (
                     <div>
                       <span className="text-sm text-muted-foreground">
@@ -62,10 +117,46 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
                         Длительность:
                       </span>
                       <p className="text-base font-medium">
-                        {details.duration}
+                        {formatDuration(details.duration)}
                       </p>
                     </div>
                   )}
+                  {detailedInfo?.countries &&
+                    detailedInfo.countries.length > 0 && (
+                      <div>
+                        <span className="text-sm text-muted-foreground">
+                          Страна:
+                        </span>
+                        <p className="text-base font-medium">
+                          {detailedInfo.countries
+                            .map((c) => c.title)
+                            .join(", ")}
+                        </p>
+                      </div>
+                    )}
+                  {detailedInfo?.genres && detailedInfo.genres.length > 0 && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Жанры:
+                      </span>
+                      <p className="text-base font-medium">
+                        {detailedInfo.genres.map((g) => g.title).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {detailedInfo?.directors &&
+                    detailedInfo.directors.length > 0 && (
+                      <div>
+                        <span className="text-sm text-muted-foreground">
+                          Режиссёры:
+                        </span>
+                        <p className="text-base font-medium">
+                          {detailedInfo.directors
+                            .map((d) => d.title)
+                            .join(", ")}
+                        </p>
+                      </div>
+                    )}
                   {details.rating_kp && (
                     <div>
                       <span className="text-sm text-muted-foreground">
@@ -96,76 +187,17 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
                   )}
                 </div>
 
-                {/* Жанры */}
-                {detailedInfo?.genres && detailedInfo.genres.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Жанры
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {detailedInfo.genres.map((genre, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-muted rounded-full text-sm text-foreground"
-                        >
-                          {genre.title}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Страны */}
-                {detailedInfo?.countries &&
-                  detailedInfo.countries.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        Страны
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {detailedInfo.countries.map((country, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-muted rounded-full text-sm text-foreground"
-                          >
-                            {country.title}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Режиссёры */}
-                {detailedInfo?.directors &&
-                  detailedInfo.directors.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">
-                        Режиссёры
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {detailedInfo.directors.map((director, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-muted rounded-full text-sm text-foreground"
-                          >
-                            {director.title}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                 {/* Актёрский состав */}
                 {detailedInfo?.casts && detailedInfo.casts.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold text-foreground mb-3">
                       Актёрский состав
                     </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 justify-items-start">
                       {detailedInfo.casts.map((cast) => (
                         <div
                           key={cast.id}
-                          className="flex flex-col items-center text-center"
+                          className="flex flex-col items-start text-left"
                         >
                           <div className="w-20 h-20 rounded-full overflow-hidden bg-muted mb-2">
                             <img
