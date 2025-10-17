@@ -26,9 +26,8 @@ const FullDescriptionModal = ({ movie, detailedInfo, isOpen, onClose }) => {
 
         return () => {
           if (header) {
-            // Восстанавливаем значения из Tailwind классов
-            header.style.backdropFilter = "blur(16px)";
-            header.style.backgroundColor = "hsl(var(--background) / 0.8)";
+            // Восстанавливаем значения из Tailwind классов (без блюра)
+            header.style.backdropFilter = "none";
             header.style.borderBottomColor = "";
           }
         };

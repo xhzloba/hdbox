@@ -817,12 +817,21 @@ const MovieCard = memo(
               <button
                 onClick={loadDetailedInfo}
                 disabled={isLoadingDetails}
-                className="absolute bottom-2 right-14 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                className="absolute bottom-2 right-11 z-20 p-2 bg-primary rounded-full hover:bg-primary/80 transition-all duration-300 hover:scale-105 opacity-0 group-hover:opacity-100 disabled:opacity-50"
               >
                 {isLoadingDetails ? (
                   <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
                 ) : (
-                  <Info className="w-4 h-4 text-primary-foreground" />
+                  <svg
+                    className="w-4 h-4 text-primary-foreground"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="2" cy="8" r="1.5" />
+                    <circle cx="8" cy="8" r="1.5" />
+                    <circle cx="14" cy="8" r="1.5" />
+                  </svg>
                 )}
               </button>
             </>

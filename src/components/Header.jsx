@@ -869,7 +869,7 @@ const Header = ({
   return (
     <>
       <header
-        className="sticky top-0 z-[80] bg-background/80 backdrop-blur-lg border-b border-border transition-all duration-300"
+        className="sticky top-0 z-[80] bg-background/80 border-b border-border transition-all duration-300"
         style={{
           marginBottom: "25px",
           height: "64px", // Фиксированная высота хедера
@@ -1169,7 +1169,6 @@ const Header = ({
 
           {/* Правая часть - иконки */}
           <div className="flex items-center gap-3">
-
             {/* Иконка голосового поиска (всегда видна) */}
             {speechSupported && (
               <button
@@ -1323,7 +1322,6 @@ const Header = ({
         isOpen={isPlayerModalOpen}
         onClose={handlePlayerModalClose}
       />
-
     </>
   );
 };
