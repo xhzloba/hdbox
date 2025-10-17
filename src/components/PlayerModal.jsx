@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
-import { X, Play, Loader2, Heart } from "lucide-react";
+import { X, Play, Loader2, Heart, Eye, EyeOff } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -21,6 +21,7 @@ import VokinoAPI from "../services/api";
 import SettingsContext from "../contexts/SettingsContext";
 import FullDescriptionModal from "./FullDescriptionModal";
 import { useFavorites } from "../contexts/FavoritesContext";
+import { useWatched } from "../contexts/WatchedContext";
 
 const PlayerModal = ({ movie, isOpen, onClose }) => {
   const settingsContext = useContext(SettingsContext);
@@ -32,6 +33,8 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     isFavorite,
     isInFavoritesOrPending,
   } = useFavorites();
+  const { addToWatched, removeFromWatched, isWatched, isInWatchedOrPending } =
+    useWatched();
 
   // Функция для форматирования времени из HH:MM в читаемый формат
   const formatDuration = (duration) => {
@@ -496,6 +499,20 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
     }
   };
 
+  // Обработчик добавления/удаления из просмотренных
+  const handleWatchedToggle = (e) => {
+    e.stopPropagation();
+
+    if (!movieWithBackdrop) return;
+
+    if (isWatched(movieWithBackdrop.id)) {
+      removeFromWatched(movieWithBackdrop.id);
+    } else {
+      // Передаем null как sourceElement, так как анимация не нужна в модальном окне
+      addToWatched(movieWithBackdrop, null);
+    }
+  };
+
   // Компонент превью плеера с backdrop и кнопкой Play
   const PlayerPreview = ({ playerType, onPlay }) => {
     // Если backdrop загружается, показываем лоадер вместо постера
@@ -675,6 +692,35 @@ const PlayerModal = ({ movie, isOpen, onClose }) => {
                     {isFavorite(movieWithBackdrop?.id)
                       ? "Удалить из избранного"
                       : "Добавить в избранное"}
+                  </span>
+                </Button>
+                {/* Кнопка добавления в просмотренные */}
+                <Button
+                  onClick={handleWatchedToggle}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-6 w-6 p-0 transition-colors ${
+                    isWatched(movieWithBackdrop?.id) ||
+                    isInWatchedOrPending(movieWithBackdrop?.id)
+                      ? "text-green-600 hover:text-green-700 hover:bg-green-600/10"
+                      : "text-muted-foreground hover:text-green-600 hover:bg-green-600/10"
+                  }`}
+                  title={
+                    isWatched(movieWithBackdrop?.id)
+                      ? "Удалить из просмотренных"
+                      : "Добавить в просмотренные"
+                  }
+                >
+                  {isWatched(movieWithBackdrop?.id) ||
+                  isInWatchedOrPending(movieWithBackdrop?.id) ? (
+                    <EyeOff className="w-4 h-4 transition-all" />
+                  ) : (
+                    <Eye className="w-4 h-4 transition-all" />
+                  )}
+                  <span className="sr-only">
+                    {isWatched(movieWithBackdrop?.id)
+                      ? "Удалить из просмотренных"
+                      : "Добавить в просмотренные"}
                   </span>
                 </Button>
                 {/* Кнопка закрытия */}
